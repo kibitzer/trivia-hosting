@@ -818,33 +818,34 @@
 
         function renderOptions(options) {
             const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
             
-            container.innerHTML = options.map((opt, index) => {
-                return `<button class="option-btn" onclick="selectOption('${escapeHtml(opt)}', this)">${opt}</button>`;
-            }).join('');
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML.replace(/'/g, "\\'").replace(/"/g, '\\"');
+            options.forEach((opt, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.textContent = opt;
+                button.addEventListener('click', function() {
+                    selectOption(opt, this);
+                });
+                container.appendChild(button);
+            });
         }
 
         function selectOption(option, buttonEl) {
             if (hasSubmitted) return;
-
+        
             // Visual feedback
             document.querySelectorAll('.option-btn').forEach(btn => {
                 btn.classList.remove('selected');
             });
             buttonEl.classList.add('selected');
-
+        
             // Submit answer
             currentAnswer = option;
             hasSubmitted = true;
-
+        
             submitAnswerToFirebase(option);
-
+        
             // Show submitted message after brief delay
             setTimeout(() => {
                 document.getElementById('optionsContainer').classList.add('hidden');
@@ -852,7 +853,7 @@
                 document.getElementById('yourAnswerText').textContent = `Your answer: ${option}`;
             }, 300);
         }
-
+        
         function submitShortAnswer() {
             const input = document.getElementById('shortAnswerInput');
             const answer = input.value.trim();
@@ -886,9 +887,13 @@
 
         function showMCResults(options, correctAnswer) {
             const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
             
-            container.innerHTML = options.map((opt) => {
-                let classes = 'option-btn';
+            options.forEach((opt) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.disabled = true;
+                button.textContent = opt;
                 
                 // Check if this was the player's answer
                 const isMyAnswer = currentAnswer === opt;
@@ -897,15 +902,15 @@
                 const isCorrect = correctAnswer && correctAnswer.includes(opt.charAt(0));
                 
                 if (isCorrect) {
-                    classes += ' correct';
+                    button.classList.add('correct');
                 } else if (isMyAnswer && !isCorrect) {
-                    classes += ' incorrect';
+                    button.classList.add('incorrect');
                 }
                 
-                return `<button class="${classes}" disabled>${opt}</button>`;
-            }).join('');
+                container.appendChild(button);
+            });
         }
-
+        
         function renderScoreboard(players) {
             const scoreList = document.getElementById('scoreList');
             const playerArray = Object.entries(players).map(([id, data]) => ({
@@ -941,3 +946,4 @@
     </script>
 </body>
 </html>
+
