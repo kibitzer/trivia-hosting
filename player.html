@@ -328,19 +328,21 @@
             padding: 20px;
             text-align: center;
             margin-top: 15px;
+            margin-bottom: 15px;
         }
-
+        
         .answer-reveal h3 {
             color: #2e7d32;
             margin-bottom: 8px;
         }
-
+        
         .answer-reveal .answer-text {
             font-size: 1.5rem;
             color: #1b5e20;
             font-weight: bold;
+            word-wrap: break-word;
         }
-
+        
         /* Submitted Message */
         .submitted-message {
             background: #e3f2fd;
@@ -790,33 +792,46 @@
         }
 
         function showAnswerReveal(state) {
-            console.log('Revealing answer:', state.answer); // Debug log
+            console.log('Revealing answer:', state.answer, 'Player answered:', currentAnswer);
             
             const optionsContainer = document.getElementById('optionsContainer');
             const shortAnswerContainer = document.getElementById('shortAnswerContainer');
             const submittedMessage = document.getElementById('submittedMessage');
             const answerReveal = document.getElementById('answerReveal');
-
+            const correctAnswerEl = document.getElementById('correctAnswer');
+        
             // Hide input containers
             shortAnswerContainer.classList.add('hidden');
             
-            // Show the correct answer box
+            // Always show the correct answer box and set the text
             answerReveal.classList.remove('hidden');
-            document.getElementById('correctAnswer').textContent = state.answer;
-
+            
+            // Explicitly set the answer text
+            if (state.answer && state.answer.trim() !== '') {
+                correctAnswerEl.textContent = state.answer;
+            } else {
+                correctAnswerEl.textContent = 'No answer provided';
+            }
+        
             // For MC questions, show results with correct/incorrect highlighting
-            if (state.options) {
+            if (state.options && state.options.length > 0) {
                 optionsContainer.classList.remove('hidden');
                 submittedMessage.classList.add('hidden');
                 showMCResults(state.options, state.answer);
             } else {
-                // For short answer, keep showing submitted message if they answered
-                if (hasSubmitted) {
+                // For short answer questions
+                optionsContainer.classList.add('hidden');
+                
+                // Show what the player answered (if they did)
+                if (hasSubmitted && currentAnswer) {
                     submittedMessage.classList.remove('hidden');
+                    document.getElementById('yourAnswerText').textContent = `Your answer: ${currentAnswer}`;
+                } else {
+                    submittedMessage.classList.add('hidden');
                 }
             }
         }
-
+        
         function renderOptions(options) {
             const container = document.getElementById('optionsContainer');
             container.innerHTML = '';
@@ -958,3 +973,4 @@
     </script>
 </body>
 </html>
+
