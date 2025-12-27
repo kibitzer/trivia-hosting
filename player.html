@@ -794,14 +794,21 @@
             const shortAnswerContainer = document.getElementById('shortAnswerContainer');
             const submittedMessage = document.getElementById('submittedMessage');
             const answerReveal = document.getElementById('answerReveal');
-
+        
             // Hide input containers
             shortAnswerContainer.classList.add('hidden');
             
             // Show the correct answer
             answerReveal.classList.remove('hidden');
-            document.getElementById('correctAnswer').textContent = state.answer;
-
+            
+            // Make sure the answer text is set
+            const correctAnswerEl = document.getElementById('correctAnswer');
+            if (state.answer) {
+                correctAnswerEl.textContent = state.answer;
+            } else {
+                correctAnswerEl.textContent = '---';
+            }
+        
             // For MC questions, show results with correct/incorrect highlighting
             if (state.options) {
                 optionsContainer.classList.remove('hidden');
@@ -814,7 +821,7 @@
                 }
             }
         }
-
+        
         function renderOptions(options) {
             const container = document.getElementById('optionsContainer');
             container.innerHTML = '';
@@ -897,19 +904,24 @@
                 // Check if this was the player's answer
                 const isMyAnswer = currentAnswer === opt;
                 
-                // Check if this is correct
+                // Check if this is the correct answer
                 const isCorrect = correctAnswer && correctAnswer.includes(opt.charAt(0));
                 
+                // Apply appropriate styling
                 if (isCorrect) {
+                    // Always highlight correct answer in green
                     button.classList.add('correct');
-                } else if (isMyAnswer && !isCorrect) {
+                }
+                
+                if (isMyAnswer && !isCorrect) {
+                    // Player chose wrong answer - highlight in red
                     button.classList.add('incorrect');
                 }
                 
                 container.appendChild(button);
             });
         }
-
+        
         function renderScoreboard(players) {
             const scoreList = document.getElementById('scoreList');
             const playerArray = Object.entries(players).map(([id, data]) => ({
@@ -945,3 +957,4 @@
     </script>
 </body>
 </html>
+
