@@ -288,15 +288,15 @@
         }
 
         .option-btn.correct {
-            background: #4caf50;
-            color: white;
-            border-color: #2e7d32;
+            background: #4caf50 !important;
+            color: white !important;
+            border-color: #2e7d32 !important;
         }
 
         .option-btn.incorrect {
-            background: #f44336;
-            color: white;
-            border-color: #c62828;
+            background: #f44336 !important;
+            color: white !important;
+            border-color: #c62828 !important;
         }
 
         .option-btn:disabled {
@@ -526,6 +526,7 @@
         let hasSubmitted = false;
         let currentQuestionNumber = null;
         let currentGameState = null;
+        let answerHasBeenRevealed = false;
 
         // Check for existing session
         document.addEventListener('DOMContentLoaded', () => {
@@ -644,20 +645,20 @@
                 previousState.type !== state.type ||
                 (state.type === 'question' && previousState.questionNumber !== state.questionNumber);
 
-            // Check if answer was just revealed
-            const answerJustRevealed = state.answerRevealed && 
-                (!previousState || !previousState.answerRevealed);
-
             if (isNewScreen) {
+                // Reset the answer revealed flag for new questions
+                answerHasBeenRevealed = false;
                 // Full screen update for new questions/rounds
                 updateFullDisplay(state);
             } else {
-                // Partial update - only timer and answer reveal
+                // Partial update - only timer
                 updateTimerOnly(state);
-                
-                if (answerJustRevealed) {
-                    showAnswerReveal(state);
-                }
+            }
+
+            // Always check if answer should be revealed (handles the reveal event)
+            if (state.answerRevealed && state.answer && !answerHasBeenRevealed) {
+                answerHasBeenRevealed = true;
+                showAnswerReveal(state);
             }
         }
 
@@ -716,8 +717,13 @@
                 // Timer display
                 updateTimerOnly(state);
 
-                // Setup answer inputs
-                setupAnswerInputs(state);
+                // Setup answer inputs (only if answer not already revealed)
+                if (state.answerRevealed && state.answer) {
+                    answerHasBeenRevealed = true;
+                    showAnswerReveal(state);
+                } else {
+                    setupAnswerInputs(state);
+                }
             }
         }
 
@@ -732,12 +738,6 @@
             shortAnswerContainer.classList.add('hidden');
             submittedMessage.classList.add('hidden');
             answerReveal.classList.add('hidden');
-
-            // Show answer if already revealed
-            if (state.answerRevealed && state.answer) {
-                showAnswerReveal(state);
-                return;
-            }
 
             // Show submitted message if already submitted
             if (hasSubmitted) {
@@ -790,25 +790,20 @@
         }
 
         function showAnswerReveal(state) {
+            console.log('Revealing answer:', state.answer); // Debug log
+            
             const optionsContainer = document.getElementById('optionsContainer');
             const shortAnswerContainer = document.getElementById('shortAnswerContainer');
             const submittedMessage = document.getElementById('submittedMessage');
             const answerReveal = document.getElementById('answerReveal');
-        
+
             // Hide input containers
             shortAnswerContainer.classList.add('hidden');
             
-            // Show the correct answer
+            // Show the correct answer box
             answerReveal.classList.remove('hidden');
-            
-            // Make sure the answer text is set
-            const correctAnswerEl = document.getElementById('correctAnswer');
-            if (state.answer) {
-                correctAnswerEl.textContent = state.answer;
-            } else {
-                correctAnswerEl.textContent = '---';
-            }
-        
+            document.getElementById('correctAnswer').textContent = state.answer;
+
             // For MC questions, show results with correct/incorrect highlighting
             if (state.options) {
                 optionsContainer.classList.remove('hidden');
@@ -821,7 +816,7 @@
                 }
             }
         }
-        
+
         function renderOptions(options) {
             const container = document.getElementById('optionsContainer');
             container.innerHTML = '';
@@ -892,6 +887,8 @@
         }
 
         function showMCResults(options, correctAnswer) {
+            console.log('Showing MC results. Correct:', correctAnswer, 'Player chose:', currentAnswer); // Debug log
+            
             const container = document.getElementById('optionsContainer');
             container.innerHTML = '';
             
@@ -901,27 +898,31 @@
                 button.disabled = true;
                 button.textContent = opt;
                 
-                // Check if this was the player's answer
-                const isMyAnswer = currentAnswer === opt;
-                
                 // Check if this is the correct answer
-                const isCorrect = correctAnswer && correctAnswer.includes(opt.charAt(0));
+                // The correct answer format is like "B) The March for Humanity"
+                // So we check if the option matches the correct answer
+                const isCorrect = (opt === correctAnswer) || 
+                                  (correctAnswer && correctAnswer.startsWith(opt.charAt(0) + ')'));
                 
-                // Apply appropriate styling
+                // Check if this was the player's answer
+                const isMyAnswer = (currentAnswer === opt);
+                
+                console.log('Option:', opt, 'isCorrect:', isCorrect, 'isMyAnswer:', isMyAnswer); // Debug log
+                
+                // Apply classes - correct always gets green
                 if (isCorrect) {
-                    // Always highlight correct answer in green
                     button.classList.add('correct');
                 }
                 
+                // If player chose this and it's wrong, also add incorrect
                 if (isMyAnswer && !isCorrect) {
-                    // Player chose wrong answer - highlight in red
                     button.classList.add('incorrect');
                 }
                 
                 container.appendChild(button);
             });
         }
-        
+
         function renderScoreboard(players) {
             const scoreList = document.getElementById('scoreList');
             const playerArray = Object.entries(players).map(([id, data]) => ({
@@ -957,4 +958,3 @@
     </script>
 </body>
 </html>
-
