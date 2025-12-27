@@ -525,7 +525,8 @@
         let currentAnswer = null;
         let hasSubmitted = false;
         let currentQuestionNumber = null;
-        let timerInterval = null;
+        let currentGameState = null;
+        let lastQuestionIndex = null;
 
         // Check for existing session
         document.addEventListener('DOMContentLoaded', () => {
@@ -541,6 +542,13 @@
             // Enter key to join
             document.getElementById('playerName').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') joinGame();
+            });
+
+            // Enter key for short answer
+            document.getElementById('shortAnswerInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !hasSubmitted) {
+                    submitShortAnswer();
+                }
             });
         });
 
@@ -606,11 +614,11 @@
                 }
             });
 
-            // Listen for game state
+            // Listen for game state changes
             db.ref('gameState').on('value', (snap) => {
                 const state = snap.val();
                 if (state) {
-                    updateGameDisplay(state);
+                    handleGameStateChange(state);
                 }
             });
 
@@ -627,7 +635,34 @@
             });
         }
 
-        function updateGameDisplay(state) {
+        function handleGameStateChange(state) {
+            const previousState = currentGameState;
+            currentGameState = state;
+
+            // Check if this is a NEW question/screen (not just a timer update)
+            const isNewScreen = !previousState || 
+                previousState.currentIndex !== state.currentIndex ||
+                previousState.type !== state.type ||
+                (state.type === 'question' && previousState.questionNumber !== state.questionNumber);
+
+            // Check if answer was just revealed
+            const answerJustRevealed = state.answerRevealed && 
+                (!previousState || !previousState.answerRevealed);
+
+            if (isNewScreen) {
+                // Full screen update for new questions/rounds
+                updateFullDisplay(state);
+            } else {
+                // Partial update - only timer and answer reveal
+                updateTimerOnly(state);
+                
+                if (answerJustRevealed) {
+                    showAnswerReveal(state);
+                }
+            }
+        }
+
+        function updateFullDisplay(state) {
             const waitingScreen = document.getElementById('waitingScreen');
             const roundDisplay = document.getElementById('roundDisplay');
             const questionDisplay = document.getElementById('questionDisplay');
@@ -661,6 +696,9 @@
                     currentQuestionNumber = state.questionNumber;
                     hasSubmitted = false;
                     currentAnswer = null;
+                    
+                    // Clear short answer input
+                    document.getElementById('shortAnswerInput').value = '';
                 }
 
                 document.getElementById('questionNumber').textContent = `Question ${state.questionNumber}`;
@@ -677,54 +715,53 @@
                 }
 
                 // Timer display
-                updateTimerDisplay(state);
+                updateTimerOnly(state);
 
-                // Options or short answer
-                const optionsContainer = document.getElementById('optionsContainer');
-                const shortAnswerContainer = document.getElementById('shortAnswerContainer');
-                const submittedMessage = document.getElementById('submittedMessage');
-                const answerReveal = document.getElementById('answerReveal');
-
-                // Reset visibility
-                optionsContainer.classList.add('hidden');
-                shortAnswerContainer.classList.add('hidden');
-                submittedMessage.classList.add('hidden');
-                answerReveal.classList.add('hidden');
-
-                // Show answer if revealed
-                if (state.answerRevealed && state.answer) {
-                    answerReveal.classList.remove('hidden');
-                    document.getElementById('correctAnswer').textContent = state.answer;
-
-                    // Show correct/incorrect for MC
-                    if (state.options && hasSubmitted) {
-                        showMCResults(state.options, state.answer);
-                        return;
-                    }
-                }
-
-                // Show submitted message if already submitted
-                if (hasSubmitted) {
-                    submittedMessage.classList.remove('hidden');
-                    document.getElementById('yourAnswerText').textContent = `Your answer: ${currentAnswer}`;
-                    return;
-                }
-
-                // Show input options
-                if (state.options) {
-                    optionsContainer.classList.remove('hidden');
-                    renderOptions(state.options, state.answerRevealed, state.answer);
-                } else {
-                    shortAnswerContainer.classList.remove('hidden');
-                    document.getElementById('shortAnswerInput').value = '';
-                    document.getElementById('shortAnswerInput').focus();
-                }
+                // Setup answer inputs
+                setupAnswerInputs(state);
             }
         }
 
-        function updateTimerDisplay(state) {
+        function setupAnswerInputs(state) {
+            const optionsContainer = document.getElementById('optionsContainer');
+            const shortAnswerContainer = document.getElementById('shortAnswerContainer');
+            const submittedMessage = document.getElementById('submittedMessage');
+            const answerReveal = document.getElementById('answerReveal');
+
+            // Reset visibility
+            optionsContainer.classList.add('hidden');
+            shortAnswerContainer.classList.add('hidden');
+            submittedMessage.classList.add('hidden');
+            answerReveal.classList.add('hidden');
+
+            // Show answer if already revealed
+            if (state.answerRevealed && state.answer) {
+                showAnswerReveal(state);
+                return;
+            }
+
+            // Show submitted message if already submitted
+            if (hasSubmitted) {
+                submittedMessage.classList.remove('hidden');
+                document.getElementById('yourAnswerText').textContent = `Your answer: ${currentAnswer}`;
+                return;
+            }
+
+            // Show input options
+            if (state.options) {
+                optionsContainer.classList.remove('hidden');
+                renderOptions(state.options);
+            } else {
+                shortAnswerContainer.classList.remove('hidden');
+                // Focus on input after a short delay to ensure it's visible
+                setTimeout(() => {
+                    document.getElementById('shortAnswerInput').focus();
+                }, 100);
+            }
+        }
+
+        function updateTimerOnly(state) {
             const timerDisplay = document.getElementById('timerDisplay');
-            clearInterval(timerInterval);
 
             if (state.timerStatus === 'countdown') {
                 timerDisplay.textContent = `Starting in ${state.timerValue}...`;
@@ -753,21 +790,44 @@
             }
         }
 
-        function renderOptions(options, answerRevealed, correctAnswer) {
+        function showAnswerReveal(state) {
+            const optionsContainer = document.getElementById('optionsContainer');
+            const shortAnswerContainer = document.getElementById('shortAnswerContainer');
+            const submittedMessage = document.getElementById('submittedMessage');
+            const answerReveal = document.getElementById('answerReveal');
+
+            // Hide input containers
+            shortAnswerContainer.classList.add('hidden');
+            
+            // Show the correct answer
+            answerReveal.classList.remove('hidden');
+            document.getElementById('correctAnswer').textContent = state.answer;
+
+            // For MC questions, show results with correct/incorrect highlighting
+            if (state.options) {
+                optionsContainer.classList.remove('hidden');
+                submittedMessage.classList.add('hidden');
+                showMCResults(state.options, state.answer);
+            } else {
+                // For short answer, keep showing submitted message if they answered
+                if (hasSubmitted) {
+                    submittedMessage.classList.remove('hidden');
+                }
+            }
+        }
+
+        function renderOptions(options) {
             const container = document.getElementById('optionsContainer');
             
             container.innerHTML = options.map((opt, index) => {
-                let classes = 'option-btn';
-                let disabled = answerRevealed ? 'disabled' : '';
-                
-                if (answerRevealed) {
-                    if (correctAnswer && correctAnswer.includes(opt.charAt(0))) {
-                        classes += ' correct';
-                    }
-                }
-                
-                return `<button class="${classes}" onclick="selectOption('${opt}', this)" ${disabled}>${opt}</button>`;
+                return `<button class="option-btn" onclick="selectOption('${escapeHtml(opt)}', this)">${opt}</button>`;
             }).join('');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML.replace(/'/g, "\\'").replace(/"/g, '\\"');
         }
 
         function selectOption(option, buttonEl) {
@@ -826,7 +886,6 @@
 
         function showMCResults(options, correctAnswer) {
             const container = document.getElementById('optionsContainer');
-            container.classList.remove('hidden');
             
             container.innerHTML = options.map((opt) => {
                 let classes = 'option-btn';
@@ -879,16 +938,6 @@
                 `;
             }).join('');
         }
-
-        // Enter key for short answer
-        document.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const shortInput = document.getElementById('shortAnswerInput');
-                if (document.activeElement === shortInput && !hasSubmitted) {
-                    submitShortAnswer();
-                }
-            }
-        });
     </script>
 </body>
 </html>
