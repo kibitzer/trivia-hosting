@@ -1379,46 +1379,90 @@
       }
 
       function revealAnswer() {
-        const item = quizData[currentIndex];
-        if (!item || item.type === "round-title") return;
+          const item = quizData[currentIndex];
+          if (!item || item.type === 'round-title') return;
 
-        answerRevealed = true;
-        clearInterval(timerInterval);
-        clearInterval(countdownInterval);
+          answerRevealed = true;
+          clearInterval(timerInterval);
+          clearInterval(countdownInterval);
 
-        if (autoRevealTimeout) {
-          clearTimeout(autoRevealTimeout);
-          autoRevealTimeout = null;
-        }
+          if (autoRevealTimeout) {
+              clearTimeout(autoRevealTimeout);
+              autoRevealTimeout = null;
+          }
 
-        const timerDisplay = document.getElementById("timerDisplay");
-        if (timerDisplay) {
-          timerDisplay.textContent = "Answer Revealed";
-          timerDisplay.className = "timer-display stopped";
-        }
+          const timerDisplay = document.getElementById('timerDisplay');
+          if (timerDisplay) {
+              timerDisplay.textContent = "Answer Revealed";
+              timerDisplay.className = 'timer-display stopped';
+          }
 
-        const answerBox = document.getElementById("answerBox");
-        if (answerBox) {
-          answerBox.classList.add("visible");
-        }
+          const answerBox = document.getElementById('answerBox');
+          if (answerBox) {
+              answerBox.classList.add('visible');
+          }
 
-        const hostNotes = document.getElementById("hostNotes");
-        if (hostNotes) {
-          hostNotes.classList.add("visible");
-        }
+          const hostNotes = document.getElementById('hostNotes');
+          if (hostNotes) {
+              hostNotes.classList.add('visible');
+          }
 
-        if (item.options) {
-          const options = document.querySelectorAll(".option");
-          options.forEach((opt) => {
-            if (item.answer.includes(opt.textContent.charAt(0))) {
-              opt.classList.add("correct");
-            }
+          if (item.options) {
+              const options = document.querySelectorAll('.option');
+              options.forEach(opt => {
+                  // Highlight the correct option
+                  if (item.answer.includes(opt.textContent)) {
+                      opt.classList.add('correct');
+                  }
+              });
+          }
+
+          // --- NEW: AUTOMATED SCORING LOGIC ---
+          calculateAndAwardPoints(item);
+          // ------------------------------------
+
+          db.ref('gameState/answerRevealed').set(true);
+          db.ref('gameState/answer').set(item.answer);
+          db.ref('gameState/timerStatus').set('revealed');
+      }
+
+      function calculateAndAwardPoints(item) {
+          const qNum = item.questionNumber;
+          const playerAnswers = currentAnswers[qNum] || {};
+          const pointsPerQuestion = 1000; // Base points for a correct answer
+
+          Object.entries(playerAnswers).forEach(([playerId, answerData]) => {
+              let isCorrect = false;
+              const pAnswer = answerData.answer;
+
+              if (item.questionType === 'MC') {
+                  // For Multiple Choice, exact match (the player sends the full string "A) Option")
+                  if (pAnswer === item.answer) {
+                      isCorrect = true;
+                  }
+              } else if (item.questionType === 'SHORT') {
+                  // For Short Answer, check the acceptedAnswers array (case insensitive)
+                  const cleanPAnswer = pAnswer.toLowerCase().trim();
+                  if (item.acceptedAnswers && item.acceptedAnswers.includes(cleanPAnswer)) {
+                      isCorrect = true;
+                  } else if (cleanPAnswer === item.answer.toLowerCase().trim()) {
+                      isCorrect = true;
+                  }
+              }
+
+              // If correct, update their score in Firebase
+              if (isCorrect) {
+                  // We read the current score from our local 'players' object to avoid an extra DB read
+                  const currentScore = players[playerId]?.score || 0;
+                  const newScore = currentScore + pointsPerQuestion;
+
+                  // Update Firebase
+                  db.ref(`players/${playerId}/score`).set(newScore);
+
+                  // Visual feedback in the host console logs (optional)
+                  console.log(`Player ${players[playerId]?.name} got it right! +${pointsPerQuestion}`);
+              }
           });
-        }
-
-        db.ref("gameState/answerRevealed").set(true);
-        db.ref("gameState/answer").set(item.answer);
-        db.ref("gameState/timerStatus").set("revealed");
       }
 
       function nextItem() {
