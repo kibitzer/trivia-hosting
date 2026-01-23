@@ -711,13 +711,11 @@
       <div class="quiz-selector" id="quizSelector">
         <label for="quizFile">📁 Quiz File:</label>
         <select id="quizFile">
-          <option value="questions.js">Default Quiz (questions.js)</option>
-          <option value="EOY-2025.js">2025 Year in Review (EOY-2025.js)</option>
-          <option value="questions-sports.js">Sports Special</option>
-          <option value="questions-movies.js">Movies & Entertainment</option>
+          <option value="EOY-2025.json">2025 Year in Review (EOY-2025.json)</option>
+          <option value="sample_quiz.json">Sample Quiz (sample_quiz.json)</option>
           <option value="custom">Custom file...</option>
         </select>
-        <input type="text" id="customQuizFile" placeholder="Enter filename..." style="
+        <input type="text" id="customQuizFile" placeholder="Enter filename (e.g. quiz.json)..." style="
               display: none;
               padding: 10px;
               border: 2px solid #ff9800;
@@ -812,9 +810,6 @@
     </div>
   </div>
 
-  <!-- Load external quiz data -->
-  <script id="quizDataScript"></script>
-  
   <!-- Shared Logic -->
   <script src="../shared/firebase-config.js"></script>
   <!-- Application Logic -->

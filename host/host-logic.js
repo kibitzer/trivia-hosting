@@ -51,9 +51,9 @@ function loadQuizFile() {
             errorDiv.style.display = "block";
             return;
         }
-        // Add .js extension if not present
-        if (!filename.endsWith(".js")) {
-            filename += ".js";
+        // Add .json extension if not present (default assumption)
+        if (!filename.endsWith(".json") && !filename.endsWith(".js")) {
+            filename += ".json";
         }
     }
 
@@ -62,7 +62,8 @@ function loadQuizFile() {
     loadedStatus.style.display = "none";
 
     // Reset quizData
-    window.quizData = [];
+    quizData = [];
+    quizLoaded = false;
 
     // Show loading
     document.getElementById("quizContent").innerHTML = `
@@ -73,56 +74,108 @@ function loadQuizFile() {
         </div>
     `;
 
-    // Create a new script element
-    const oldScript = document.getElementById("quizDataScript");
-    if (oldScript) {
-        oldScript.remove();
-    }
-
-    const script = document.createElement("script");
-    script.id = "quizDataScript";
-
-    script.onload = () => {
-        console.log("Script loaded. quizData:", typeof quizData, quizData);
-
-        if (
-            typeof quizData !== "undefined" &&
-            Array.isArray(quizData) &&
-            quizData.length > 0
-        ) {
-            quizLoaded = true;
-            loadedStatus.style.display = "inline-block";
-            loadedStatus.textContent = `✓ Loaded (${quizData.length} items)`;
-            showWelcomeScreen();
-        } else {
-            let errorMsg = "⚠️ Quiz file loaded but ";
-            if (typeof quizData === "undefined") {
-                errorMsg +=
-                    "quizData variable is not defined. Make sure your file starts with: const quizData = [";
-            } else if (!Array.isArray(quizData)) {
-                errorMsg += "quizData is not an array. Type: " + typeof quizData;
-            } else {
-                errorMsg += "quizData array is empty.";
+    fetch(filename)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-            errorDiv.textContent = errorMsg;
+            return response.json();
+        })
+        .then(data => {
+            console.log("Quiz loaded:", data);
+            
+            // Validate data structure
+            if (Array.isArray(data)) {
+                // Already in the correct format (array of questions)
+                quizData = data;
+            } else if (data.questions && Array.isArray(data.questions)) {
+                // In "sample_quiz.json" format with a root object
+                // We need to convert it to the flat array format the app expects
+                quizData = convertSampleQuizFormat(data);
+            } else {
+                throw new Error("Invalid quiz format. Expected an array or object with 'questions' array.");
+            }
+
+            if (quizData.length > 0) {
+                quizLoaded = true;
+                loadedStatus.style.display = "inline-block";
+                loadedStatus.textContent = `✓ Loaded (${quizData.length} items)`;
+                showWelcomeScreen();
+            } else {
+                throw new Error("Quiz file is empty.");
+            }
+        })
+        .catch(e => {
+            console.error("Load error:", e);
+            errorDiv.textContent = `⚠️ Could not load "${filename}". ${e.message}`;
             errorDiv.style.display = "block";
             showLoadingScreen();
+        });
+}
 
-            // Log for debugging
-            console.error("Quiz load error:", errorMsg);
-            console.log("quizData value:", quizData);
+function convertSampleQuizFormat(data) {
+    const questions = [];
+    
+    // Add title slide if present
+    if (data.title) {
+        questions.push({
+            type: "round-title",
+            roundNumber: 1,
+            title: data.title,
+            timer: 20
+        });
+    }
+
+    let qNum = 1;
+    data.questions.forEach(q => {
+        const newQ = {
+            type: "question",
+            questionNumber: qNum++,
+            text: q.question,
+            timer: q.timer || 20,
+            image: q.image || null,
+            notes: q.notes || null
+        };
+
+        if (q.type === "multiple") {
+            newQ.questionType = "MC";
+            
+            // Format options A) ... B) ...
+            const letters = ["A", "B", "C", "D", "E", "F"];
+            newQ.options = q.options.map((opt, i) => {
+                const letter = letters[i] || "?";
+                return `${letter}) ${opt}`;
+            });
+
+            // Handle correct answer
+            // Check if correctAnswer matches one of the options directly
+            const matchIndex = q.options.indexOf(q.correctAnswer);
+            if (matchIndex !== -1) {
+                newQ.answer = newQ.options[matchIndex];
+            } else {
+                // If it's just the value "Paris", find "B) Paris"
+                // Or if it's already "B) Paris", keep it
+                newQ.answer = q.correctAnswer; 
+            }
+
+        } else if (q.type === "short") {
+            newQ.questionType = "SHORT";
+            newQ.options = null;
+            
+            // Handle array or string
+            if (Array.isArray(q.correctAnswer)) {
+                newQ.answer = q.correctAnswer[0];
+                newQ.acceptedAnswers = q.correctAnswer.map(a => a.toLowerCase());
+            } else {
+                newQ.answer = q.correctAnswer;
+                newQ.acceptedAnswers = [q.correctAnswer.toLowerCase()];
+            }
         }
-    };
+        
+        questions.push(newQ);
+    });
 
-    script.onerror = (e) => {
-        console.error("Script load error:", e);
-        errorDiv.textContent = `⚠️ Could not load "${filename}". Make sure the file exists in the same folder as host.html`;
-        errorDiv.style.display = "block";
-        showLoadingScreen();
-    };
-
-    script.src = filename;
-    document.body.appendChild(script);
+    return questions;
 }
 
 function showLoadingScreen() {

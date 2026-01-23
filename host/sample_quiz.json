@@ -87,27 +87,3 @@
     }
   ]
 }
-
-// Quiz File Format Documentation:
-// 
-// Root Object:
-// - title: Quiz name (string)
-// - maxOptions: Maximum number of options for auto-generated multiple choice (number)
-// - questions: Array of question objects
-//
-// Question Object:
-// - category: Optional category name (string)
-// - question: The question text (string, required)
-// - type: "multiple" or "short" (string, required)
-// - correctAnswer: String or array of strings for acceptable answers (required)
-// - options: Array of answer choices (required for type="multiple")
-// - timer: Seconds for this question (number, optional - defaults: 30 for multiple, 40 for short)
-// - image: URL to an image (string, optional)
-// - notes: Private notes visible only to host (string, optional)
-//
-// Notes:
-// - For short answer questions, correctAnswer can be an array to accept multiple variations
-// - Answer matching is case-insensitive and ignores punctuation
-// - Images can be local paths or URLs (Unsplash, etc.)
-// - If type="multiple" and only correctAnswer is provided (no options array), 
-//   the system can auto-generate plausible wrong answers up to maxOptions
