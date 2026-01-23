@@ -11,7 +11,7 @@ window.createHostData = function(firebase, db, auth) {
         errorMsg: '',
         successMsg: '',
         quizData: [],
-        filename: 'EOY-2025.json',
+        filename: '../quizzes/EOY-2025.json',
         customFilename: '',
         currentView: 'setup',
         currentIndex: -1,

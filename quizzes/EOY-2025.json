@@ -1,0 +1,419 @@
+[
+  {
+    "type": "round-title",
+    "roundNumber": 1,
+    "title": "It happened in Australia",
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 1,
+    "questionType": "SHORT",
+    "text": "The Mushroom Murders were big news this year. In which town did the murders take place?",
+    "image": "https://live-production.wcms.abc-cdn.net.au/83a06266acadc22a8d71ff287b850726",
+    "options": null,
+    "answer": "Leongatha",
+    "acceptedAnswers": ["leongatha", "leongathe", "leongathia"],
+    "notes": "The killings occurred during a lunch at a home there when three people died after eating a meal laced with deadly Amanita phalloides (\"death cap\") mushrooms.",
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 2,
+    "questionType": "MC",
+    "text": "In August, which event closed the Sydney Harbour Bridge?",
+    "image": "https://www.tripsavvy.com/thmb/KDtMH2U0P3F5C8Vn5tUGFDc4y5o=/3861x2579/filters:fill(auto,1)/sydney-harbor-bridge-at-dusk-687864358-5c068ba6c9e77c00013770e8.jpg",
+    "options": [
+      "A) Sydney Marathon",
+      "B) The \"March for Humanity\"",
+      "C) Climate Protest",
+      "D) Royal Visit Parade"
+    ],
+    "answer": "B) The \"March for Humanity\"",
+    "notes": "The \"March for Humanity\" was a protest to express support of Palestinian people, raise awareness of the situation in Gaza, and pressure the Australian government to sanction Israel.",
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 3,
+    "questionType": "MC",
+    "text": "Australian artist Go-Jo reached the semi-finals of Eurovision this year. What was his song called?",
+    "image": "https://images.immediate.co.uk/production/volatile/sites/3/2025/05/eurovision-australia-2-f52b87f.jpg?quality=90&resize=980,654",
+    "options": [
+      "A) \"Aussie Anthem\"",
+      "B) \"Down Under Dreams\"",
+      "C) \"Milkshake Man\"",
+      "D) \"Golden Summer\""
+    ],
+    "answer": "C) \"Milkshake Man\"",
+    "notes": "Video of the song: https://youtu.be/_08I6mjHSLA",
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 4,
+    "questionType": "SHORT",
+    "text": "Nicknamed the \"Golden Tonsils\", which longtime radio broadcaster passed away in November this year?",
+    "image": "https://as1.ftcdn.net/v2/jpg/02/47/50/10/1000_F_247501049_r6LkdLS1PuSXooxQsmES3Jteg3xWAIGs.jpg",
+    "options": null,
+    "answer": "John Laws",
+    "acceptedAnswers": ["john laws", "john law", "laws"],
+    "notes": "He was 90, and had been on the radio for 71 years.",
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 5,
+    "questionType": "MC",
+    "text": "The West Gate Tunnel opened in Victoria this month. But do you know the tunnel's official name?",
+    "image": "https://content.api.news/v3/images/bin/2a21d576d4a3e6282c1028237f7881a5",
+    "options": [
+      "A) Victoria Tunnel",
+      "B) West Gate Passage",
+      "C) Melbourne Link",
+      "D) Eureka Tunnel"
+    ],
+    "answer": "D) Eureka Tunnel",
+    "notes": null,
+    "timer": 20
+  },
+  {
+    "type": "round-title",
+    "roundNumber": 2,
+    "title": "Sport",
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 6,
+    "questionType": "MC",
+    "text": "The first Test of the 2025-26 Ashes was the first Ashes Test to be concluded inside two days since 1921. In which Australian city was this match played?",
+    "image": "https://media.gettyimages.com/id/1178537786/video/speed-ramp-male-cricket-player-swinging-the-bat-and-hitting-the-ball.jpg?s=640x640&k=20&c=pjY-pnEnabaOIEimoLPFUitx2gV4hyCGljprn4g7KU0=",
+    "options": ["A) Sydney", "B) Melbourne", "C) Brisbane", "D) Perth"],
+    "answer": "D) Perth",
+    "notes": null,
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 7,
+    "questionType": "MC",
+    "text": "Who won the men's singles title at the 2025 Australian Open, successfully defending his championship from the previous year? (Hint: he must be a very bad man)",
+    "image": "https://i.etsystatic.com/24767256/r/il/d3dedf/3173410911/il_fullxfull.3173410911_6kic.jpg",
+    "options": [
+      "A) Novak Djokovic",
+      "B) Carlos Alcaraz",
+      "C) Jannik Sinner",
+      "D) Daniil Medvedev"
+    ],
+    "answer": "C) Jannik Sinner",
+    "notes": "The world number one defeated Alexander Zverev 6-3, 7-6(4), 6-3 in two and three-quarter hours to become Italy's first three-time men's Grand Slam singles champion.",
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 8,
+    "questionType": "SHORT",
+    "text": "Which team came second in this year's AFL competition?",
+    "image": "https://d2e5ushqwiltxm.cloudfront.net/wp-content/uploads/sites/278/2024/05/28023223/footyball.jpeg",
+    "options": null,
+    "answer": "Geelong",
+    "acceptedAnswers": ["geelong", "cats", "geelong cats", "the cats"],
+    "notes": null,
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 9,
+    "questionType": "MC",
+    "text": "The 2025 Melbourne Cup winner, Half Yours, had something special which made the victory significant for local racing fans. What was it?",
+    "image": "https://content.api.news/v3/images/bin/7ff0ea7ccdc1740379649d0b53b22f1d",
+    "options": [
+      "A) First grey horse to win since 1991",
+      "B) He was the only Australian-bred horse in the field",
+      "C) Oldest horse ever to win",
+      "D) First female jockey to win"
+    ],
+    "answer": "B) He was the only Australian-bred horse in the field",
+    "notes": null,
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 10,
+    "questionType": "MC",
+    "text": "Which nation defeated New Zealand in Dubai to claim the 2025 ICC Champions Trophy title?",
+    "image": "https://images.news18.com/ibnlive/uploads/2020/09/1599892550_dubai.jpg",
+    "options": ["A) Australia", "B) England", "C) India", "D) Pakistan"],
+    "answer": "C) India",
+    "notes": null,
+    "timer": 20
+  },
+  {
+    "type": "round-title",
+    "roundNumber": 3,
+    "title": "Offbeat",
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 11,
+    "questionType": "MC",
+    "text": "The US State Department changed its official font from Calibri to Times New Roman. Why?",
+    "image": "https://2017-2021.state.gov/wp-content/uploads/2020/02/AP_090309042506.jpg",
+    "options": [
+      "A) To reduce printing costs and ink usage",
+      "B) Restore professionalism and abolish DEIA",
+      "C) To comply with new federal accessibility laws",
+      "D) Microsoft ended support for Calibri"
+    ],
+    "answer": "B) Restore professionalism and abolish DEIA",
+    "notes": "To restore decorum and professionalism to the Department's written work products and abolish yet another wasteful DEIA programme, the Department is returning to Times New Roman as its standard typeface,\" the cable said. \"This formatting standard aligns with the President's One Voice for America's Foreign Relations directive, underscoring the Department's responsibility to present a unified, professional voice in all communications.\" The department under Antony Blinken in early January 2023 switched to Calibri, a modern sans-serif font, citing it as more accessible for people with disabilities because it lacked the decorative angular features and was the default in Microsoft products.",
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 12,
+    "questionType": "SHORT",
+    "text": "Here's some loaded fries. But what are they loaded with?",
+    "image": "https://images.notquitenigella.com/images/easter-show-food-2023/easter-show-food-2023-07.jpg",
+    "options": null,
+    "answer": "Gummy bears",
+    "acceptedAnswers": ["gummy bears", "gummy bear", "bears", "gummies"],
+    "notes": "An unlikely food duo has gone viral ahead of the Sydney Royal Easter Show opening after a photo of the \"feral\" combination was posted to Reddit. Gummy Bear Loaded Fries is the latest wacky food available at the Sydney Royal Easter Show, and they've caused quite the ruckus. \"It's the new sensation, it's sweet and savoury mixed together where gummy bears melt on the fries,\" Jade Evens, creator of Neon Alley said.",
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 13,
+    "questionType": "MC",
+    "text": "What unusual toothpaste flavour was released by dental company Hismile this year?",
+    "image": "https://www.cinoll.com/wp-content/uploads/2025/09/Green-tea-toothpaste-300x200.webp",
+    "options": [
+      "A) McDonald's Big Mac",
+      "B) Vegemite",
+      "C) KFC",
+      "D) Pepperoni Pizza"
+    ],
+    "answer": "C) KFC",
+    "notes": "Originally cooked up as an April Fools' joke, Hismile's marketing manager Koban Jones said, \"We love pushing boundaries, and what better way to do that than by bringing KFC's legendary flavors into an everyday essential?\" https://us.hismileteeth.com/pages/kfc?rdr=1",
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 14,
+    "questionType": "SHORT",
+    "text": "According to Dictionary.com, which meaningless word is the 2025 word of the year?",
+    "image": null,
+    "options": null,
+    "answer": "6-7",
+    "acceptedAnswers": ["6-7", "67", "six seven", "six-seven", "sixseven"],
+    "notes": "6-7 is an Internet meme and slang term that emerged in 2025 on TikTok and Instagram Reels, and then later spread to YouTube Shorts. It has no fixed meaning.",
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 15,
+    "questionType": "MC",
+    "text": "In which North American state is robot chicken fighting now legal? (Hint: the state is also the name of a musical)",
+    "image": "chicken-v-robot.png",
+    "options": ["A) Tennessee", "B) Oklahoma", "C) Texas", "D) Georgia"],
+    "answer": "B) Oklahoma",
+    "notes": "House Bill 1326 amended Section 1692.9 of Title 21 of the Oklahoma Statutes to add an exemption allowing cockfighting between a live fowl and a robot, provided the robot does not harm the bird. The bill was sponsored by State Representative Justin Humphrey. The exact effective date was November 1, 2025.",
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 16,
+    "questionType": "SHORT",
+    "text": "In January, an Air Busan plane caught fire on the runway. This led airlines to ban or restrict what items?",
+    "image": "https://www.utusan.com.my/wp-content/uploads/2025/01/busan-air-e1738659588219.jpg",
+    "options": null,
+    "answer": "Power banks",
+    "acceptedAnswers": [
+      "power banks",
+      "powerbanks",
+      "power bank",
+      "powerbank",
+      "portable chargers",
+      "battery packs",
+      "portable batteries"
+    ],
+    "notes": null,
+    "timer": 20
+  },
+  {
+    "type": "round-title",
+    "roundNumber": 4,
+    "title": "Festive",
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 17,
+    "questionType": "SHORT",
+    "text": "In Germanic countries, Saint Nicholas rewards the good, but his terrifying, horned counterpart punishes the wicked. What is the name of this half-goat, half-demon figure who roams the streets in early December?",
+    "image": "https://www.debate.com.mx/__export/1703369093559/sites/debate/img/2023/12/23/krampus-demonio.jpg_172596871.jpg",
+    "options": null,
+    "answer": "Krampus",
+    "acceptedAnswers": ["krampus", "the krampus"],
+    "notes": "On 5 December (Krampusnacht; \"Krampus Night\"), Saint Nicholas rewards well-behaved children with small gifts, while Krampus punishes badly behaved ones with birch rods.",
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 18,
+    "questionType": "MC",
+    "text": "In a local South African delicacy that might make some lose their appetite, what specific type of deep-fried caterpillar is often eaten on Christmas Day as a source of luck?",
+    "image": "https://image-prod.iol.co.za/16x9/800/Deep-fried-caterpillars-in-South-Africa?source=https://xlibris.public.prod.oc.inl.infomaker.io:8443/opencontent/objects/ceb7dac6-ea41-57bb-b8a1-fea490e5c42e&operation=CROP&offset=0x23&resize=600x338",
+    "options": [
+      "A) Mopane worm caterpillars",
+      "B) Emperor Moth caterpillars",
+      "C) Atlas Moth caterpillars",
+      "D) African Death's-head Hawk Moth caterpillars"
+    ],
+    "answer": "B) Emperor Moth caterpillars",
+    "notes": "Emperor Moth caterpillars are harvested around Christmas time and preserved so they can be eaten during the winter. At Christmas, many South Africans will eat deep-fried caterpillars as part of the feast, and they are proven to be a great source of protein.",
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 19,
+    "questionType": "MC",
+    "text": "In The Netherlands, Sinterklaas (Saint Nicholas) doesn't arrive on a sleigh from the North Pole. According to Dutch tradition, he arrives by steamboat from which Mediterranean country?",
+    "image": "https://thumbs.dreamstime.com/b/sinterklaas-arriving-boat-enschede-netherlands-nov-dutch-santa-claus-called-his-help-black-pete-steamboat-62394607.jpg",
+    "options": ["A) Italy", "B) Greece", "C) Spain", "D) Turkey"],
+    "answer": "C) Spain",
+    "notes": null,
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 20,
+    "questionType": "MC",
+    "text": "On December 23rd, the Mexican city of Oaxaca celebrates the Noche de los Rábanos (Night of the Radishes). What do local artisans do with the radishes to compete for prizes?",
+    "image": "https://www.tastingtable.com/img/gallery/what-are-french-breakfast-radishes-and-what-makes-them-special/l-intro-1669220170.jpg",
+    "options": [
+      "A) Pickle them in festive jars to give as gifts",
+      "B) Carve them into intricate scenes and figurines",
+      "C) Stack them into towering sculptures",
+      "D) Paint them with religious symbols"
+    ],
+    "answer": "B) Carve them into intricate scenes and figurines",
+    "notes": null,
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 21,
+    "questionType": "MC",
+    "text": "Between Christmas and New Year, a person in Wales might encounter the Mari Lwyd. This folk custom involves a group of people carrying a pole topped with what specific (and real) animal part?",
+    "image": "https://cdn.britannica.com/35/94735-050-4E7CACDF/Conwy-Castle-River-Wales.jpg",
+    "options": [
+      "A) A goat's head with painted horns",
+      "B) A horse's skull decorated with ribbons and bells",
+      "C) A sheep's skull covered in ivy",
+      "D) A cow's skull with candles in the eye sockets"
+    ],
+    "answer": "B) A horse's skull decorated with ribbons and bells",
+    "notes": "The Mari Lwyd is a wassailing folk custom in South Wales. The tradition entails the use of an eponymous hobby horse which is made from a horse's skull mounted on a pole and carried by an individual hidden under a sheet.  https://nation.cymru/wp-content/uploads/2023/11/851e4f8b-0c61-4add-9a6b-d8e1c8f3549c-copy-768x511.jpg",
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 22,
+    "questionType": "MC",
+    "text": "Before the Christmas meal, it is a near-universal Finnish tradition for families to visit what specific type of heated room together to cleanse themselves?",
+    "image": null,
+    "options": [
+      "A) A steam bath",
+      "B) A hot spring pool",
+      "C) A sauna",
+      "D) A heated greenhouse"
+    ],
+    "answer": "C) A sauna",
+    "notes": null,
+    "timer": 20
+  },
+  {
+    "type": "round-title",
+    "roundNumber": 5,
+    "title": "Movie Posters (released this year)",
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 23,
+    "questionType": "SHORT",
+    "text": "Name this movie",
+    "image": "nobody2.png",
+    "options": null,
+    "answer": "Nobody 2",
+    "acceptedAnswers": ["nobody 2", "nobody two", "nobody ii"],
+    "notes": null,
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 24,
+    "questionType": "SHORT",
+    "text": "Name this movie",
+    "image": "naked-gun.png",
+    "options": null,
+    "answer": "The Naked Gun",
+    "acceptedAnswers": ["the naked gun", "naked gun", "the naked gun 2025"],
+    "notes": null,
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 25,
+    "questionType": "SHORT",
+    "text": "Name this movie",
+    "image": "F1.png",
+    "options": null,
+    "answer": "F1",
+    "acceptedAnswers": [
+      "f1",
+      "f1 the movie",
+      "f1: the movie",
+      "formula 1",
+      "formula one",
+      "f one"
+    ],
+    "notes": null,
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 26,
+    "questionType": "SHORT",
+    "text": "Name this movie",
+    "image": "nosferatu.png",
+    "options": null,
+    "answer": "Nosferatu",
+    "acceptedAnswers": ["nosferatu", "nosferatu 2024", "nosferatu 2025"],
+    "notes": null,
+    "timer": 20
+  },
+  {
+    "type": "question",
+    "questionNumber": 27,
+    "questionType": "SHORT",
+    "text": "Name this movie",
+    "image": "Wicked2.png",
+    "options": null,
+    "answer": "Wicked Part Two",
+    "acceptedAnswers": [
+      "wicked 2",
+      "wicked two",
+      "wicked part 2",
+      "wicked part two",
+      "wicked: for good",
+      "wicked for good",
+      "for good"
+    ],
+    "notes": null,
+    "timer": 20
+  }
+]

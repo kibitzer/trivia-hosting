@@ -82,38 +82,40 @@ python3 -m http.server 8000
 ```
 trivia-hosting/
 ├── player.html           # Player interface entry point
-├── player.js             # Player logic
+├── player-alpine.js      # Player logic (Alpine.js)
 ├── README.md             # Documentation
 ├── shared/               # Shared resources
 │   ├── firebase-config.js # Firebase credentials
 │   └── styles.css        # Common styles
+├── quizzes/              # Quiz data files (JSON)
+│   ├── EOY-2025.json     # 2025 Year in Review
+│   └── sample_quiz.json  # Template for creating new quizzes
 └── host/                 # Host administration
     ├── host.html         # Host dashboard entry point
-    ├── host-logic.js     # Host logic & game state management
-    ├── EOY-2025.js       # Example quiz data file
-    └── sample_quiz.json  # Template for creating new quizzes
+    ├── host-data.js      # Host logic module
+    └── host-alpine.js    # Alpine.js host component
 ```
 
 ## 📝 Creating Custom Quizzes
 
-Create a new `.js` file in the `host/` directory (e.g., `my-quiz.js`). It must define a global `quizData` array:
+Create a new `.json` file in the `quizzes/` directory (e.g., `my-quiz.json`). It should be a standard JSON array of objects:
 
-```javascript
-const quizData = [
+```json
+[
   {
-    type: "round-title",
-    roundNumber: 1,
-    title: "General Knowledge",
-    timer: 20
+    "type": "round-title",
+    "roundNumber": 1,
+    "title": "General Knowledge",
+    "timer": 20
   },
   {
-    type: "question",
-    questionNumber: 1,
-    questionType: "MC", // or "SHORT"
-    text: "What is the capital of France?",
-    options: ["A) London", "B) Paris", "C) Berlin", "D) Rome"],
-    answer: "B) Paris",
-    timer: 30
+    "type": "question",
+    "questionNumber": 1,
+    "questionType": "MC",
+    "text": "What is the capital of France?",
+    "options": ["A) London", "B) Paris", "C) Berlin", "D) Rome"],
+    "answer": "B) Paris",
+    "timer": 30
   }
-];
+]
 ```

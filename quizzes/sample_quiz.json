@@ -1,0 +1,89 @@
+{
+  "title": "General Knowledge Quiz",
+  "maxOptions": 4,
+  "questions": [
+    {
+      "category": "Geography",
+      "question": "What is the capital of France?",
+      "type": "multiple",
+      "correctAnswer": "Paris",
+      "options": ["London", "Paris", "Berlin", "Madrid"],
+      "timer": 30,
+      "notes": "Easy warm-up question"
+    },
+    {
+      "category": "Science",
+      "question": "What is the chemical symbol for gold?",
+      "type": "short",
+      "correctAnswer": ["Au", "AU"],
+      "timer": 40,
+      "notes": "Accept both uppercase and lowercase"
+    },
+    {
+      "category": "History",
+      "question": "In which year did World War II end?",
+      "type": "multiple",
+      "correctAnswer": "1945",
+      "options": ["1943", "1944", "1945", "1946"],
+      "timer": 30
+    },
+    {
+      "category": "Music",
+      "question": "Who is known as the King of Pop?",
+      "type": "short",
+      "correctAnswer": ["Michael Jackson", "MJ"],
+      "timer": 40,
+      "notes": "Accept 'MJ' as shorthand"
+    },
+    {
+      "category": "Sports",
+      "question": "How many players are on a soccer team on the field?",
+      "type": "multiple",
+      "correctAnswer": "11",
+      "options": ["9", "10", "11", "12"],
+      "timer": 25
+    },
+    {
+      "category": "Science",
+      "question": "What planet is known as the Red Planet?",
+      "type": "short",
+      "correctAnswer": ["Mars"],
+      "timer": 30,
+      "image": "https://images.unsplash.com/photo-1614732414444-096e5f1122d5?w=600&h=400&fit=crop",
+      "notes": "Image helps with visual learners"
+    },
+    {
+      "category": "Literature",
+      "question": "Who wrote 'Romeo and Juliet'?",
+      "type": "multiple",
+      "correctAnswer": "William Shakespeare",
+      "options": ["Charles Dickens", "William Shakespeare", "Jane Austen", "Mark Twain"],
+      "timer": 35
+    },
+    {
+      "category": "Technology",
+      "question": "What does CPU stand for?",
+      "type": "short",
+      "correctAnswer": ["Central Processing Unit"],
+      "timer": 40,
+      "notes": "Full phrase required"
+    },
+    {
+      "category": "Geography",
+      "question": "What is the largest ocean on Earth?",
+      "type": "multiple",
+      "correctAnswer": "Pacific Ocean",
+      "options": ["Atlantic Ocean", "Indian Ocean", "Pacific Ocean", "Arctic Ocean"],
+      "timer": 30
+    },
+    {
+      "category": "General",
+      "question": "How many continents are there?",
+      "type": "multiple",
+      "correctAnswer": "7",
+      "options": ["5", "6", "7", "8"],
+      "timer": 25,
+      "notes": "Some argue 6, but standard answer is 7"
+    }
+  ]
+}

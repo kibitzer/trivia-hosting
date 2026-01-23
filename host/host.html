@@ -79,11 +79,11 @@
         <div class="quiz-selector">
             <label>📁 Quiz File:</label>
             <select x-model="filename">
-                <option value="EOY-2025.json">2025 Year in Review (EOY-2025.json)</option>
-                <option value="sample_quiz.json">Sample Quiz (sample_quiz.json)</option>
+                <option value="../quizzes/EOY-2025.json">2025 Year in Review (EOY-2025.json)</option>
+                <option value="../quizzes/sample_quiz.json">Sample Quiz (sample_quiz.json)</option>
                 <option value="custom">Custom file...</option>
             </select>
-            <input type="text" x-model="customFilename" x-show="filename === 'custom'" placeholder="Enter filename (e.g. quiz.json)...">
+            <input type="text" x-model="customFilename" x-show="filename === 'custom'" placeholder="Enter filename (e.g. ../quizzes/quiz.json)...">
             <button @click="loadQuiz()" class="btn-warning" :disabled="loading">
                 <span x-show="!loading">Load Quiz</span>
                 <span x-show="loading">⏳ Loading...</span>
@@ -224,12 +224,12 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   
-  <!-- Config -->
-  <script src="../shared/firebase-config.js?v=1.4"></script>
+  <!-- 2. Firebase Configuration -->
+  <script src="../shared/firebase-config.js?v=1.5"></script>
   
-  <!-- Application Logic -->
-  <script src="host-data.js?v=1.4"></script>
-  <script src="host-alpine.js?v=1.4"></script>
+  <!-- 3. Application Logic (No Module, No Defer) -->
+  <script src="host-data.js?v=1.5"></script>
+  <script src="host-alpine.js?v=1.5"></script>
   
   <!-- 4. Alpine.js (Defer ensures it waits for the scripts above to register listeners) -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
