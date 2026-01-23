@@ -1,5 +1,8 @@
+/**
+ * @vitest-environment jsdom
+ */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { createHostData } from '../host/host-data.js';
+import '../host/host-data.js'; // Execute side effects (assigns to window)
 
 // Mock Firebase
 const mockDb = {
@@ -23,7 +26,7 @@ describe('Host Logic', () => {
     let host;
 
     beforeEach(() => {
-        host = createHostData(mockFirebase, mockDb);
+        host = window.createHostData(mockFirebase, mockDb);
     });
 
     describe('Quiz Parsing', () => {
