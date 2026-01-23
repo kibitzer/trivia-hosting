@@ -130,13 +130,21 @@ window.createHostData = function(firebase, db, auth) {
                 if (this.timerValue <= 0) { this.stopAllTimers(); this.timerStatus = 'ended'; }
             }, 1000);
         },
-        stopTimer() { this.stopAllTimers(); this.timerStatus = 'stopped'; db.ref('gameState/timerStatus').set('stopped'); },
-        stopAllTimers() { clearInterval(this.timerInterval); clearInterval(this.countdownInterval); clearTimeout(this.autoRevealTimeout); },
+        stopAllTimers() { 
+            if (this.timerInterval) { clearInterval(this.timerInterval); this.timerInterval = null; }
+            if (this.countdownInterval) { clearInterval(this.countdownInterval); this.countdownInterval = null; }
+            if (this.autoRevealTimeout) { clearTimeout(this.autoRevealTimeout); this.autoRevealTimeout = null; }
+        },
         checkAutoReveal() {
             if (!this.autoReveal || this.answerRevealed || !this.currentItem || this.currentItem.type !== 'question') return;
             const online = Object.values(this.players).filter(p => p.online).length;
             const ansCount = Object.keys(this.currentAnswers[this.currentItem.questionNumber] || {}).length;
-            if (online > 0 && ansCount >= online && !this.autoRevealTimeout) this.autoRevealTimeout = setTimeout(() => this.revealAnswer(), 2000);
+            if (online > 0 && ansCount >= online && !this.autoRevealTimeout) {
+                this.autoRevealTimeout = setTimeout(() => {
+                    this.autoRevealTimeout = null; // Clear before calling reveal
+                    this.revealAnswer();
+                }, 2000);
+            }
         },
         revealAnswer() {
             this.stopAllTimers(); this.answerRevealed = true; this.timerStatus = 'revealed';
