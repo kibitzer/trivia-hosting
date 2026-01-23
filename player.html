@@ -4,462 +4,204 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trivia Night - Play!</title>
+    
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
     <link rel="stylesheet" href="shared/styles.css">
     <style>
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .card {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 10px 40px rgba(66, 165, 245, 0.2);
-            margin-bottom: 15px;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .header h1 {
-            font-size: 2rem;
-            margin-bottom: 5px;
-        }
-
-        /* Join Form */
-        .join-section {
-            text-align: center;
-            padding: 40px 20px;
-        }
-
-        .join-section .emoji-big {
-            font-size: 4rem;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        label {
-            display: block;
-            font-weight: bold;
-            color: #1565c0;
-            margin-bottom: 8px;
-        }
-
-        input {
-            width: 100%;
-            padding: 15px;
-            font-size: 1.1rem;
-            border: 2px solid #90caf9;
-            border-radius: 10px;
-            transition: border-color 0.3s;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #1565c0;
-        }
-
-        button {
-            width: 100%;
-            padding: 18px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: #1565c0;
-            color: white;
-        }
-
-        button:hover {
-            background: #0d47a1;
-            transform: translateY(-2px);
-        }
-
-        button:disabled {
-            background: #b0bec5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Player Badge */
-        .player-badge {
-            background: linear-gradient(135deg, #1565c0, #42a5f5);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .player-badge .name {
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
-
-        .player-badge .score {
-            background: rgba(255,255,255,0.2);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-        }
-
-        /* Waiting Screen */
-        .waiting-screen {
-            text-align: center;
-            padding: 50px 20px;
-        }
-
-        .waiting-screen .spinner {
-            font-size: 3rem;
-            animation: bounce 1s infinite;
-            display: inline-block;
-            margin-bottom: 20px;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .waiting-screen h2 {
-            margin-bottom: 10px;
-        }
-
-        .waiting-screen p {
-            color: #546e7a;
-        }
-
-        /* Round Title */
-        .round-display {
-            background: linear-gradient(135deg, #1565c0 0%, #42a5f5 100%);
-            border-radius: 15px;
-            padding: 50px 30px;
-            text-align: center;
-            color: white;
-        }
-
-        .round-display .round-number {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            margin-bottom: 10px;
-        }
-
-        .round-display h2 {
-            font-size: 2rem;
-            color: white;
-        }
-
-        /* Question Display */
-        .question-display {
-            text-align: center;
-        }
-
-        .timer-display {
-            font-size: 3rem;
-            font-weight: bold;
-            color: #1565c0;
-            margin: 15px 0;
-        }
-
-        .timer-display.countdown {
-            color: #ff9800;
-        }
-
-        .timer-display.warning {
-            color: #f57c00;
-        }
-
-        .timer-display.danger {
-            color: #d32f2f;
-            animation: pulse 0.5s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        .timer-display.stopped {
-            color: #78909c;
-            font-size: 1.5rem;
-        }
-
-        .question-number {
-            background: #1565c0;
-            color: white;
-            padding: 8px 20px;
-            border-radius: 20px;
-            display: inline-block;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-
-        .question-text {
-            font-size: 1.4rem;
-            color: #1565c0;
-            margin-bottom: 20px;
-            line-height: 1.4;
-        }
-
-        .question-image {
-            width: 100%;
-            max-height: 250px;
-            object-fit: contain;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            background: #f5f5f5;
-        }
-
+        .container { max-width: 600px; margin: 0 auto; }
+        .card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 40px rgba(66, 165, 245, 0.2); margin-bottom: 15px; }
+        
+        /* Join */
+        .join-section { text-align: center; padding: 40px 20px; }
+        .join-section input { width: 100%; padding: 15px; font-size: 1.1rem; border: 2px solid #90caf9; border-radius: 10px; margin-bottom: 15px; }
+        .join-section button { width: 100%; padding: 18px; font-size: 1.2rem; background: #1565c0; color: white; border-radius: 12px; font-weight: bold; }
+        
+        /* Header */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .player-badge { background: linear-gradient(135deg, #1565c0, #42a5f5); color: white; padding: 12px 20px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Waiting */
+        .waiting-screen { text-align: center; padding: 50px 20px; color: #546e7a; }
+        .spinner { font-size: 3rem; animation: bounce 1s infinite; display: inline-block; margin-bottom: 20px; }
+        
+        /* Round */
+        .round-display { background: linear-gradient(135deg, #1565c0 0%, #42a5f5 100%); border-radius: 15px; padding: 50px 30px; text-align: center; color: white; }
+        .round-display h2 { font-size: 2rem; color: white; margin-top: 10px; }
+        
+        /* Question */
+        .question-display { text-align: center; }
+        .question-number { background: #1565c0; color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
+        .timer-display { font-size: 3rem; font-weight: bold; color: #1565c0; margin: 15px 0; }
+        .timer-display.countdown { color: #ff9800; }
+        .timer-display.danger { color: #d32f2f; animation: pulse 0.5s infinite; }
+        
+        .question-text { font-size: 1.4rem; color: #1565c0; margin-bottom: 20px; line-height: 1.4; }
+        .question-image { width: 100%; max-height: 250px; object-fit: contain; border-radius: 12px; margin-bottom: 20px; background: #f5f5f5; }
+        
         /* Options */
-        .options-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .option-btn {
-            background: #e3f2fd;
-            border: 3px solid transparent;
-            padding: 15px 20px;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            color: #1565c0;
-            text-align: left;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-
-        .option-btn:hover:not(:disabled) {
-            background: #bbdefb;
-        }
-
-        .option-btn.selected {
-            background: #1565c0;
-            color: white;
-            border-color: #0d47a1;
-        }
-
-        .option-btn.correct {
-            background: #4caf50 !important;
-            color: white !important;
-            border-color: #2e7d32 !important;
-        }
-
-        .option-btn.incorrect {
-            background: #f44336 !important;
-            color: white !important;
-            border-color: #c62828 !important;
-        }
-
-        .option-btn:disabled {
-            cursor: default;
-            transform: none;
-        }
-
+        .options-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .option-btn { background: #e3f2fd; padding: 15px 20px; border-radius: 12px; font-size: 1.1rem; color: #1565c0; text-align: left; border: 2px solid transparent; width: 100%; }
+        .option-btn.selected { background: #1565c0; color: white; }
+        .option-btn.correct { background: #4caf50; color: white; border-color: #2e7d32; }
+        .option-btn.incorrect { background: #f44336; color: white; border-color: #c62828; }
+        
         /* Short Answer */
-        .answer-input-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .answer-input-group input {
-            flex: 1;
-        }
-
-        .answer-input-group button {
-            width: auto;
-            padding: 15px 25px;
-        }
-
-        /* Answer Revealed */
-        .answer-reveal {
-            background: #e8f5e9;
-            border: 3px solid #4caf50;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            margin-top: 15px;
-            margin-bottom: 15px;
-        }
+        .answer-input-group { display: flex; gap: 10px; margin-bottom: 15px; }
+        .answer-input-group input { flex: 1; padding: 15px; border-radius: 10px; border: 2px solid #90caf9; font-size: 1.1rem; }
+        .answer-input-group button { padding: 0 25px; background: #1565c0; color: white; border-radius: 10px; font-weight: bold; }
         
-        .answer-reveal h3 {
-            color: #2e7d32;
-            margin-bottom: 8px;
-        }
-        
-        .answer-reveal .answer-text {
-            font-size: 1.5rem;
-            color: #1b5e20;
-            font-weight: bold;
-            word-wrap: break-word;
-        }
-        
-        /* Submitted Message */
-        .submitted-message {
-            background: #e3f2fd;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            color: #1565c0;
-        }
-
-        .submitted-message .check {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
+        /* Feedback */
+        .submitted-message { background: #e3f2fd; border-radius: 12px; padding: 20px; text-align: center; color: #1565c0; margin-top: 15px; }
+        .answer-reveal { background: #e8f5e9; border: 3px solid #4caf50; border-radius: 15px; padding: 20px; text-align: center; margin-top: 15px; }
+        .answer-reveal h3 { color: #2e7d32; margin-bottom: 8px; }
+        .answer-reveal .answer-text { font-size: 1.5rem; color: #1b5e20; font-weight: bold; }
 
         /* Scoreboard */
-        .scoreboard-section {
-            margin-top: 15px;
-        }
+        .score-list { max-height: 250px; overflow-y: auto; }
+        .score-row { display: flex; justify-content: space-between; padding: 10px 15px; margin-bottom: 8px; background: #f5f9ff; border-radius: 10px; border-left: 4px solid #1565c0; }
+        .score-row.leader { background: #fff8e1; border-left-color: #ffc107; }
+        .score-row.me { background: #e8f5e9; border-left-color: #4caf50; }
+        .score-row .name { font-weight: bold; color: #1565c0; }
+        .score-row .score { font-weight: bold; color: #2e7d32; }
 
-        .scoreboard-section h3 {
-            text-align: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e3f2fd;
-        }
-
-        .score-list {
-            max-height: 250px;
-            overflow-y: auto;
-        }
-
-        .score-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 15px;
-            margin-bottom: 8px;
-            background: #f5f9ff;
-            border-radius: 10px;
-            border-left: 4px solid #1565c0;
-        }
-
-        .score-row.leader {
-            background: #fff8e1;
-            border-left-color: #ffc107;
-        }
-
-        .score-row.me {
-            background: #e8f5e9;
-            border-left-color: #4caf50;
-        }
-
-        .score-row .name {
-            font-weight: bold;
-            color: #1565c0;
-        }
-
-        .score-row .score {
-            font-weight: bold;
-            color: #2e7d32;
-            font-size: 1.2rem;
-        }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
     </style>
 </head>
-<body>
+<body x-data="triviaPlayer">
     <div class="container">
+        
         <!-- Join Section -->
-        <div class="card" id="joinSection">
+        <div class="card" x-show="screen === 'join'">
             <div class="join-section">
-                <div class="emoji-big">🎯</div>
+                <div style="font-size: 4rem; margin-bottom: 20px;">🎯</div>
                 <h1>Trivia Night</h1>
-                <p style="color: #546e7a; margin-bottom: 30px;">Enter your name to join the game!</p>
-                <div class="form-group">
-                    <label for="playerName">Your Name</label>
-                    <input type="text" id="playerName" placeholder="Enter your name..." maxlength="20" autocomplete="off">
-                </div>
-                <button onclick="joinGame()">Join Game 🎉</button>
+                <p style="color: #546e7a; margin-bottom: 30px;">Enter your name to join!</p>
+                
+                <input type="text" x-model="playerName" placeholder="Enter your name..." maxlength="20" @keyup.enter="joinGame()">
+                <button @click="joinGame()">Join Game 🎉</button>
             </div>
         </div>
 
         <!-- Game Section -->
-        <div id="gameSection" class="hidden">
+        <div x-show="screen === 'game'">
             <div class="card">
                 <div class="header">
                     <h1>🎯 Trivia Night</h1>
-                    <span class="connection-status connected" id="connectionStatus">● Connected</span>
+                    <span class="connection-status" 
+                          :class="isConnected ? 'connected' : 'disconnected'"
+                          x-text="isConnected ? '● Connected' : '● Reconnecting...'"></span>
                 </div>
 
                 <div class="player-badge">
-                    <span class="name" id="displayName">Player</span>
-                    <span class="score" id="displayScore">0 pts</span>
+                    <span class="name" x-text="playerName"></span>
+                    <span class="score" x-text="score + ' pts'"></span>
                 </div>
 
-                <!-- Waiting Screen -->
-                <div id="waitingScreen">
-                    <div class="waiting-screen">
-                        <div class="spinner">⏳</div>
-                        <h2>Waiting for host...</h2>
-                        <p>The quiz will begin shortly!</p>
-                    </div>
+                <!-- WAITING SCREEN -->
+                <div class="waiting-screen" x-show="isWaiting">
+                    <div class="spinner">⏳</div>
+                    <h2>Waiting for host...</h2>
+                    <p>The quiz will begin shortly!</p>
                 </div>
 
-                <!-- Round Display -->
-                <div id="roundDisplay" class="hidden">
+                <!-- ROUND TITLE -->
+                <template x-if="currentItem.type === 'round-title'">
                     <div class="round-display">
-                        <div class="round-number" id="roundNumber">ROUND 1</div>
-                        <h2 id="roundTitle">Round Title</h2>
+                        <div class="round-number" x-text="'ROUND ' + currentItem.roundNumber"></div>
+                        <h2 x-text="currentItem.roundTitle"></h2>
                     </div>
-                </div>
+                </template>
 
-                <!-- Question Display -->
-                <div id="questionDisplay" class="hidden">
+                <!-- QUESTION DISPLAY -->
+                <template x-if="currentItem.type === 'question'">
                     <div class="question-display">
-                        <span class="question-number" id="questionNumber">Question 1</span>
-                        <div class="timer-display" id="timerDisplay">--</div>
-                        <p class="question-text" id="questionText">Question text goes here</p>
-                        <img id="questionImage" class="question-image hidden" src="" alt="Question image">
+                        <span class="question-number" x-text="'Question ' + currentItem.questionNumber"></span>
                         
-                        <!-- MC Options -->
-                        <div id="optionsContainer" class="options-list hidden"></div>
+                        <!-- Timer -->
+                        <div class="timer-display" 
+                             x-text="timerStatus === 'countdown' ? `Starting in ${timerValue}...` : (timerStatus === 'ended' ? `⏰ TIME'S UP!` : (timerStatus === 'revealed' ? 'Answer Revealed' : timerValue))"
+                             :class="{ 
+                                'countdown': timerStatus === 'countdown', 
+                                'danger': timerStatus === 'running' && timerValue <= 5,
+                                'stopped': timerStatus === 'ended' || timerStatus === 'revealed'
+                             }">
+                        </div>
 
-                        <!-- Short Answer -->
-                        <div id="shortAnswerContainer" class="hidden">
+                        <!-- Content -->
+                        <p class="question-text" x-text="currentItem.questionText"></p>
+                        
+                        <template x-if="currentItem.questionImage">
+                            <img :src="currentItem.questionImage" class="question-image" onerror="this.style.display='none'">
+                        </template>
+                        
+                        <!-- VIEW: Multiple Choice -->
+                        <div class="options-list" x-show="currentItem.questionType === 'MC'">
+                            <template x-for="opt in currentItem.options">
+                                <button class="option-btn"
+                                        x-text="opt"
+                                        :class="{
+                                            'selected': currentAnswer === opt,
+                                            'correct': isCorrectOption(opt),
+                                            'incorrect': isMyWrongOption(opt)
+                                        }"
+                                        :disabled="hasSubmitted || timerStatus === 'revealed'"
+                                        @click="selectOption(opt)">
+                                </button>
+                            </template>
+                        </div>
+
+                        <!-- VIEW: Short Answer -->
+                        <div x-show="currentItem.questionType === 'SHORT' && !hasSubmitted && !gameState.answerRevealed">
                             <div class="answer-input-group">
-                                <input type="text" id="shortAnswerInput" placeholder="Type your answer..." autocomplete="off">
-                                <button onclick="submitShortAnswer()">Submit</button>
+                                <input type="text" x-model="currentAnswer" placeholder="Type your answer..." @keyup.enter="submitShortAnswer()">
+                                <button @click="submitShortAnswer()">Submit</button>
                             </div>
                         </div>
 
-                        <!-- Submitted Message -->
-                        <div id="submittedMessage" class="submitted-message hidden">
+                        <!-- Submitted Feedback (Hidden if answer is revealed) -->
+                        <div class="submitted-message" x-show="hasSubmitted && !gameState.answerRevealed">
                             <div class="check">✅</div>
                             <p><strong>Answer submitted!</strong></p>
-                            <p id="yourAnswerText">Your answer: ---</p>
+                            <p x-text="'Your answer: ' + currentAnswer"></p>
                         </div>
 
                         <!-- Answer Reveal -->
-                        <div id="answerReveal" class="answer-reveal hidden">
+                        <div class="answer-reveal" x-show="gameState.answerRevealed">
                             <h3>✅ Correct Answer</h3>
-                            <div class="answer-text" id="correctAnswer">---</div>
+                            <div class="answer-text" x-text="gameState.answer || '---'"></div>
+                            
+                            <!-- Show user answer if Short Answer mode -->
+                            <div x-show="currentItem.questionType === 'SHORT' && currentAnswer" style="margin-top: 10px; font-size: 0.9rem;">
+                                Your answer: <span x-text="currentAnswer" style="font-weight: bold;"></span>
+                            </div>
                         </div>
+
                     </div>
-                </div>
+                </template>
             </div>
 
             <!-- Scoreboard -->
             <div class="card">
                 <div class="scoreboard-section">
                     <h3>🏆 Scoreboard</h3>
-                    <div class="score-list" id="scoreList">
-                        <p style="text-align: center; color: #90a4ae;">No scores yet</p>
+                    <div class="score-list">
+                        <template x-for="(player, index) in scoreboard" :key="player.id">
+                            <div class="score-row" :class="{'leader': index === 0 && player.score > 0, 'me': player.isMe}">
+                                <span class="name">
+                                    <span x-show="index === 0 && player.score > 0">👑 </span>
+                                    <span x-text="player.name + (player.isMe ? ' (You)' : '')"></span>
+                                </span>
+                                <span class="score" x-text="player.score"></span>
+                            </div>
+                        </template>
+                        <p x-show="scoreboard.length === 0" style="text-align: center; color: #90a4ae;">No scores yet</p>
                     </div>
                 </div>
             </div>
@@ -469,6 +211,6 @@
     <!-- Shared Logic -->
     <script src="shared/firebase-config.js"></script>
     <!-- Application Logic -->
-    <script src="player.js"></script>
+    <script src="player-alpine.js"></script>
 </body>
 </html>
