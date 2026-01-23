@@ -4,22 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Trivia Host Control Panel</title>
-  
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-  
-  <!-- Shared Logic -->
-  <script src="../shared/firebase-config.js"></script>
-
-  <!-- Application Logic -->
-  <script src="host-data.js"></script>
-  <script src="host-alpine.js"></script>
-  
-  <!-- Alpine.js (defer ensures it runs after my scripts register listeners) -->
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  
   <link rel="stylesheet" href="../shared/styles.css">
   <style>
     /* Kept existing styles, just removed unused ID selectors if any specific styling was attached */
@@ -179,7 +163,7 @@
 
                 <!-- Timer -->
                 <div class="timer-display" 
-                     x-text="timerStatus === 'countdown' ? `Starting in ${timerValue}...` : (timerStatus === 'ended' ? `⏰ TIME'S UP!` : timerValue)"
+                     x-text="timerStatus === 'countdown' ? `Starting in ${timerValue}...` : (timerStatus === 'ended' ? `⏰ TIME'S UP!` : (timerStatus === 'revealed' ? 'Answer Revealed' : timerValue))"
                      :class="{ 'countdown': timerStatus === 'countdown', 'danger': timerStatus === 'running' && timerValue <= 5 }">
                 </div>
 
@@ -324,5 +308,21 @@
     </div>
 
   </div>
+
+  <!-- SCRIPTS MOVED TO BOTTOM FOR SAFETY -->
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  
+  <!-- Config -->
+  <script src="../shared/firebase-config.js"></script>
+  
+  <!-- App Logic -->
+  <script src="host-data.js"></script>
+  <script src="host-alpine.js"></script>
+  
+  <!-- Alpine (Defer) -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </body>
 </html>
