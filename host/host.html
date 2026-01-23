@@ -1,819 +1,307 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Trivia Host Control Panel</title>
+  
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  
   <link rel="stylesheet" href="../shared/styles.css">
   <style>
-    body {
-        padding: 20px;
-    }
-
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 1fr 380px;
-      gap: 20px;
-    }
-
-    .main-panel {
-      background: white;
-      border-radius: 20px;
-      padding: 30px;
-      box-shadow: 0 10px 40px rgba(66, 165, 245, 0.2);
-    }
-
-    .sidebar {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .scoreboard,
-    .controls-panel,
-    .answers-panel {
-      background: white;
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 10px 40px rgba(66, 165, 245, 0.2);
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 30px;
-      padding-bottom: 20px;
-      border-bottom: 3px solid #e3f2fd;
-    }
-
-    .header h1 {
-      font-size: 2.5rem;
-      margin-bottom: 10px;
-    }
+    /* Kept existing styles, just removed unused ID selectors if any specific styling was attached */
+    body { padding: 20px; }
+    .container { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 1fr 380px; gap: 20px; }
+    .main-panel, .sidebar > div { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 40px rgba(66, 165, 245, 0.2); }
+    .main-panel { padding: 30px; }
+    .sidebar { display: flex; flex-direction: column; gap: 20px; }
+    
+    .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #e3f2fd; padding-bottom: 20px; }
+    .header h1 { font-size: 2.5rem; margin-bottom: 10px; color: #1565c0; }
+    
+    /* Utility */
+    .btn-primary { background: #1565c0; color: white; }
+    .btn-success { background: #4caf50; color: white; }
+    .btn-warning { background: #ff9800; color: white; }
+    .btn-danger { background: #f44336; color: white; }
+    .btn-secondary { background: #78909c; color: white; }
+    button { padding: 10px 20px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; transition: transform 0.2s; }
+    button:hover { transform: translateY(-2px); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
 
     /* Quiz Selector */
-    .quiz-selector {
-      background: #fff3e0;
-      border: 2px solid #ff9800;
-      border-radius: 12px;
-      padding: 15px 20px;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      flex-wrap: wrap;
-    }
-
-    .quiz-selector label {
-      font-weight: bold;
-      color: #e65100;
-    }
-
-    .quiz-selector select {
-      padding: 10px 15px;
-      font-size: 1rem;
-      border: 2px solid #ff9800;
-      border-radius: 8px;
-      background: white;
-      color: #e65100;
-      cursor: pointer;
-      min-width: 200px;
-    }
-
-    .quiz-selector button {
-      padding: 10px 20px;
-      font-size: 1rem;
-      background: #ff9800;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .quiz-selector button:hover {
-      background: #f57c00;
-    }
-
-    .quiz-loaded {
-      background: #e8f5e9;
-      color: #2e7d32;
-      padding: 5px 12px;
-      border-radius: 15px;
-      font-size: 0.85rem;
-      font-weight: bold;
-    }
-
-    .quiz-error {
-      background: #ffebee;
-      color: #c62828;
-      padding: 10px 15px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      width: 100%;
-      margin-top: 10px;
-    }
-
-    /* Round Title Slide */
-    .round-title-slide {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 400px;
-      background: linear-gradient(135deg, #1565c0 0%, #42a5f5 100%);
-      border-radius: 15px;
-      color: white;
-      text-align: center;
-      padding: 40px;
-    }
-
-    .round-title-slide h2 {
-      font-size: 3rem;
-      color: white;
-      margin-bottom: 10px;
-    }
-
-    .round-title-slide .round-number {
-      font-size: 1.5rem;
-      opacity: 0.9;
-    }
-
-    /* Question Display */
-    .question-container {
-      display: none;
-    }
-
-    .question-container.active {
-      display: block;
-    }
-
-    .question-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .question-number {
-      background: #1565c0;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 25px;
-      font-weight: bold;
-    }
-
-    .question-type {
-      background: #e3f2fd;
-      color: #1565c0;
-      padding: 8px 16px;
-      border-radius: 15px;
-      font-size: 0.9rem;
-    }
-
-    .timer-display {
-      font-size: 3.5rem;
-      font-weight: bold;
-      color: #1565c0;
-      text-align: center;
-      margin: 20px 0;
-      min-height: 80px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .timer-display.countdown {
-      color: #ff9800;
-    }
-
-    .timer-display.warning {
-      color: #f57c00;
-    }
-
-    .timer-display.danger {
-      color: #d32f2f;
-      animation: pulse 0.5s infinite;
-    }
-
-    .timer-display.stopped {
-      color: #78909c;
-    }
-
-    .timer-display.all-answered {
-      color: #4caf50;
-    }
-
-    @keyframes pulse {
-
-      0%,
-      100% {
-        transform: scale(1);
-      }
-
-      50% {
-        transform: scale(1.1);
-      }
-    }
-
-    .question-text {
-      font-size: 1.8rem;
-      color: #1565c0;
-      margin-bottom: 25px;
-      line-height: 1.4;
-    }
-
-    .question-image {
-      width: 100%;
-      max-height: 350px;
-      object-fit: contain;
-      border-radius: 15px;
-      margin-bottom: 25px;
-      background: #f5f5f5;
-    }
-
-    .options-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-      margin-bottom: 25px;
-    }
-
-    .option {
-      background: #e3f2fd;
-      padding: 20px;
-      border-radius: 12px;
-      font-size: 1.2rem;
-      color: #1565c0;
-      transition: all 0.3s ease;
-    }
-
-    .option.correct {
-      background: #4caf50;
-      color: white;
-      transform: scale(1.02);
-    }
-
-    .short-answer-label {
-      text-align: center;
-      font-size: 1.2rem;
-      color: #546e7a;
-      margin: 20px 0;
-      padding: 20px;
-      background: #f5f9ff;
-      border-radius: 12px;
-    }
-
-    .answer-box {
-      background: #e8f5e9;
-      border: 3px solid #4caf50;
-      border-radius: 15px;
-      padding: 25px;
-      text-align: center;
-      display: none;
-    }
-
-    .answer-box.visible {
-      display: block;
-    }
-
-    .answer-box h3 {
-      color: #2e7d32;
-      margin-bottom: 10px;
-    }
-
-    .answer-box .answer-text {
-      font-size: 2rem;
-      color: #1b5e20;
-      font-weight: bold;
-    }
-
-    .host-notes {
-      background: #fff3e0;
-      border-left: 5px solid #ff9800;
-      padding: 15px 20px;
-      margin-top: 20px;
-      border-radius: 0 10px 10px 0;
-      display: none;
-    }
-
-    .host-notes.visible {
-      display: block;
-    }
-
-    .host-notes h4 {
-      color: #e65100;
-      margin-bottom: 8px;
-      font-size: 0.9rem;
-      text-transform: uppercase;
-    }
-
-    .host-notes p {
-      color: #5d4037;
-      font-size: 1rem;
-    }
-
-    /* Control Buttons */
-    .button-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 25px;
-    }
-
-    button {
-      padding: 15px 25px;
-      font-size: 1rem;
-      font-weight: bold;
-      border-radius: 10px;
-    }
-
-    button:hover {
-      transform: translateY(-2px);
-    }
-
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .btn-primary {
-      background: #1565c0;
-      color: white;
-    }
-
-    .btn-primary:hover:not(:disabled) {
-      background: #0d47a1;
-    }
-
-    .btn-success {
-      background: #4caf50;
-      color: white;
-    }
-
-    .btn-success:hover:not(:disabled) {
-      background: #388e3c;
-    }
-
-    .btn-warning {
-      background: #ff9800;
-      color: white;
-    }
-
-    .btn-warning:hover:not(:disabled) {
-      background: #f57c00;
-    }
-
-    .btn-danger {
-      background: #f44336;
-      color: white;
-    }
-
-    .btn-danger:hover:not(:disabled) {
-      background: #d32f2f;
-    }
-
-    .btn-secondary {
-      background: #78909c;
-      color: white;
-    }
-
-    .btn-secondary:hover:not(:disabled) {
-      background: #546e7a;
-    }
-
-    /* Timer Adjustment */
-    .timer-adjust {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 15px;
-    }
-
-    .timer-adjust label {
-      font-weight: bold;
-      color: #1565c0;
-      min-width: 70px;
-    }
-
-    .timer-adjust input {
-      width: 80px;
-      padding: 10px;
-      font-size: 1.2rem;
-      border: 2px solid #90caf9;
-      border-radius: 8px;
-      text-align: center;
-    }
-
-    /* Auto-reveal toggle */
-    .toggle-container {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 15px;
-      padding-top: 15px;
-      border-top: 1px solid #e3f2fd;
-    }
-
-    .toggle-container label {
-      font-weight: bold;
-      color: #1565c0;
-      font-size: 0.9rem;
-    }
-
-    .toggle-switch {
-      position: relative;
-      width: 50px;
-      height: 26px;
-    }
-
-    .toggle-switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .toggle-slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      transition: 0.4s;
-      border-radius: 26px;
-    }
-
-    .toggle-slider:before {
-      position: absolute;
-      content: "";
-      height: 20px;
-      width: 20px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: 0.4s;
-      border-radius: 50%;
-    }
-
-    .toggle-switch input:checked+.toggle-slider {
-      background-color: #4caf50;
-    }
-
-    .toggle-switch input:checked+.toggle-slider:before {
-      transform: translateX(24px);
-    }
-
-    /* Scoreboard */
-    .scoreboard h2 {
-      text-align: center;
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 2px solid #e3f2fd;
-    }
-
-    .player-list {
-      max-height: 300px;
-      overflow-y: auto;
-    }
-
-    .player-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px;
-      margin-bottom: 10px;
-      background: #f5f9ff;
-      border-radius: 10px;
-      border-left: 4px solid #1565c0;
-    }
-
-    .player-row.leader {
-      background: #fff8e1;
-      border-left-color: #ffc107;
-    }
-
-    .player-info {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .player-name {
-      font-weight: bold;
-      color: #1565c0;
-    }
-
-    .player-status {
-      font-size: 0.75rem;
-      color: #78909c;
-    }
-
-    .player-score {
-      font-size: 1.3rem;
-      font-weight: bold;
-      color: #2e7d32;
-    }
-
-    .score-buttons {
-      display: flex;
-      gap: 3px;
-      margin-top: 5px;
-    }
-
-    .score-btn {
-      padding: 4px 8px;
-      font-size: 0.75rem;
-      border-radius: 5px;
-    }
-
-    /* Answers Panel */
-    .answers-panel h3 {
-      text-align: center;
-      margin-bottom: 15px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid #e3f2fd;
-    }
-
-    .answer-count {
-      text-align: center;
-      font-size: 0.9rem;
-      color: #1565c0;
-      margin-bottom: 10px;
-      padding: 8px;
-      background: #e3f2fd;
-      border-radius: 8px;
-    }
-
-    .answer-count.all-in {
-      background: #e8f5e9;
-      color: #2e7d32;
-      font-weight: bold;
-    }
-
-    .answers-list {
-      max-height: 200px;
-      overflow-y: auto;
-    }
-
-    .answer-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px;
-      margin-bottom: 8px;
-      background: #f5f9ff;
-      border-radius: 8px;
-      font-size: 0.9rem;
-    }
-
-    .answer-row .player {
-      font-weight: bold;
-      color: #1565c0;
-    }
-
-    .answer-row .answer {
-      color: #37474f;
-      max-width: 150px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .answer-row .time {
-      color: #90a4ae;
-      font-size: 0.8rem;
-    }
-
-    .no-answers {
-      text-align: center;
-      color: #90a4ae;
-      padding: 20px;
-    }
-
-    /* Progress Bar */
-    .progress-container {
-      margin-bottom: 20px;
-    }
-
-    .progress-bar {
-      height: 10px;
-      background: #e3f2fd;
-      border-radius: 5px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #1565c0, #42a5f5);
-      transition: width 0.3s ease;
-    }
-
-    .progress-text {
-      text-align: center;
-      margin-top: 8px;
-      color: #1565c0;
-      font-weight: bold;
-    }
-
-    /* Welcome Screen */
-    .welcome-screen {
-      text-align: center;
-      padding: 60px 40px;
-    }
-
-    .welcome-screen h2 {
-      font-size: 2.5rem;
-      margin-bottom: 20px;
-    }
-
-    .welcome-screen p {
-      font-size: 1.2rem;
-      color: #546e7a;
-      margin-bottom: 30px;
-    }
-
-    .player-count {
-      background: #e3f2fd;
-      padding: 15px 30px;
-      border-radius: 12px;
-      display: inline-block;
-      margin-bottom: 30px;
-    }
-
-    .player-count span {
-      font-size: 2rem;
-      font-weight: bold;
-      color: #1565c0;
-    }
-
-    /* Loading Screen */
-    .loading-screen {
-      text-align: center;
-      padding: 60px 40px;
-    }
-
-    .loading-screen .spinner {
-      font-size: 4rem;
-      animation: spin 1s linear infinite;
-      display: inline-block;
-      margin-bottom: 20px;
-    }
-
-    @keyframes spin {
-      from {
-        transform: rotate(0deg);
-      }
-
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    /* Responsive */
-    @media (max-width: 1100px) {
-      .container {
-        grid-template-columns: 1fr;
-      }
-
-      .sidebar {
-        flex-direction: row;
-        flex-wrap: wrap;
-      }
-
-      .sidebar>div {
-        flex: 1;
-        min-width: 280px;
-      }
-
-      .options-grid {
-        grid-template-columns: 1fr;
-      }
-    }
+    .quiz-selector { background: #fff3e0; border: 2px solid #ff9800; border-radius: 12px; padding: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+    .quiz-selector select, .quiz-selector input { padding: 10px; border-radius: 8px; border: 2px solid #ff9800; }
+    
+    /* Slides */
+    .round-title-slide { background: linear-gradient(135deg, #1565c0 0%, #42a5f5 100%); color: white; text-align: center; padding: 40px; border-radius: 15px; min-height: 400px; display: flex; flex-direction: column; justify-content: center; }
+    .round-title-slide h2 { color: white; font-size: 3rem; }
+    
+    /* Question */
+    .question-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+    .question-number { background: #1565c0; color: white; padding: 5px 15px; border-radius: 20px; }
+    .timer-display { font-size: 3.5rem; text-align: center; font-weight: bold; color: #1565c0; margin: 20px 0; }
+    .timer-display.countdown { color: #ff9800; }
+    .timer-display.danger { color: #d32f2f; animation: pulse 0.5s infinite; }
+    
+    .question-text { font-size: 1.8rem; color: #1565c0; margin-bottom: 20px; }
+    .question-image { max-height: 300px; width: 100%; object-fit: contain; border-radius: 10px; margin-bottom: 20px; }
+    
+    .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+    .option { background: #e3f2fd; padding: 15px; border-radius: 10px; color: #1565c0; font-weight: 500; }
+    .option.correct { background: #4caf50; color: white; }
+    
+    .answer-box { background: #e8f5e9; border: 3px solid #4caf50; padding: 20px; border-radius: 15px; text-align: center; margin-top: 20px; }
+    .host-notes { background: #fff3e0; border-left: 5px solid #ff9800; padding: 15px; margin-top: 20px; border-radius: 0 10px 10px 0; }
+
+    /* Lists */
+    .scroll-list { max-height: 250px; overflow-y: auto; }
+    .list-row { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; }
+    .list-row.leader { background: #fff8e1; }
+    .score-btn { padding: 2px 6px; font-size: 0.8rem; margin-left: 2px; }
+    
+    /* Progress */
+    .progress-bar { height: 8px; background: #e3f2fd; border-radius: 4px; overflow: hidden; margin-top: 10px; }
+    .progress-fill { height: 100%; background: #1565c0; transition: width 0.3s; }
+    
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
   </style>
 </head>
 
-<body>
+<body x-data="triviaHost">
   <div class="container">
+    
+    <!-- Main Panel -->
     <div class="main-panel">
       <div class="header">
         <h1>🎯 Trivia Night</h1>
         <p>Host Control Panel</p>
-        <span class="connection-status disconnected" id="connectionStatus">● Connecting...</span>
+        <span class="connection-status" 
+              :class="isConnected ? 'connected' : 'disconnected'"
+              x-text="isConnected ? '● Connected' : '● Connecting...'"></span>
       </div>
 
-      <!-- Quiz Selector -->
-      <div class="quiz-selector" id="quizSelector">
-        <label for="quizFile">📁 Quiz File:</label>
-        <select id="quizFile">
-          <option value="EOY-2025.json">2025 Year in Review (EOY-2025.json)</option>
-          <option value="sample_quiz.json">Sample Quiz (sample_quiz.json)</option>
-          <option value="custom">Custom file...</option>
-        </select>
-        <input type="text" id="customQuizFile" placeholder="Enter filename (e.g. quiz.json)..." style="
-              display: none;
-              padding: 10px;
-              border: 2px solid #ff9800;
-              border-radius: 8px;
-            " />
-        <button onclick="loadQuizFile()">Load Quiz</button>
-        <span class="quiz-loaded" id="quizLoadedStatus" style="display: none">✓ Loaded</span>
-        <div class="quiz-error" id="quizError" style="display: none"></div>
+      <!-- VIEW: Setup -->
+      <div x-show="currentView === 'setup'">
+        <div class="quiz-selector">
+            <label>📁 Quiz File:</label>
+            <select x-model="filename">
+                <option value="EOY-2025.json">2025 Year in Review (EOY-2025.json)</option>
+                <option value="sample_quiz.json">Sample Quiz (sample_quiz.json)</option>
+                <option value="custom">Custom file...</option>
+            </select>
+            
+            <input type="text" x-model="customFilename" 
+                   x-show="filename === 'custom'" 
+                   placeholder="Enter filename (e.g. quiz.json)...">
+            
+            <button @click="loadQuiz()" class="btn-warning" :disabled="loading">
+                <span x-show="!loading">Load Quiz</span>
+                <span x-show="loading">⏳ Loading...</span>
+            </button>
+        </div>
+
+        <!-- Messages -->
+        <div x-show="errorMsg" style="color: red; background: #ffebee; padding: 10px; border-radius: 8px; margin-bottom: 10px;" x-text="errorMsg"></div>
+        <div x-show="successMsg" style="color: green; background: #e8f5e9; padding: 10px; border-radius: 8px; margin-bottom: 10px;" x-text="successMsg"></div>
+
+        <!-- Welcome / Start -->
+        <div x-show="quizData.length > 0" style="text-align: center; padding: 40px;">
+            <h2>Ready to Start!</h2>
+            <p><strong x-text="quizData.length"></strong> items loaded.</p>
+            <p><strong x-text="playerCount"></strong> players connected.</p>
+            <br>
+            <button class="btn-primary" style="font-size: 1.5rem; padding: 15px 40px;" @click="startGame()">
+                🚀 Start Game
+            </button>
+        </div>
       </div>
 
-      <div class="progress-container">
+      <!-- VIEW: Game -->
+      <div x-show="currentView === 'game'">
+        
+        <!-- Progress -->
+        <div style="text-align: center; color: #78909c; font-size: 0.9rem;">
+            Item <span x-text="currentIndex + 1"></span> of <span x-text="quizData.length"></span>
+        </div>
         <div class="progress-bar">
-          <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            <div class="progress-fill" :style="`width: ${progressPercent}%`"></div>
         </div>
-        <div class="progress-text" id="progressText">Ready to Start</div>
-      </div>
 
-      <div id="quizContent">
-        <div class="loading-screen" id="loadingScreen">
-          <div class="spinner">⏳</div>
-          <h2>Select a quiz file to begin</h2>
-          <p>Choose a quiz from the dropdown above and click "Load Quiz"</p>
+        <br>
+
+        <!-- Dynamic Content: Round Title -->
+        <template x-if="currentItem && currentItem.type === 'round-title'">
+            <div class="round-title-slide">
+                <div style="opacity: 0.8; font-size: 1.5rem;">ROUND <span x-text="currentItem.roundNumber"></span></div>
+                <h2 x-text="currentItem.title"></h2>
+            </div>
+        </template>
+
+        <!-- Dynamic Content: Question -->
+        <template x-if="currentItem && currentItem.type === 'question'">
+            <div>
+                <div class="question-header">
+                    <span class="question-number">Q<span x-text="currentItem.questionNumber"></span></span>
+                    <span class="question-type" x-text="currentItem.questionType === 'MC' ? 'Multiple Choice' : 'Short Answer'"></span>
+                </div>
+
+                <!-- Timer -->
+                <div class="timer-display" 
+                     x-text="timerStatus === 'countdown' ? `Starting in ${timerValue}...` : (timerStatus === 'ended' ? `⏰ TIME'S UP!` : timerValue)"
+                     :class="{ 'countdown': timerStatus === 'countdown', 'danger': timerStatus === 'running' && timerValue <= 5 }">
+                </div>
+
+                <!-- Content -->
+                <h2 class="question-text" x-text="currentItem.text"></h2>
+                
+                <template x-if="currentItem.image">
+                    <img :src="currentItem.image" class="question-image" onerror="this.style.display='none'">
+                </template>
+
+                <!-- Options Grid (MC) -->
+                <template x-if="currentItem.questionType === 'MC'">
+                    <div class="options-grid">
+                        <template x-for="opt in currentItem.options">
+                            <div class="option" 
+                                 x-text="opt"
+                                 :class="{ 'correct': answerRevealed && currentItem.answer.includes(opt) }"></div>
+                        </template>
+                    </div>
+                </template>
+                
+                <!-- Short Answer Placeholder -->
+                <template x-if="currentItem.questionType === 'SHORT'">
+                    <div style="text-align: center; padding: 20px; background: #f5f9ff; border-radius: 10px; margin-bottom: 20px;">
+                        📝 Short Answer Question
+                    </div>
+                </template>
+
+                <!-- Correct Answer Reveal -->
+                <div class="answer-box" x-show="answerRevealed">
+                    <h3>✅ Correct Answer</h3>
+                    <div style="font-size: 2rem; font-weight: bold; color: #1b5e20;" x-text="currentItem.answer"></div>
+                </div>
+
+                <!-- Host Notes -->
+                <div class="host-notes" x-show="currentItem.notes && answerRevealed">
+                    <h4>🔒 Host Notes</h4>
+                    <p x-text="currentItem.notes"></p>
+                </div>
+
+            </div>
+        </template>
+
+        <!-- Controls -->
+        <div style="margin-top: 30px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+             <button class="btn-warning" @click="stopTimer()" x-show="timerStatus === 'running' || timerStatus === 'countdown'">
+                ⏯️ Skip Timer
+             </button>
+             
+             <button class="btn-success" @click="revealAnswer()" x-show="!answerRevealed && currentItem.type === 'question'">
+                ✅ Reveal Answer
+             </button>
+
+             <button class="btn-primary" @click="nextItem()" :disabled="currentIndex >= quizData.length - 1">
+                ➡️ Next
+             </button>
+
+             <button class="btn-secondary" @click="prevItem()" :disabled="currentIndex <= 0">
+                ⬅️ Previous
+             </button>
+
+             <button class="btn-danger" @click="resetGame()">
+                🔄 Reset Quiz
+             </button>
         </div>
-      </div>
 
-      <div class="button-group" id="mainControls" style="display: none">
-        <button class="btn-warning" onclick="skipTimer()" id="skipTimerBtn">
-          ⏭️ Skip Timer
-        </button>
-        <button class="btn-success" onclick="revealAnswer()" id="revealBtn">
-          ✅ Reveal Answer
-        </button>
-        <button class="btn-primary" onclick="nextItem()" id="nextBtn">
-          ➡️ Next
-        </button>
-        <button class="btn-secondary" onclick="previousItem()">
-          ⬅️ Previous
-        </button>
-        <button class="btn-danger" onclick="resetQuiz()">
-          🔄 Reset Quiz
-        </button>
       </div>
     </div>
 
+    <!-- Sidebar -->
     <div class="sidebar">
-      <div class="controls-panel">
-        <h3>⏱️ Timer Settings</h3>
-        <div class="timer-adjust">
-          <label>Default:</label>
-          <input type="number" id="defaultTimer" value="20" min="5" max="120" />
-          <span>sec</span>
+        
+        <!-- Timer Settings -->
+        <div x-show="currentView === 'game'">
+            <h3>⏱️ Settings</h3>
+            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
+                <label>Default:</label>
+                <input type="number" x-model="defaultTimer" style="width: 60px; padding: 5px;">
+            </div>
+            
+            <label style="display: flex; gap: 10px; align-items: center; font-size: 0.9rem; cursor: pointer;">
+                <input type="checkbox" x-model="autoReveal"> Auto-reveal when all answered
+            </label>
+            
+            <button class="btn-primary" style="width: 100%; margin-top: 10px;" @click="startMainTimer()">
+                ▶️ Manual Start Timer
+            </button>
         </div>
-        <div class="timer-adjust">
-          <label>This Q:</label>
-          <input type="number" id="currentTimer" value="20" min="5" max="120" />
-          <span>sec</span>
-        </div>
-        <button class="btn-primary" onclick="manualStartTimer()" style="width: 100%; margin-top: 10px">
-          ▶️ Manual Start Timer
-        </button>
 
-        <!-- Auto-reveal toggle -->
-        <div class="toggle-container">
-          <label class="toggle-switch">
-            <input type="checkbox" id="autoRevealToggle" checked />
-            <span class="toggle-slider"></span>
-          </label>
-          <label for="autoRevealToggle">Auto-reveal when all answer</label>
+        <!-- Answers Panel -->
+        <div x-show="currentView === 'game'">
+            <h3>📥 Answers</h3>
+            <div style="text-align: center; margin-bottom: 10px; font-weight: bold; background: #e3f2fd; padding: 5px; border-radius: 5px;">
+                <span x-text="currentQuestionAnswers.length"></span> / <span x-text="onlinePlayerCount"></span> answered
+            </div>
+            
+            <div class="scroll-list">
+                <template x-for="ans in currentQuestionAnswers" :key="ans.playerId">
+                    <div class="list-row" :style="ans.isCorrect ? 'background: #dcedc8' : ''">
+                        <strong x-text="ans.playerName"></strong>
+                        <span x-text="ans.answer"></span>
+                    </div>
+                </template>
+                <div x-show="currentQuestionAnswers.length === 0" style="text-align: center; color: #999; padding: 20px;">
+                    Waiting...
+                </div>
+            </div>
         </div>
-      </div>
 
-      <div class="answers-panel">
-        <h3>📥 Live Answers (Q<span id="currentQNum">-</span>)</h3>
-        <div class="answer-count" id="answerCount">0 / 0 answered</div>
-        <div class="answers-list" id="answersList">
-          <div class="no-answers">Waiting for answers...</div>
+        <!-- Scoreboard -->
+        <div>
+            <h3>🏆 Scoreboard</h3>
+            <div class="scroll-list">
+                <template x-for="(player, index) in playerList" :key="player.id">
+                    <div class="list-row" :class="{'leader': index === 0 && player.score > 0}">
+                        <div>
+                            <div style="font-weight: bold;">
+                                <span x-show="index === 0 && player.score > 0">👑</span>
+                                <span x-text="player.name"></span>
+                            </div>
+                            <small x-text="player.online ? '🟢 Online' : '⚪ Offline'"></small>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 1.2rem; font-weight: bold; color: #2e7d32;" x-text="player.score"></div>
+                            <div>
+                                <button class="btn-success score-btn" @click="adjustScore(player.id, 500)">+500</button>
+                                <button class="btn-danger score-btn" @click="adjustScore(player.id, -500)">-</button>
+                                <button class="btn-secondary score-btn" @click="removePlayer(player.id)">✕</button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                <div x-show="playerList.length === 0" style="text-align: center; padding: 20px; color: #999;">
+                    No players
+                </div>
+            </div>
+            <button class="btn-danger" style="width: 100%; margin-top: 10px;" @click="clearPlayers()">
+                🗑️ Kick All
+            </button>
         </div>
-      </div>
 
-      <div class="scoreboard">
-        <h2>🏆 Scoreboard</h2>
-        <div class="player-list" id="playerList">
-          <div class="no-answers">No players yet</div>
-        </div>
-        <button class="btn-warning" onclick="syncScoresToPlayers()" style="width: 100%; margin-top: 15px">
-          📤 Push Scores to Players
-        </button>
-        <button class="btn-danger score-btn" onclick="clearAllPlayers()" style="width: 100%; margin-top: 10px">
-          🗑️ Clear All Players
-        </button>
-      </div>
     </div>
+
   </div>
 
   <!-- Shared Logic -->
   <script src="../shared/firebase-config.js"></script>
   <!-- Application Logic -->
-  <script src="host-logic.js"></script>
+  <script src="host-alpine.js"></script>
 </body>
-
 </html>
