@@ -7,6 +7,7 @@
   
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   
   <!-- Alpine.js -->
@@ -81,13 +82,31 @@
       <div class="header">
         <h1>🎯 Trivia Night</h1>
         <p>Host Control Panel</p>
-        <span class="connection-status" 
-              :class="isConnected ? 'connected' : 'disconnected'"
-              x-text="isConnected ? '● Connected' : '● Connecting...'"></span>
+        <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
+            <span class="connection-status" 
+                  :class="isConnected ? 'connected' : 'disconnected'"
+                  x-text="isConnected ? '● Connected' : '● Connecting...'"></span>
+            <button x-show="isAuthenticated" @click="logout()" class="btn-secondary" style="padding: 5px 10px; font-size: 0.8rem;">Logout</button>
+        </div>
       </div>
 
-      <!-- VIEW: Setup -->
-      <div x-show="currentView === 'setup'">
+      <!-- VIEW: Login -->
+      <div x-show="!isAuthenticated" style="text-align: center; max-width: 400px; margin: 0 auto;">
+        <h2>Host Login</h2>
+        <p style="color: #666; margin-bottom: 20px;">Please sign in to manage the quiz.</p>
+        
+        <form @submit.prevent="login()" style="display: flex; flex-direction: column; gap: 15px;">
+            <input type="email" x-model="email" placeholder="Email" required style="padding: 12px; border: 2px solid #e3f2fd; border-radius: 8px;">
+            <input type="password" x-model="password" placeholder="Password" required style="padding: 12px; border: 2px solid #e3f2fd; border-radius: 8px;">
+            
+            <div x-show="loginError" style="color: red; background: #ffebee; padding: 10px; border-radius: 8px;" x-text="loginError"></div>
+            
+            <button type="submit" class="btn-primary">Sign In</button>
+        </form>
+      </div>
+
+      <!-- VIEW: Setup (Authenticated) -->
+      <div x-show="isAuthenticated && currentView === 'setup'">
         <div class="quiz-selector">
             <label>📁 Quiz File:</label>
             <select x-model="filename">
@@ -123,7 +142,7 @@
       </div>
 
       <!-- VIEW: Game -->
-      <div x-show="currentView === 'game'">
+      <div x-show="isAuthenticated && currentView === 'game'">
         
         <!-- Progress -->
         <div style="text-align: center; color: #78909c; font-size: 0.9rem;">
@@ -224,7 +243,7 @@
     </div>
 
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar" x-show="isAuthenticated">
         
         <!-- Timer Settings -->
         <div x-show="currentView === 'game'">

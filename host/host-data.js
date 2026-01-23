@@ -1,8 +1,13 @@
 // host/host-data.js
-export function createHostData(firebase, db) {
+export function createHostData(firebase, db, auth) {
     return {
         // --- State ---
         isConnected: false,
+        isAuthenticated: false, // Auth state
+        email: '',
+        password: '',
+        loginError: '',
+        
         loading: false,
         errorMsg: '',
         successMsg: '',
@@ -78,6 +83,16 @@ export function createHostData(firebase, db) {
 
         // --- Initialization ---
         init() {
+            // Auth Listener
+            if (auth) {
+                auth.onAuthStateChanged(user => {
+                    this.isAuthenticated = !!user;
+                    if (!user) {
+                        this.currentView = 'setup'; // Reset view on logout
+                    }
+                });
+            }
+
             db.ref('.info/connected').on('value', (snap) => {
                 this.isConnected = snap.val() === true;
             });
@@ -91,6 +106,27 @@ export function createHostData(firebase, db) {
                 this.currentAnswers = snap.val() || {};
                 this.checkAutoReveal();
             });
+        },
+
+        // --- Authentication ---
+        async login() {
+            if (!auth) {
+                this.loginError = "Auth not configured";
+                return;
+            }
+            this.loginError = '';
+            try {
+                await auth.signInWithEmailAndPassword(this.email, this.password);
+                // Success is handled by onAuthStateChanged
+                this.password = ''; // Clear sensitive data
+            } catch (e) {
+                console.error("Login failed", e);
+                this.loginError = e.message;
+            }
+        },
+
+        logout() {
+            if (auth) auth.signOut();
         },
 
         // --- Quiz Loading ---
