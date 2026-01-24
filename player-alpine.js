@@ -49,35 +49,46 @@
                 if (firebase.apps.length === 0) firebase.initializeApp(firebaseConfig);
                 
                 const db = firebase.database();
+                const auth = firebase.auth();
 
                 // Connection Status
                 db.ref('.info/connected').on('value', snap => {
                     this.isConnected = snap.val() === true;
                 });
 
-                // Check LocalStorage for existing session
-                const savedId = localStorage.getItem('triviaPlayerId');
-                const savedName = localStorage.getItem('triviaPlayerName');
+                // Listen for Auth changes
+                auth.onAuthStateChanged(user => {
+                    if (user) {
+                        this.playerId = user.uid;
+                        const savedName = localStorage.getItem('triviaPlayerName');
+                        // Only auto-register if we have a saved name and haven't joined yet
+                        if (savedName && this.screen === 'join') {
+                            this.playerName = savedName;
+                            this.registerPlayer(db);
+                        }
+                    }
+                });
+            },
+
+            async joinGame() {
+                if (this.playerName.trim().length < 1) return alert("Please enter a name");
+                localStorage.setItem('triviaPlayerName', this.playerName);
                 
-                if (savedId && savedName) {
-                    this.playerId = savedId;
-                    this.playerName = savedName;
-                    this.registerPlayer(db);
+                try {
+                    const result = await firebase.auth().signInAnonymously();
+                    this.playerId = result.user.uid;
+                    this.registerPlayer(firebase.database());
+                } catch (error) {
+                    console.error("Auth failed", error);
+                    alert("Failed to join: " + error.message);
                 }
             },
 
-            joinGame() {
-                if (this.playerName.trim().length < 1) return alert("Please enter a name");
-                this.playerId = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem('triviaPlayerId', this.playerId);
-                localStorage.setItem('triviaPlayerName', this.playerName);
-                
-                const db = firebase.database();
-                this.registerPlayer(db);
-            },
-
             registerPlayer(db) {
-                console.log("Registering player:", this.playerName);
+                if (!this.playerId || !this.playerName) return;
+                if (this.screen === 'game') return;
+                
+                console.log("Registering player:", this.playerName, "ID:", this.playerId);
                 
                 const playerRef = db.ref(`players/${this.playerId}`);
                 
