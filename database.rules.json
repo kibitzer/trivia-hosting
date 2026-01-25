@@ -10,6 +10,9 @@
     "players": {
       // Must be logged in to see the scoreboard
       ".read": "auth != null",
+      // Host can manage the entire list (needed for "Kick All")
+      ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
+      
       "$uid": {
         // Players can write to their own node; Host can write to any (for scoring/kicking)
         ".write": "auth != null && (auth.uid === $uid || auth.token.firebase.sign_in_provider != 'anonymous')",
