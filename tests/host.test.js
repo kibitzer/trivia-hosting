@@ -99,4 +99,35 @@ describe('Host Logic', () => {
             expect(host.checkCorrectness('Venus')).toBe(false);
         });
     });
+
+    describe('Scoring Logic', () => {
+        it('should award more points for faster answers', () => {
+            const mockSet = vi.fn();
+            // Mock DB behavior for this test
+            const dbRefMock = vi.fn(() => ({ set: mockSet, update: vi.fn() }));
+            const customHost = window.createHostData(mockFirebase, { ref: dbRefMock });
+            
+            customHost.players = { 'p1': { name: 'Alice', score: 0 } };
+            customHost.gameState = { timestamp: 1000 }; // Question starts at 1000ms
+            customHost.quizData = [{ 
+                type: 'question', 
+                questionNumber: 1, 
+                answer: 'A', 
+                timer: 10 // 10 seconds (10000ms)
+            }];
+            customHost.currentIndex = 0;
+            
+            // Scenario 1: Answered very fast (at 2000ms, so 1s into a 10s timer)
+            customHost.currentAnswers = {
+                1: { 'p1': { answer: 'A', timestamp: 2000 } }
+            };
+            
+            customHost.revealAnswer();
+            
+            // Expected: 500 base + (~90% of 500 bonus) = ~950 points
+            const scoreSent = mockSet.mock.calls[0][0];
+            expect(scoreSent).toBeGreaterThan(900);
+            expect(scoreSent).toBeLessThan(1000);
+        });
+    });
 });

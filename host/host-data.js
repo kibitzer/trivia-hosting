@@ -120,6 +120,7 @@ window.createHostData = function(firebase, db, auth) {
                 db.ref(`answers/${this.currentItem.questionNumber}`).remove();
                 this.startCountdown();
             }
+            // Sync game state after updating index and resetting timers
             this.syncGameState();
         },
         prevItem() { if (this.currentIndex > 0) { this.currentIndex--; this.answerRevealed = false; this.syncGameState(); } },
@@ -154,12 +155,33 @@ window.createHostData = function(firebase, db, auth) {
             }
         },
         revealAnswer() {
-            this.stopAllTimers(); this.answerRevealed = true; this.timerStatus = 'revealed';
+            this.stopAllTimers(); 
+            this.answerRevealed = true; 
+            this.timerStatus = 'revealed';
+            
             const answers = this.currentAnswers[this.currentItem.questionNumber] || {};
+            const questionStartTime = this.gameState.timestamp; // When the question was synced to Firebase
+            const totalTimeLimit = (this.currentItem.timer || this.defaultTimer) * 1000; // ms
+
             Object.entries(answers).forEach(([pid, data]) => {
-                if (this.checkCorrectness(data.answer)) db.ref(`players/${pid}/score`).set((this.players[pid]?.score || 0) + 1000);
+                if (this.checkCorrectness(data.answer)) {
+                    // Calculate Bonus: Faster answers get more points
+                    // Points = 500 (base) + (percentage of time remaining * 500)
+                    const timeTaken = data.timestamp - questionStartTime;
+                    const timeLeftRatio = Math.max(0, (totalTimeLimit - timeTaken) / totalTimeLimit);
+                    const speedBonus = Math.floor(timeLeftRatio * 500);
+                    const totalPoints = 500 + speedBonus;
+
+                    const currentScore = this.players[pid]?.score || 0;
+                    db.ref(`players/${pid}/score`).set(currentScore + totalPoints);
+                }
             });
-            db.ref('gameState').update({ answerRevealed: true, answer: this.currentItem.answer, timerStatus: 'revealed' });
+
+            db.ref('gameState').update({ 
+                answerRevealed: true, 
+                answer: this.currentItem.answer, 
+                timerStatus: 'revealed' 
+            });
         },
         checkCorrectness(ans) {
             if (!this.currentItem) return false;

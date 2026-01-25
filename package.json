@@ -5,7 +5,7 @@
   "main": "player-alpine.js",
   "type": "commonjs",
   "scripts": {
-    "test": "vitest",
+    "test": "vitest --exclude '**/*.spec.js'",
     "test:e2e": "playwright test tests/simulation.spec.js"
   },
   "repository": {
