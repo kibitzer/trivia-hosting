@@ -21,6 +21,7 @@ window.createHostData = function(firebase, db, auth) {
         answerRevealed: false,
         autoReveal: true,
         speedScoringEnabled: true,
+        gameState: {},
         players: {},
         currentAnswers: {},
         timerInterval: null,
@@ -72,6 +73,7 @@ window.createHostData = function(firebase, db, auth) {
                 if (!snap.exists()) {
                     db.ref('gameState').set({ status: 'waiting' });
                 }
+                this.gameState = snap.val() || {};
             });
         },
         async login() {
