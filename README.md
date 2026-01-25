@@ -101,47 +101,55 @@ trivia-hosting/
 Create a new `.json` file in the `quizzes/` directory (e.g., `my-quiz.json`). It should be a standard JSON array of objects:
 
 ```json
+
 [
+
   {
+
     "type": "round-title",
+
     "roundNumber": 1,
+
     "title": "General Knowledge",
+
     "timer": 20
+
   },
+
   {
+
     "type": "question",
+
     "questionNumber": 1,
+
     "questionType": "MC",
+
     "text": "What is the capital of France?",
+
     "options": ["A) London", "B) Paris", "C) Berlin", "D) Rome"],
+
     "answer": "B) Paris",
+
     "timer": 30
+
   }
+
 ]
+
 ```
 
-## 🧪 Testing
 
-This project includes both Unit Tests (for logic) and End-to-End Tests (for full simulation).
 
-### Unit Tests
-Verifies game logic (scoring, parsing, validation) using [Vitest](https://vitest.dev/).
-```bash
-npm test
-```
+## 📚 Documentation
 
-### End-to-End (E2E) Tests
-Simulates a full game session with 1 Host and 3 Players using [Playwright](https://playwright.dev/).
-```bash
-npm run test:e2e
-```
 
-## 🔄 CI/CD Automation
 
-A GitHub Actions workflow is included to run these tests automatically on every Push and Pull Request.
+For more detailed information, please refer to the documentation in the `docs/` folder:
 
-### Setup for CI
-The E2E tests require a valid Host login to verify the admin panel. You must configure the following **Repository Secrets** in GitHub (*Settings > Secrets and variables > Actions*):
 
-*   `TRIVIA_TEST_EMAIL`: Email of an authorized Firebase user.
-*   `TRIVIA_TEST_PASSWORD`: Password for that user.
+
+*   **[Testing Strategy](docs/TESTING.md)**: Details on Unit and E2E testing commands and logic.
+
+*   **[CI/CD Pipeline](docs/CICD.md)**: Information about the GitHub Actions workflow and required secrets.
+
+*   **[Code Structure](docs/CODE_STRUCTURE.md)**: Architecture overview and data model.
