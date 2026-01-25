@@ -19,6 +19,11 @@
             currentAnswer: null,
             hasSubmitted: false,
             lastQuestionNumber: null,
+            
+            // --- Visual Feedback ---
+            streak: 0,
+            showFeedback: false, // For the color flash
+            isCorrect: false,
 
             // --- Computed ---
             get scoreboard() {
@@ -121,6 +126,7 @@
             },
 
             handleStateChange(newState) {
+                const oldRevealed = this.gameState.answerRevealed;
                 this.gameState = newState;
                 
                 // Update isWaiting manually
@@ -133,6 +139,22 @@
                     this.lastQuestionNumber = newState.questionNumber;
                     this.currentAnswer = null;
                     this.hasSubmitted = false;
+                    this.showFeedback = false;
+                }
+
+                // Detect Answer Reveal
+                if (newState.answerRevealed && !oldRevealed && this.hasSubmitted) {
+                    this.isCorrect = this.isCorrectOption(this.currentAnswer);
+                    
+                    if (this.isCorrect) {
+                        this.streak++;
+                    } else {
+                        this.streak = 0;
+                    }
+
+                    // Trigger flash
+                    this.showFeedback = true;
+                    setTimeout(() => { this.showFeedback = false; }, 2000);
                 }
             },
 

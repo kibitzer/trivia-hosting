@@ -71,11 +71,63 @@
         .score-row .name { font-weight: bold; color: #1565c0; }
         .score-row .score { font-weight: bold; color: #2e7d32; }
 
+        /* Feedback Flash Overlay */
+        .feedback-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            pointer-events: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .feedback-overlay.active { opacity: 1; }
+        .feedback-overlay.correct { background: rgba(76, 175, 80, 0.9); }
+        .feedback-overlay.incorrect { background: rgba(244, 67, 54, 0.9); }
+        .feedback-content { color: white; text-align: center; transform: scale(0.5); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .feedback-overlay.active .feedback-content { transform: scale(1); }
+        .feedback-content h1 { color: white; font-size: 4rem; text-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+
+        /* Streak Badge */
+        .streak-badge {
+            background: linear-gradient(135deg, #ff9800, #f44336);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-left: 10px;
+            box-shadow: 0 4px 10px rgba(244, 67, 54, 0.4);
+            animation: glow 1.5s infinite alternate;
+        }
+
+        @keyframes glow { 
+            from { box-shadow: 0 0 5px #ff9800; }
+            to { box-shadow: 0 0 20px #f44336; }
+        }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
     </style>
 </head>
 <body x-data="triviaPlayer">
+    <!-- Feedback Flash -->
+    <div class="feedback-overlay" :class="{'active': showFeedback, 'correct': isCorrect, 'incorrect': !isCorrect}" x-show="showFeedback" x-cloak>
+        <div class="feedback-content">
+            <h1 x-text="isCorrect ? '✅ CORRECT!' : '❌ WRONG'"></h1>
+            <div style="font-size: 5rem;" x-text="isCorrect ? '🎉' : '😢'"></div>
+            <template x-if="isCorrect && streak >= 3">
+                <div style="font-size: 2rem; font-weight: bold; margin-top: 10px;">
+                    🔥 <span x-text="streak"></span> STREAK!
+                </div>
+            </template>
+        </div>
+    </div>
+
     <div class="container">
         
         <!-- Join Section -->
@@ -101,7 +153,12 @@
                 </div>
 
                 <div class="player-badge">
-                    <span class="name" x-text="playerName"></span>
+                    <div style="display: flex; align-items: center;">
+                        <span class="name" x-text="playerName"></span>
+                        <template x-if="streak >= 3">
+                            <span class="streak-badge" x-text="'🔥 ' + streak"></span>
+                        </template>
+                    </div>
                     <span class="score" x-text="score + ' pts'"></span>
                 </div>
 
