@@ -29,15 +29,9 @@ A real-time, browser-based trivia hosting application powered by Firebase Realti
 ### 2. Firebase Configuration
 1.  Create a new project in the [Firebase Console](https://console.firebase.google.com/).
 2.  Create a **Realtime Database** instance.
-3.  Set the database rules to **public** for testing (or configure authentication for security).
-    ```json
-    {
-      "rules": {
-        ".read": true,
-        ".write": true
-      }
-    }
-    ```
+3.  **Security Rules**: Apply the rules found in `database.rules.json`.
+    *   *Option A (Manual)*: Copy the contents of `database.rules.json` and paste them into the "Rules" tab of your Firebase Database console.
+    *   *Option B (CLI)*: If you have the Firebase CLI installed, run `firebase deploy --only database`.
 4.  Copy your web app configuration keys.
 5.  Open `shared/firebase-config.js` and paste your configuration:
     ```javascript

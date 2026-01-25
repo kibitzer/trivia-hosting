@@ -1,0 +1,38 @@
+{
+  "rules": {
+    "gameState": {
+      // Only authenticated users (Host or Players) can see the game state
+      ".read": "auth != null",
+      // Only the Host (non-anonymous user) can update the game state
+      ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
+      ".validate": "newData.hasChildren(['status'])"
+    },
+    "players": {
+      // Must be logged in to see the scoreboard
+      ".read": "auth != null",
+      "$uid": {
+        // Players can write to their own node; Host can write to any (for scoring/kicking)
+        ".write": "auth != null && (auth.uid === $uid || auth.token.firebase.sign_in_provider != 'anonymous')",
+        
+        // Basic validation for player data
+        "name": { ".validate": "newData.isString() && newData.val().length <= 20" },
+        "score": { ".validate": "newData.isNumber()" },
+        "online": { ".validate": "newData.isBoolean()" }
+      }
+    },
+    "answers": {
+      // Only authenticated users can see answers
+      ".read": "auth != null",
+      // Host can clear/manage answers
+      ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
+      
+      "$questionId": {
+        "$uid": {
+          // Individual players can only submit their own answers
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.hasChildren(['answer', 'timestamp'])"
+        }
+      }
+    }
+  }
+}
