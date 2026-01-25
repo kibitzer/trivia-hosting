@@ -55,10 +55,17 @@ window.createHostData = function(firebase, db, auth) {
 
         // --- Methods ---
         init() {
-            if (auth) auth.onAuthStateChanged(user => { this.isAuthenticated = !!user; if (!user) this.currentView = 'setup'; });
+            if (auth) auth.onAuthStateChanged(user => { 
+                this.isAuthenticated = !!user; 
+                if (!user) {
+                    this.currentView = 'setup'; 
+                } else {
+                    // Only attach listeners when authenticated
+                    db.ref('players').on('value', snap => { this.players = snap.val() || {}; this.checkAutoReveal(); });
+                    db.ref('answers').on('value', snap => { this.currentAnswers = snap.val() || {}; this.checkAutoReveal(); });
+                }
+            });
             db.ref('.info/connected').on('value', snap => { this.isConnected = snap.val() === true; });
-            db.ref('players').on('value', snap => { this.players = snap.val() || {}; this.checkAutoReveal(); });
-            db.ref('answers').on('value', snap => { this.currentAnswers = snap.val() || {}; this.checkAutoReveal(); });
             
             // Initialize gameState if empty
             db.ref('gameState').on('value', snap => {
