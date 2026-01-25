@@ -6,7 +6,8 @@
   "type": "commonjs",
   "scripts": {
     "test": "vitest --exclude '**/*.spec.js'",
-    "test:e2e": "playwright test tests/simulation.spec.js"
+    "test:e2e": "playwright test tests/simulation.spec.js",
+    "version": "node scripts/sync-version.js && git add shared/version.js"
   },
   "repository": {
     "type": "git",
