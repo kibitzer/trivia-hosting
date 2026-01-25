@@ -222,11 +222,17 @@
                 <div x-show="playerList.length === 0" style="text-align: center; padding: 20px; color: #999;">No players</div>
             </div>
             <button class="btn-danger" style="width: 100%; margin-top: 10px;" @click="clearPlayers()">🗑️ Kick All</button>
+            
+            <div style="margin-top: 30px; text-align: center; color: #b0bec5; font-size: 0.8rem;">
+                Trivia Host <span id="app-version"></span>
+            </div>
         </div>
     </div>
   </div>
 
   <!-- SCRIPT LOADING (CRITICAL ORDER) -->
+  <!-- 0. Version Info -->
+  <script src="../shared/version.js"></script>
   <!-- 1. Firebase Compat Libraries -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -241,5 +247,12 @@
   
   <!-- 4. Alpine.js (Defer ensures it waits for the scripts above to register listeners) -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  
+  <script>
+      // Initialize Version
+      document.addEventListener('DOMContentLoaded', () => {
+          if (typeof displayVersion === 'function') displayVersion('app-version');
+      });
+  </script>
 </body>
 </html>
