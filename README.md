@@ -119,3 +119,29 @@ Create a new `.json` file in the `quizzes/` directory (e.g., `my-quiz.json`). It
   }
 ]
 ```
+
+## 🧪 Testing
+
+This project includes both Unit Tests (for logic) and End-to-End Tests (for full simulation).
+
+### Unit Tests
+Verifies game logic (scoring, parsing, validation) using [Vitest](https://vitest.dev/).
+```bash
+npm test
+```
+
+### End-to-End (E2E) Tests
+Simulates a full game session with 1 Host and 3 Players using [Playwright](https://playwright.dev/).
+```bash
+npm run test:e2e
+```
+
+## 🔄 CI/CD Automation
+
+A GitHub Actions workflow is included to run these tests automatically on every Push and Pull Request.
+
+### Setup for CI
+The E2E tests require a valid Host login to verify the admin panel. You must configure the following **Repository Secrets** in GitHub (*Settings > Secrets and variables > Actions*):
+
+*   `TRIVIA_TEST_EMAIL`: Email of an authorized Firebase user.
+*   `TRIVIA_TEST_PASSWORD`: Password for that user.
