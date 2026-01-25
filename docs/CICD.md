@@ -19,3 +19,12 @@ For the E2E tests to run successfully in the cloud, you must configure the follo
 *   `TRIVIA_TEST_PASSWORD`: Password for that user.
 
 *Note: These credentials are used to simulate the Host logging in during the test.*
+
+## Automated Deployment
+A separate workflow (`deploy.yml`) handles the deployment of Firebase Database Rules. It triggers **only** when `database.rules.json` or configuration files are modified on `main`.
+
+### Required Secret for Deployment
+To enable automated deployment, you must add the following **Repository Secret**:
+
+*   `FIREBASE_TOKEN`: A CI token from Firebase.
+    *   **How to generate:** Run `firebase login:ci` on your local machine and copy the token it outputs.
