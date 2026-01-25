@@ -189,11 +189,7 @@ window.createHostData = function(firebase, db, auth) {
                 }
             });
 
-            db.ref('gameState').update({ 
-                answerRevealed: true, 
-                answer: this.currentItem.answer, 
-                timerStatus: 'revealed' 
-            });
+            this.syncGameState();
         },
         checkCorrectness(ans) {
             if (!this.currentItem) return false;
@@ -203,7 +199,14 @@ window.createHostData = function(firebase, db, auth) {
             return (this.currentItem.acceptedAnswers || []).includes(a) || a === (correct || '').toLowerCase().trim();
         },
         syncGameState() {
-            const base = { currentIndex: this.currentIndex, status: 'active', answerRevealed: this.answerRevealed, timestamp: firebase.database.ServerValue.TIMESTAMP };
+            const base = { 
+                currentIndex: this.currentIndex, 
+                status: 'active', 
+                answerRevealed: this.answerRevealed, 
+                timerValue: this.timerValue,
+                timerStatus: this.timerStatus,
+                timestamp: firebase.database.ServerValue.TIMESTAMP 
+            };
             if (this.currentItem.type === 'round-title') Object.assign(base, { type: 'round-title', roundNumber: this.currentItem.roundNumber, roundTitle: this.currentItem.title });
             else Object.assign(base, { 
                 type: 'question', 
