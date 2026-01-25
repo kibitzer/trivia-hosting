@@ -144,6 +144,18 @@ For more detailed information, please refer to the documentation in the `docs/` 
 
 *   **[Testing Strategy](docs/TESTING.md)**: Details on Unit and E2E testing commands and logic.
 
+
+
 *   **[CI/CD Pipeline](docs/CICD.md)**: Information about the GitHub Actions workflow and required secrets.
 
+
+
+*   **[Versioning Strategy](docs/VERSIONING.md)**: How the application versioning and automation works.
+
+
+
 *   **[Code Structure](docs/CODE_STRUCTURE.md)**: Architecture overview and data model.
+
+
+
+
