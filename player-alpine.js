@@ -126,35 +126,43 @@
             },
 
             handleStateChange(newState) {
-                const oldRevealed = this.gameState.answerRevealed;
-                this.gameState = newState;
+                const oldRevealed = !!this.gameState.answerRevealed;
+                
+                // Update gameState properties while maintaining reactivity
+                Object.assign(this.gameState, newState);
+                
+                const nowRevealed = !!this.gameState.answerRevealed;
                 
                 // Update isWaiting manually
-                this.isWaiting = (newState.status === 'waiting') || 
-                                (newState.currentIndex === -1) || 
-                                (!newState.type);
+                this.isWaiting = (this.gameState.status === 'waiting') || 
+                                (this.gameState.currentIndex === -1) || 
+                                (!this.gameState.type);
 
                 // Detect new question to reset inputs
-                if (newState.type === 'question' && newState.questionNumber !== this.lastQuestionNumber) {
-                    this.lastQuestionNumber = newState.questionNumber;
+                if (this.gameState.type === 'question' && this.gameState.questionNumber !== this.lastQuestionNumber) {
+                    this.lastQuestionNumber = this.gameState.questionNumber;
                     this.currentAnswer = null;
                     this.hasSubmitted = false;
                     this.showFeedback = false;
+                    this.isCorrect = false;
                 }
 
-                // Detect Answer Reveal
-                if (newState.answerRevealed && !oldRevealed && this.hasSubmitted) {
+                // Detect Answer Reveal Transition
+                if (nowRevealed && !oldRevealed) {
+                    // Calculate correctness for the feedback flash
                     this.isCorrect = this.isCorrectOption(this.currentAnswer);
                     
-                    if (this.isCorrect) {
-                        this.streak++;
-                    } else {
-                        this.streak = 0;
-                    }
+                    if (this.hasSubmitted) {
+                        if (this.isCorrect) {
+                            this.streak++;
+                        } else {
+                            this.streak = 0;
+                        }
 
-                    // Trigger flash
-                    this.showFeedback = true;
-                    setTimeout(() => { this.showFeedback = false; }, 2000);
+                        // Trigger visual flash
+                        this.showFeedback = true;
+                        setTimeout(() => { this.showFeedback = false; }, 2500);
+                    }
                 }
             },
 

@@ -202,7 +202,7 @@ window.createHostData = function(firebase, db, auth) {
             const base = { 
                 currentIndex: this.currentIndex, 
                 status: 'active', 
-                answerRevealed: this.answerRevealed, 
+                answerRevealed: !!this.answerRevealed, 
                 timerValue: this.timerValue,
                 timerStatus: this.timerStatus,
                 timestamp: firebase.database.ServerValue.TIMESTAMP 

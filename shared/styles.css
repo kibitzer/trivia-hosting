@@ -44,3 +44,7 @@ button {
     transition: all 0.3s ease;
     border: none;
 }
+
+[x-cloak] {
+    display: none !important;
+}
