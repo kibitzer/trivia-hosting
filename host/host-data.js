@@ -64,17 +64,17 @@ window.createHostData = function(firebase, db, auth) {
                     // Only attach listeners when authenticated
                     db.ref('players').on('value', snap => { this.players = snap.val() || {}; this.checkAutoReveal(); });
                     db.ref('answers').on('value', snap => { this.currentAnswers = snap.val() || {}; this.checkAutoReveal(); });
+                    
+                    // Initialize gameState if empty
+                    db.ref('gameState').on('value', snap => {
+                        if (!snap.exists()) {
+                            db.ref('gameState').set({ status: 'waiting' });
+                        }
+                        this.gameState = snap.val() || {};
+                    });
                 }
             });
             db.ref('.info/connected').on('value', snap => { this.isConnected = snap.val() === true; });
-            
-            // Initialize gameState if empty
-            db.ref('gameState').on('value', snap => {
-                if (!snap.exists()) {
-                    db.ref('gameState').set({ status: 'waiting' });
-                }
-                this.gameState = snap.val() || {};
-            });
         },
         async login() {
             if (!auth) { this.loginError = "Auth not configured"; return; }
@@ -177,7 +177,7 @@ window.createHostData = function(firebase, db, auth) {
                 if (this.checkCorrectness(data.answer)) {
                     let totalPoints = 1000; // Default flat score
 
-                    if (this.speedScoringEnabled) {
+                    if (this.speedScoringEnabled && typeof questionStartTime === 'number' && typeof data.timestamp === 'number') {
                         // Calculate Bonus: Faster answers get more points
                         // Points = 500 (base) + (percentage of time remaining * 500)
                         const timeTaken = data.timestamp - questionStartTime;
