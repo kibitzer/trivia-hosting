@@ -129,5 +129,32 @@ describe('Host Logic', () => {
             expect(scoreSent).toBeGreaterThan(900);
             expect(scoreSent).toBeLessThan(1000);
         });
+
+        it('should award flat 1000 points when speed scoring is disabled', () => {
+            const mockSet = vi.fn();
+            const dbRefMock = vi.fn(() => ({ set: mockSet, update: vi.fn() }));
+            const customHost = window.createHostData(mockFirebase, { ref: dbRefMock });
+            
+            customHost.speedScoringEnabled = false; // DISABLE Speed Scoring
+            customHost.players = { 'p1': { name: 'Bob', score: 0 } };
+            customHost.gameState = { timestamp: 1000 };
+            customHost.quizData = [{ 
+                type: 'question', 
+                questionNumber: 1, 
+                answer: 'A', 
+                timer: 10 
+            }];
+            customHost.currentIndex = 0;
+            
+            // Scenario: Answered very slowly (at 10000ms)
+            customHost.currentAnswers = {
+                1: { 'p1': { answer: 'A', timestamp: 10000 } }
+            };
+            
+            customHost.revealAnswer();
+            
+            // Expected: Exactly 1000 points regardless of speed
+            expect(mockSet).toHaveBeenCalledWith(1000);
+        });
     });
 });

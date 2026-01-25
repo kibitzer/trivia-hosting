@@ -20,6 +20,7 @@ window.createHostData = function(firebase, db, auth) {
         timerStatus: 'stopped',
         answerRevealed: false,
         autoReveal: true,
+        speedScoringEnabled: true,
         players: {},
         currentAnswers: {},
         timerInterval: null,
@@ -165,12 +166,16 @@ window.createHostData = function(firebase, db, auth) {
 
             Object.entries(answers).forEach(([pid, data]) => {
                 if (this.checkCorrectness(data.answer)) {
-                    // Calculate Bonus: Faster answers get more points
-                    // Points = 500 (base) + (percentage of time remaining * 500)
-                    const timeTaken = data.timestamp - questionStartTime;
-                    const timeLeftRatio = Math.max(0, (totalTimeLimit - timeTaken) / totalTimeLimit);
-                    const speedBonus = Math.floor(timeLeftRatio * 500);
-                    const totalPoints = 500 + speedBonus;
+                    let totalPoints = 1000; // Default flat score
+
+                    if (this.speedScoringEnabled) {
+                        // Calculate Bonus: Faster answers get more points
+                        // Points = 500 (base) + (percentage of time remaining * 500)
+                        const timeTaken = data.timestamp - questionStartTime;
+                        const timeLeftRatio = Math.max(0, (totalTimeLimit - timeTaken) / totalTimeLimit);
+                        const speedBonus = Math.floor(timeLeftRatio * 500);
+                        totalPoints = 500 + speedBonus;
+                    }
 
                     const currentScore = this.players[pid]?.score || 0;
                     db.ref(`players/${pid}/score`).set(currentScore + totalPoints);
