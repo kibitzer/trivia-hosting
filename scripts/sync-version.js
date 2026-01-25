@@ -10,6 +10,7 @@ const newVersion = packageJson.version;
 const versionFilePath = path.resolve(__dirname, '../shared/version.js');
 
 // Content to write
+// We use normal strings here to avoid confusion during the generation
 const content = `// Single source of truth for the app version
 const TRIVIA_VERSION = '${newVersion}';
 
@@ -17,7 +18,7 @@ const TRIVIA_VERSION = '${newVersion}';
 function displayVersion(elementId) {
     const el = document.getElementById(elementId);
     if (el) {
-        el.innerText = `v${TRIVIA_VERSION}`;
+        el.innerText = 'v' + TRIVIA_VERSION;
     }
 }
 `;
