@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "A real-time, browser-based trivia hosting application powered by Firebase Realtime Database. This system allows a host to control a trivia game while players join via their own devices to answer questions, earn points, and view the live scoreboard.",
   "main": "player-alpine.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
-    "test": "vitest"
+    "test": "vitest",
+    "test:e2e": "playwright test tests/simulation.spec.js"
   },
   "repository": {
     "type": "git",
@@ -14,13 +15,16 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "bugs": {
     "url": "https://github.com/kibitzer/trivia-hosting/issues"
   },
   "homepage": "https://github.com/kibitzer/trivia-hosting#readme",
   "devDependencies": {
+    "@playwright/test": "^1.58.0",
     "jsdom": "^27.4.0",
     "vitest": "^4.0.18"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3"
   }
 }

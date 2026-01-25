@@ -11,6 +11,7 @@
             playerName: '',
             playerId: null,
             score: 0,
+            isWaiting: true,
             
             gameState: { status: 'waiting' },
             allPlayers: {},
@@ -20,10 +21,6 @@
             lastQuestionNumber: null,
 
             // --- Computed ---
-            get isWaiting() {
-                return !this.gameState.type || this.gameState.status === 'waiting';
-            },
-
             get scoreboard() {
                 return Object.entries(this.allPlayers)
                     .map(([id, data]) => ({
@@ -41,7 +38,7 @@
 
             // --- Init ---
             init() {
-                console.log("Player Init...");
+                const self = this;
                 
                 // Initialize Firebase (Safely)
                 if (typeof firebase === 'undefined') return console.error("Firebase missing");
@@ -53,18 +50,17 @@
 
                 // Connection Status
                 db.ref('.info/connected').on('value', snap => {
-                    this.isConnected = snap.val() === true;
+                    self.isConnected = snap.val() === true;
                 });
 
                 // Listen for Auth changes
                 auth.onAuthStateChanged(user => {
                     if (user) {
-                        this.playerId = user.uid;
+                        self.playerId = user.uid;
                         const savedName = localStorage.getItem('triviaPlayerName');
-                        // Only auto-register if we have a saved name and haven't joined yet
-                        if (savedName && this.screen === 'join') {
-                            this.playerName = savedName;
-                            this.registerPlayer(db);
+                        if (savedName && self.screen === 'join') {
+                            self.playerName = savedName;
+                            self.registerPlayer(db);
                         }
                     }
                 });
@@ -88,8 +84,6 @@
                 if (!this.playerId || !this.playerName) return;
                 if (this.screen === 'game') return;
                 
-                console.log("Registering player:", this.playerName, "ID:", this.playerId);
-                
                 const playerRef = db.ref(`players/${this.playerId}`);
                 
                 playerRef.update({
@@ -104,12 +98,11 @@
                 // Disconnect handler
                 playerRef.child('online').onDisconnect().set(false);
 
+                this.screen = 'game';
                 this.startGame(db);
             },
 
             startGame(db) {
-                this.screen = 'game';
-                
                 // Listen for Global State
                 db.ref('gameState').on('value', snap => {
                     const state = snap.val();
@@ -129,6 +122,11 @@
 
             handleStateChange(newState) {
                 this.gameState = newState;
+                
+                // Update isWaiting manually
+                this.isWaiting = (newState.status === 'waiting') || 
+                                (newState.currentIndex === -1) || 
+                                (!newState.type);
 
                 // Detect new question to reset inputs
                 if (newState.type === 'question' && newState.questionNumber !== this.lastQuestionNumber) {

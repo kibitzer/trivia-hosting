@@ -58,6 +58,13 @@ window.createHostData = function(firebase, db, auth) {
             db.ref('.info/connected').on('value', snap => { this.isConnected = snap.val() === true; });
             db.ref('players').on('value', snap => { this.players = snap.val() || {}; this.checkAutoReveal(); });
             db.ref('answers').on('value', snap => { this.currentAnswers = snap.val() || {}; this.checkAutoReveal(); });
+            
+            // Initialize gameState if empty
+            db.ref('gameState').on('value', snap => {
+                if (!snap.exists()) {
+                    db.ref('gameState').set({ status: 'waiting' });
+                }
+            });
         },
         async login() {
             if (!auth) { this.loginError = "Auth not configured"; return; }
@@ -164,7 +171,15 @@ window.createHostData = function(firebase, db, auth) {
         syncGameState() {
             const base = { currentIndex: this.currentIndex, status: 'active', answerRevealed: this.answerRevealed, timestamp: firebase.database.ServerValue.TIMESTAMP };
             if (this.currentItem.type === 'round-title') Object.assign(base, { type: 'round-title', roundNumber: this.currentItem.roundNumber, roundTitle: this.currentItem.title });
-            else Object.assign(base, { type: 'question', questionNumber: this.currentItem.questionNumber, questionType: this.currentItem.questionType, questionText: this.currentItem.text, questionImage: this.currentItem.image, options: this.currentItem.options, answer: this.answerRevealed ? this.currentItem.answer : null });
+            else Object.assign(base, { 
+                type: 'question', 
+                questionNumber: this.currentItem.questionNumber, 
+                questionType: this.currentItem.questionType, 
+                questionText: this.currentItem.text, 
+                questionImage: this.currentItem.image || null, 
+                options: this.currentItem.options || null, 
+                answer: this.answerRevealed ? this.currentItem.answer : null 
+            });
             db.ref('gameState').set(base);
         },
         adjustScore(pid, amt) { db.ref(`players/${pid}/score`).set(Math.max(0, (this.players[pid]?.score || 0) + amt)); },
