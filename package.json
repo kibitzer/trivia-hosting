@@ -1,6 +1,6 @@
 {
   "name": "trivia-hosting",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A real-time, browser-based trivia hosting application powered by Firebase Realtime Database. This system allows a host to control a trivia game while players join via their own devices to answer questions, earn points, and view the live scoreboard.",
   "main": "player-alpine.js",
   "type": "commonjs",
