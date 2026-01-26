@@ -3,7 +3,7 @@ import path from 'path';
 import dotenv from 'dotenv';
 
 // Load environment variables from .env file
-dotenv.config({ path: path.resolve('/home/kibitzer/repos/trivia-hosting', '.env') });
+dotenv.config();
 
 const PORT = process.env.TEST_PORT || 8080;
 const HOST_URL = `http://localhost:${PORT}/host/host.html`;
