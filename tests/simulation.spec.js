@@ -128,4 +128,16 @@ test('Trivia Full Simulation', async ({ browser }) => {
     if (count < 3) {
         throw new Error(`Expected at least 3 players in scoreboard, found ${count}`);
     }
+
+    // --- Cleanup Step ---
+    // Use the host's existing access to wipe the nodes we used during simulation
+    console.log("[TEST] Cleaning up Firebase data...");
+    await hostPage.evaluate(() => {
+        const db = firebase.database();
+        return Promise.all([
+            db.ref('players').remove(),
+            db.ref('answers').remove(),
+            db.ref('gameState').set({ status: 'waiting' })
+        ]);
+    });
 });
