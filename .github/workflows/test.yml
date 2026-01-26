@@ -24,7 +24,7 @@ jobs:
       run: npm ci
 
     - name: Create Firebase Config
-      run: echo "${{ secrets.FIREBASE_CONFIG }}" > shared/firebase-config.js
+      run: echo "${{ secrets.FIREBASE_CONFIG }}" > config/firebase-config.js
 
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps

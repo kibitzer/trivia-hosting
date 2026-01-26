@@ -33,15 +33,15 @@ A real-time, browser-based trivia hosting application powered by Firebase Realti
     *   *Option A (Manual)*: Copy the contents of `config/database.rules.json` and paste them into the "Rules" tab of your Firebase Database console.
     *   *Option B (CLI)*: If you have the Firebase CLI installed, run `firebase deploy --only database`.
 4.  Copy your web app configuration keys.
-5.  Duplicate `shared/firebase-config.template.js` and rename it to `shared/firebase-config.js`.
-6.  Open `shared/firebase-config.js` and paste your configuration:
+5.  Duplicate `config/firebase-config.template.js` and rename it to `config/firebase-config.js`.
+6.  Open `config/firebase-config.js` and paste your configuration:
     ```javascript
     const firebaseConfig = {
         apiKey: "YOUR_API_KEY",
         // ... rest of your config
     };
     ```
-    *Note: `shared/firebase-config.js` is ignored by Git to prevent leaking your credentials.*
+    *Note: `config/firebase-config.js` is ignored by Git to prevent leaking your credentials.*
 
 ### 3. Running the App
 Since this uses ES modules and external script loading, **you cannot open the HTML files directly** (via `file://`). You must serve them via a local web server.

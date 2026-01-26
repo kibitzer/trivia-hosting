@@ -11,6 +11,8 @@ This is a real-time trivia application built with a **Serverless** architecture.
 Contains configuration files for the project's tools and services.
 *   **`firebase.json`**: Firebase CLI configuration.
 *   **`database.rules.json`**: Security rules for the Realtime Database.
+*   **`firebase-config.js`**: (Gitignored) Actual Firebase credentials.
+*   **`firebase-config.template.js`**: Template for credentials.
 *   **`playwright.config.js`**: Configuration for E2E simulation tests.
 *   **`vitest.config.js`**: Configuration for unit tests.
 
@@ -30,7 +32,8 @@ The Player client is a "dumb terminal" that reacts to state changes from Firebas
     *   **UI:** Switches between "Join" screen and "Game" screen based on connection status.
 
 ### `shared/`
-*   **`firebase-config.js`**: Shared configuration for the Firebase SDK.
+*   **`styles.css`**: Common styles used across all pages.
+*   **`version.js`**: Centralized version display logic.
 
 ### `quizzes/`
 Stores quiz content in JSON format.

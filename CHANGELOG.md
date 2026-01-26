@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- **Architecture**: Moved project configuration files (`firebase.json`, `database.rules.json`, `playwright.config.js`, `vitest.config.js`, and `firebase-config.template.js`) to a dedicated `config/` directory.
+- **Security**: Externalized Firebase configuration. `config/firebase-config.js` is now gitignored, and a template `config/firebase-config.template.js` is provided.
 - **Infrastructure**: Reverted to standard synchronous script loading for Firebase configuration to ensure application stability, with manual cache-busting.
 
 ### Fixed
