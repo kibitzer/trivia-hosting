@@ -14,25 +14,36 @@
       ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
       
       "$uid": {
-        // Players can write to their own node; Host can write to any (for scoring/kicking)
-        ".write": "auth != null && (auth.uid === $uid || auth.token.firebase.sign_in_provider != 'anonymous')",
-        
-        // Basic validation for player data
-        "name": { ".validate": "newData.isString() && newData.val().length <= 20" },
-        "score": { ".validate": "newData.isNumber()" },
-        "online": { ".validate": "newData.isBoolean()" }
+        // Individual fields validation
+        "name": { 
+          ".write": "auth != null && (auth.uid === $uid || auth.token.firebase.sign_in_provider != 'anonymous')",
+          ".validate": "newData.isString() && newData.val().length <= 20" 
+        },
+        "score": { 
+          // CRITICAL: Only the Host can update scores
+          ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
+          ".validate": "newData.isNumber()" 
+        },
+        "online": { 
+          ".write": "auth != null && (auth.uid === $uid || auth.token.firebase.sign_in_provider != 'anonymous')",
+          ".validate": "newData.isBoolean()" 
+        },
+        "joinedAt": {
+          ".write": "auth != null && (auth.uid === $uid || auth.token.firebase.sign_in_provider != 'anonymous')"
+        }
       }
     },
     "answers": {
-      // Only authenticated users can see answers
-      ".read": "auth != null",
+      // SECURITY: Only the Host can read the full answers list to prevent cheating
+      ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
       // Host can clear/manage answers
       ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
       
       "$questionId": {
         "$uid": {
-          // Individual players can only submit their own answers
-          ".write": "auth != null && auth.uid === $uid",
+          // Players can only submit their own answers
+          // SECURITY: Only allow submission if the timer is actually running
+          ".write": "auth != null && auth.uid === $uid && root.child('gameState/timerStatus').val() === 'running'",
           ".validate": "newData.hasChildren(['answer', 'timestamp'])"
         }
       }

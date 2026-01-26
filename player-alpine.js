@@ -97,9 +97,6 @@
                     joinedAt: firebase.database.ServerValue.TIMESTAMP
                 });
 
-                // Ensure score exists
-                playerRef.child('score').transaction(current => (current === null ? 0 : current));
-
                 // Disconnect handler
                 playerRef.child('online').onDisconnect().set(false);
 
@@ -190,7 +187,7 @@
 
             // --- UI Helpers ---
             isCorrectOption(opt) {
-                if (!this.gameState.answerRevealed) return false;
+                if (!opt || !this.gameState.answerRevealed) return false;
                 const correct = this.gameState.answer;
                 return correct === opt || (correct && correct.startsWith(opt.charAt(0) + ')'));
             },

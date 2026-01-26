@@ -16,9 +16,12 @@ The application version is managed centrally to avoid manual updates in multiple
 
 ### 1. Source of Truth
 *   **`package.json`**: The primary source for the version number.
-*   **`shared/version.js`**: Automatically updated by a sync script to provide the version to the browser-based Host and Player interfaces.
+*   **`shared/version.js`**: Automatically updated by a sync script.
+*   **`CHANGELOG.md`**: Manual record of notable changes for each version.
 
 ### 2. Updating the Version
+Before bumping the version, ensure all changes are documented in the `[Unreleased]` section of `CHANGELOG.md`.
+
 To update the version, use the built-in `npm version` command. This will bump the version in `package.json`, trigger the sync script for `shared/version.js`, and create a Git commit and tag.
 
 Run one of the following commands in the root directory:
