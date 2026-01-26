@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Feature**: Backend Quiz Editor (`host/editor.html`) for managing trivia content directly in Firebase.
+- **Feature**: Support for loading and running quizzes stored in Firebase Realtime Database.
 - **Documentation**: Introduced `CHANGELOG.md` and integrated it into the automated versioning workflow.
 
 ### Changed

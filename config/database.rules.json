@@ -1,26 +1,25 @@
 {
   "rules": {
     "gameState": {
-      // Only authenticated users (Host or Players) can see the game state
       ".read": "auth != null",
-      // Only the Host (non-anonymous user) can update the game state
       ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
       ".validate": "newData.hasChildren(['status'])"
     },
-    "players": {
-      // Must be logged in to see the scoreboard
+    "quizzes": {
+      // Players need to read quiz metadata sometimes, or Host can read all
       ".read": "auth != null",
-      // Host can manage the entire list (needed for "Kick All")
+      // Only the Host can create/edit/delete quizzes
+      ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'"
+    },
+    "players": {
+      ".read": "auth != null",
       ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
-      
       "$uid": {
-        // Individual fields validation
         "name": { 
           ".write": "auth != null && (auth.uid === $uid || auth.token.firebase.sign_in_provider != 'anonymous')",
           ".validate": "newData.isString() && newData.val().length <= 20" 
         },
         "score": { 
-          // CRITICAL: Only the Host can update scores
           ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
           ".validate": "newData.isNumber()" 
         },
@@ -34,15 +33,10 @@
       }
     },
     "answers": {
-      // SECURITY: Only the Host can read the full answers list to prevent cheating
       ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
-      // Host can clear/manage answers
       ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
-      
       "$questionId": {
         "$uid": {
-          // Players can only submit their own answers
-          // SECURITY: Only allow submission if the timer is actually running
           ".write": "auth != null && auth.uid === $uid && root.child('gameState/timerStatus').val() === 'running'",
           ".validate": "newData.hasChildren(['answer', 'timestamp'])"
         }

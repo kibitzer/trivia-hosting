@@ -77,17 +77,31 @@
       <!-- VIEW: Setup -->
       <div x-show="isAuthenticated && currentView === 'setup'">
         <div class="quiz-selector">
-            <label>📁 Quiz File:</label>
+            <label>📁 Quiz Source:</label>
             <select x-model="filename">
+                <option value="firebase">🔥 Saved in Firebase</option>
                 <option value="../quizzes/EOY-2025.json">2025 Year in Review (EOY-2025.json)</option>
                 <option value="../quizzes/sample_quiz.json">Sample Quiz (sample_quiz.json)</option>
                 <option value="custom">Custom file...</option>
             </select>
+            
+            <template x-if="filename === 'firebase'">
+                <select x-model="selectedQuizId" style="margin-left: 10px;">
+                    <option value="">-- Select a Quiz --</option>
+                    <template x-for="(quiz, id) in availableQuizzes" :key="id">
+                        <option :value="id" x-text="quiz.title"></option>
+                    </template>
+                </select>
+            </template>
+
             <input type="text" x-model="customFilename" x-show="filename === 'custom'" placeholder="Enter filename (e.g. ../quizzes/quiz.json)...">
+            
             <button @click="loadQuiz()" class="btn-warning" :disabled="loading">
                 <span x-show="!loading">Load Quiz</span>
                 <span x-show="loading">⏳ Loading...</span>
             </button>
+
+            <a href="editor.html" class="btn-secondary" style="text-decoration: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; margin-left: 10px;">⚙️ Manage Quizzes</a>
         </div>
         
         <div style="margin-bottom: 20px; text-align: center;">

@@ -11,6 +11,8 @@ window.createHostData = function(firebase, db, auth) {
         errorMsg: '',
         successMsg: '',
         quizData: [],
+        availableQuizzes: {},
+        selectedQuizId: '',
         filename: '../quizzes/EOY-2025.json',
         customFilename: '',
         currentView: 'setup',
@@ -64,6 +66,7 @@ window.createHostData = function(firebase, db, auth) {
                     // Only attach listeners when authenticated
                     db.ref('players').on('value', snap => { this.players = snap.val() || {}; this.checkAutoReveal(); });
                     db.ref('answers').on('value', snap => { this.currentAnswers = snap.val() || {}; this.checkAutoReveal(); });
+                    db.ref('quizzes').on('value', snap => { this.availableQuizzes = snap.val() || {}; });
                     
                     // Initialize gameState if empty
                     db.ref('gameState').on('value', snap => {
@@ -84,12 +87,18 @@ window.createHostData = function(firebase, db, auth) {
         },
         logout() { if (auth) auth.signOut(); },
         async loadQuiz() {
-            let fileToLoad = this.filename === 'custom' ? this.customFilename : this.filename;
-            if (!fileToLoad) { this.errorMsg = "Please enter a filename"; return; }
             this.loading = true; this.errorMsg = ''; this.successMsg = '';
             try {
-                const response = await fetch(fileToLoad);
-                const data = await response.json();
+                let data;
+                if (this.filename === 'firebase') {
+                    if (!this.selectedQuizId) throw new Error("Please select a quiz");
+                    data = this.availableQuizzes[this.selectedQuizId];
+                } else {
+                    let fileToLoad = this.filename === 'custom' ? this.customFilename : this.filename;
+                    if (!fileToLoad) throw new Error("Please enter a filename");
+                    const response = await fetch(fileToLoad);
+                    data = await response.json();
+                }
                 this.quizData = Array.isArray(data) ? data : this.convertSampleQuizFormat(data);
                 this.successMsg = `✓ Loaded ${this.quizData.length} items`;
             } catch (e) { this.errorMsg = `Error: ${e.message}`; }
