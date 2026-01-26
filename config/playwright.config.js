@@ -1,7 +1,7 @@
 import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
-  testDir: './tests',
+  testDir: '../tests',
   /* Maximum time one test can run for. */
   timeout: 60 * 1000,
   expect: {
@@ -31,7 +31,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npx http-server . -p 8080',
+    command: 'npx http-server .. -p 8080',
     port: 8080,
     reuseExistingServer: !process.env.CI,
     stdout: 'ignore',

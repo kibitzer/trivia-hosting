@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Documentation**: Introduced `CHANGELOG.md` and integrated it into the automated versioning workflow.
+
+### Changed
+- **Architecture**: Moved project configuration files (`firebase.json`, `database.rules.json`, `playwright.config.js`, `vitest.config.js`) from the root directory to a dedicated `config/` directory.
+- **CI/CD**: Updated GitHub Actions and internal scripts to reflect the new configuration structure.
+
 ## [0.1.4] - 2026-01-26
 
 ### Fixed

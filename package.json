@@ -5,8 +5,8 @@
   "main": "player-alpine.js",
   "type": "commonjs",
   "scripts": {
-    "test": "vitest --exclude '**/*.spec.js'",
-    "test:e2e": "playwright test tests/simulation.spec.js",
+    "test": "vitest -c config/vitest.config.js --exclude '**/*.spec.js'",
+    "test:e2e": "playwright test -c config/playwright.config.js tests/simulation.spec.js",
     "version": "node scripts/sync-version.js && git add shared/version.js CHANGELOG.md"
   },
   "repository": {

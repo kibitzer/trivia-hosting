@@ -7,6 +7,13 @@ This is a real-time trivia application built with a **Serverless** architecture.
 
 ## Directory Breakdown
 
+### `config/`
+Contains configuration files for the project's tools and services.
+*   **`firebase.json`**: Firebase CLI configuration.
+*   **`database.rules.json`**: Security rules for the Realtime Database.
+*   **`playwright.config.js`**: Configuration for E2E simulation tests.
+*   **`vitest.config.js`**: Configuration for unit tests.
+
 ### `host/` (The Control Panel)
 The Host is the "source of truth" for the game state.
 *   **`host.html`**: The main UI for the host.

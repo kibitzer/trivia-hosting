@@ -5,8 +5,8 @@ on:
     branches:
       - main
     paths:
-      - 'database.rules.json'
-      - 'firebase.json'
+      - 'config/database.rules.json'
+      - 'config/firebase.json'
       - '.github/workflows/deploy.yml'
 
 jobs:
@@ -27,4 +27,4 @@ jobs:
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           PROJECT_ID: "trivia-night-e9193"
-        run: firebase deploy --only database --project $PROJECT_ID --token $FIREBASE_TOKEN
+        run: firebase deploy --config config/firebase.json --only database --project $PROJECT_ID --token $FIREBASE_TOKEN
