@@ -29,22 +29,19 @@ A real-time, browser-based trivia hosting application powered by Firebase Realti
 ### 2. Firebase Configuration
 1.  Create a new project in the [Firebase Console](https://console.firebase.google.com/).
 2.  Create a **Realtime Database** instance.
-3.  **Security Rules**: Apply the rules found in `database.rules.json`.
-    *   *Option A (Manual)*: Copy the contents of `database.rules.json` and paste them into the "Rules" tab of your Firebase Database console.
+3.  **Security Rules**: Apply the rules found in `config/database.rules.json`.
+    *   *Option A (Manual)*: Copy the contents of `config/database.rules.json` and paste them into the "Rules" tab of your Firebase Database console.
     *   *Option B (CLI)*: If you have the Firebase CLI installed, run `firebase deploy --only database`.
 4.  Copy your web app configuration keys.
-5.  Open `shared/firebase-config.js` and paste your configuration:
+5.  Duplicate `shared/firebase-config.template.js` and rename it to `shared/firebase-config.js`.
+6.  Open `shared/firebase-config.js` and paste your configuration:
     ```javascript
     const firebaseConfig = {
         apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_PROJECT.firebaseapp.com",
-        databaseURL: "https://YOUR_PROJECT.firebaseio.com",
-        projectId: "YOUR_PROJECT",
-        storageBucket: "YOUR_PROJECT.firebasestorage.app",
-        messagingSenderId: "SENDER_ID",
-        appId: "APP_ID"
+        // ... rest of your config
     };
     ```
+    *Note: `shared/firebase-config.js` is ignored by Git to prevent leaking your credentials.*
 
 ### 3. Running the App
 Since this uses ES modules and external script loading, **you cannot open the HTML files directly** (via `file://`). You must serve them via a local web server.

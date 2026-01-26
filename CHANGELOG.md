@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Security**: Externalized Firebase configuration. `shared/firebase-config.js` is now gitignored, and a template `shared/firebase-config.template.js` is provided.
+
 ### Fixed
 - **Feature**: Enhanced Quiz Editor importer to support legacy array-based JSON formats (e.g., `EOY-2025.json`) alongside the standard object format.
 - **Infrastructure**: Fixed a `PERMISSION_DENIED` error during quiz import by correcting the relative path to `database.rules.json` in the Firebase configuration.
