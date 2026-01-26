@@ -6,10 +6,11 @@
       ".validate": "newData.hasChildren(['status'])"
     },
     "quizzes": {
-      // Players need to read quiz metadata sometimes, or Host can read all
       ".read": "auth != null",
-      // Only the Host can create/edit/delete quizzes
-      ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'"
+      ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
+      "$quizId": {
+        ".validate": "newData.hasChildren(['title', 'questions'])"
+      }
     },
     "players": {
       ".read": "auth != null",

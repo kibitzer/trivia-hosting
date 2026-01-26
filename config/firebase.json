@@ -1,5 +1,5 @@
 {
   "database": {
-    "rules": "config/database.rules.json"
+    "rules": "database.rules.json"
   }
 }
