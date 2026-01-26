@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- **Feature**: Enhanced Quiz Editor importer to support legacy array-based JSON formats (e.g., `EOY-2025.json`) alongside the standard object format.
 - **Infrastructure**: Fixed a `PERMISSION_DENIED` error during quiz import by correcting the relative path to `database.rules.json` in the Firebase configuration.
 - **Testing**: Added an automated cleanup step to E2E simulation tests to remove test players and answers from Firebase after a successful run.
 - **Feature**: Backend Quiz Editor (`host/editor.html`) for managing trivia content directly in Firebase.

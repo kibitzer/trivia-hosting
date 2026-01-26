@@ -90,15 +90,38 @@ window.createEditorData = function(firebase, db, auth) {
             const reader = new FileReader();
             reader.onload = async (e) => {
                 try {
-                    const data = JSON.parse(e.target.result);
-                    // Minimal validation
-                    if (!data.questions) throw new Error("Invalid format");
+                    const rawData = JSON.parse(e.target.result);
+                    let finalData;
+
+                    if (Array.isArray(rawData)) {
+                        // Handle flat array format
+                        const titleItem = rawData.find(i => i.type === 'round-title');
+                        finalData = {
+                            title: titleItem ? titleItem.title : file.name.replace('.json', ''),
+                            questions: rawData.filter(i => i.type === 'question').map(q => ({
+                                question: q.text,
+                                type: q.questionType === 'MC' ? 'multiple' : 'short',
+                                options: q.options ? q.options.map(o => o.replace(/^[A-D]\)\s*/, '')) : ["A", "B", "C", "D"],
+                                correctAnswer: q.answer ? q.answer.replace(/^[A-D]\)\s*/, '') : '',
+                                timer: q.timer || 20,
+                                image: q.image || null,
+                                notes: q.notes || null,
+                                category: q.category || ''
+                            }))
+                        };
+                    } else if (rawData.questions) {
+                        // Standard object format
+                        finalData = rawData;
+                    } else {
+                        throw new Error("Unrecognized quiz format");
+                    }
+
                     const ref = db.ref('quizzes').push();
                     await ref.set({
-                        ...data,
+                        ...finalData,
                         updatedAt: firebase.database.ServerValue.TIMESTAMP
                     });
-                    alert("Imported!");
+                    alert("Imported successfully!");
                 } catch (err) {
                     alert("Import failed: " + err.message);
                 }
