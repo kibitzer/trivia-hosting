@@ -136,8 +136,9 @@ window.createHostData = function(firebase, db, auth) {
             this.currentIndex++; this.answerRevealed = false; this.stopAllTimers();
             this.timerValue = this.currentItem.timer || this.defaultTimer;
             if (this.currentItem.type === 'question') {
-                db.ref(`answers/${this.currentItem.questionNumber}`).remove();
                 this.startCountdown();
+                // Clear answers for the new question number
+                db.ref(`answers/${this.currentItem.questionNumber}`).remove();
             }
             // Sync game state after updating index and resetting timers
             this.syncGameState();

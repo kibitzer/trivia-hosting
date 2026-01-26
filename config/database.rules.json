@@ -38,7 +38,9 @@
       ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
       "$questionId": {
         "$uid": {
-          ".write": "auth != null && auth.uid === $uid && root.child('gameState/timerStatus').val() === 'running'",
+          // Players can only submit their own answers
+          // SECURITY: Only allow submission if the timer is active (countdown or running)
+          ".write": "auth != null && auth.uid === $uid && (root.child('gameState/timerStatus').val() === 'running' || root.child('gameState/timerStatus').val() === 'countdown')",
           ".validate": "newData.hasChildren(['answer', 'timestamp'])"
         }
       }

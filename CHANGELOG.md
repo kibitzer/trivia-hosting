@@ -8,19 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
-- **Security**: Externalized Firebase configuration. `shared/firebase-config.js` is now gitignored, and a template `shared/firebase-config.template.js` is provided.
+- **Infrastructure**: Reverted to standard synchronous script loading for Firebase configuration to ensure application stability, with manual cache-busting.
 
 ### Fixed
-- **Feature**: Enhanced Quiz Editor importer to support legacy array-based JSON formats (e.g., `EOY-2025.json`) alongside the standard object format.
+- **Security**: Updated database rules to allow answer submissions during the 'countdown' phase, preventing `permission_denied` errors for fast-reacting players.
 - **Infrastructure**: Fixed a `PERMISSION_DENIED` error during quiz import by correcting the relative path to `database.rules.json` in the Firebase configuration.
-- **Testing**: Added an automated cleanup step to E2E simulation tests to remove test players and answers from Firebase after a successful run.
-- **Feature**: Backend Quiz Editor (`host/editor.html`) for managing trivia content directly in Firebase.
-- **Feature**: Support for loading and running quizzes stored in Firebase Realtime Database.
-- **Documentation**: Introduced `CHANGELOG.md` and integrated it into the automated versioning workflow.
-
-### Changed
-- **Architecture**: Moved project configuration files (`firebase.json`, `database.rules.json`, `playwright.config.js`, `vitest.config.js`) from the root directory to a dedicated `config/` directory.
-- **CI/CD**: Updated GitHub Actions and internal scripts to reflect the new configuration structure.
 
 ## [0.1.4] - 2026-01-26
 
