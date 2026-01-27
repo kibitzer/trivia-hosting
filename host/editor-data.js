@@ -5,6 +5,7 @@ window.createEditorData = function(firebase, db, auth) {
         quizzes: {},
         editingQuizId: null,
         currentQuiz: null,
+        selectedQuestionIndex: 0,
         statusMsg: '',
 
         init() {
@@ -40,6 +41,11 @@ window.createEditorData = function(firebase, db, auth) {
         editQuiz(id) {
             this.editingQuizId = id;
             this.currentQuiz = JSON.parse(JSON.stringify(this.quizzes[id])); // Deep clone
+            this.selectedQuestionIndex = 0;
+        },
+
+        selectQuestion(index) {
+            this.selectedQuestionIndex = index;
         },
 
         addQuestion() {
@@ -50,10 +56,16 @@ window.createEditorData = function(firebase, db, auth) {
                 correctAnswer: "A",
                 timer: 30
             });
+            this.selectedQuestionIndex = this.currentQuiz.questions.length - 1;
         },
 
         removeQuestion(index) {
             this.currentQuiz.questions.splice(index, 1);
+            if (index < this.selectedQuestionIndex) {
+                this.selectedQuestionIndex--;
+            } else if (this.selectedQuestionIndex >= this.currentQuiz.questions.length) {
+                this.selectedQuestionIndex = Math.max(0, this.currentQuiz.questions.length - 1);
+            }
         },
 
         async saveQuiz() {
