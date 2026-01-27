@@ -44,7 +44,10 @@
 <body x-data="quizEditor">
     <div class="container" x-cloak>
         <div class="header" x-show="!editingQuizId">
-            <h1>📝 Quiz Editor</h1>
+            <div>
+                <h1>📝 Quiz Editor</h1>
+                <span id="app-version" style="font-size: 0.8rem; color: #78909c; font-weight: bold;"></span>
+            </div>
             <div>
                 <a href="host.html" class="btn btn-secondary">← Back to Host</a>
                 <button x-show="isAuthenticated" @click="createNewQuiz()" class="btn btn-success">+ Create New Quiz</button>
@@ -205,6 +208,7 @@
     </div>
 
     <!-- Scripts -->
+    <script src="../shared/version.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -218,6 +222,10 @@
             const db = firebase.database();
             const auth = firebase.auth();
             Alpine.data('quizEditor', () => window.createEditorData(firebase, db, auth));
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof displayVersion === 'function') displayVersion('app-version');
         });
     </script>
 </body>
