@@ -76,8 +76,8 @@
             <template x-for="(quiz, id) in quizzes" :key="id">
                 <div class="quiz-item">
                     <div>
-                        <strong style="font-size: 1.2rem;" x-text="quiz.title"></strong>
-                        <div style="font-size: 0.8rem; color: #666;" x-text="(quiz.questions ? quiz.questions.length : 0) + ' questions'"></div>
+                        <strong style="font-size: 1.2rem;" x-text="quiz.title || (quiz.questions && quiz.questions[0] ? quiz.questions[0].title : 'Untitled')"></strong>
+                        <div style="font-size: 0.8rem; color: #666;" x-text="(quiz.questions ? quiz.questions.length : 0) + ' items'"></div>
                     </div>
                     <div>
                         <button @click="editQuiz(id)" class="btn btn-primary">Edit</button>
@@ -109,12 +109,15 @@
                     <div class="sidebar">
                         <template x-for="(q, index) in currentQuiz.questions" :key="index">
                             <div class="slide-thumb" :class="{ 'active': selectedQuestionIndex === index }" @click="selectQuestion(index)">
-                                <div class="slide-number" x-text="'QUESTION ' + (index + 1)"></div>
-                                <div class="slide-preview" x-text="q.question || '(New Question)'"></div>
-                                <div style="margin-top: auto; font-size: 0.6rem; color: #999;" x-text="q.type === 'multiple' ? 'Multiple Choice' : 'Short Answer'"></div>
+                                <div class="slide-number" x-text="currentQuiz.questions[index].type === 'round-title' ? 'ROUND' : 'QUESTION ' + (index + 1)"></div>
+                                <div class="slide-preview" x-text="currentQuiz.questions[index].type === 'round-title' ? currentQuiz.questions[index].title : (currentQuiz.questions[index].question || '(New Question)')"></div>
+                                <div style="margin-top: auto; font-size: 0.6rem; color: #999;" x-text="currentQuiz.questions[index].type === 'multiple' ? 'Multiple Choice' : (currentQuiz.questions[index].type === 'short' ? 'Short Answer' : 'Round Title')"></div>
                             </div>
                         </template>
-                        <button @click="addQuestion()" class="btn btn-primary" style="justify-content: center; margin-top: 10px;">+ Add Question</button>
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <button @click="addQuestion()" class="btn btn-primary" style="flex: 1; justify-content: center;">+ Add Question</button>
+                            <button @click="addRound()" class="btn btn-secondary" style="flex: 1; justify-content: center;">+ Add Round</button>
+                        </div>
                     </div>
 
                     <!-- Main Area: Current Question Editor -->
@@ -126,30 +129,40 @@
                                     <button @click="removeQuestion(selectedQuestionIndex)" class="btn btn-danger" style="padding: 5px 12px; font-size: 0.8rem;">Delete Question</button>
                                 </div>
 
-                                <div class="input-group">
-                                    <label>Question Text</label>
-                                    <textarea x-model="currentQuiz.questions[selectedQuestionIndex].question" rows="3" style="font-size: 1.1rem;"></textarea>
-                                </div>
-
                                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
                                     <div class="input-group">
                                         <label>Type</label>
                                         <select x-model="currentQuiz.questions[selectedQuestionIndex].type">
                                             <option value="multiple">Multiple Choice</option>
                                             <option value="short">Short Answer</option>
+                                            <option value="round-title">Round Title (Intro)</option>
                                         </select>
                                     </div>
                                     <div class="input-group">
                                         <label>Timer (seconds)</label>
                                         <input type="number" x-model="currentQuiz.questions[selectedQuestionIndex].timer">
                                     </div>
-                                    <div class="input-group">
+                                    <div class="input-group" x-show="currentQuiz.questions[selectedQuestionIndex].type !== 'round-title'">
                                         <label>Category (Optional)</label>
                                         <input type="text" x-model="currentQuiz.questions[selectedQuestionIndex].category">
                                     </div>
+                                    <div class="input-group" x-show="currentQuiz.questions[selectedQuestionIndex].type === 'round-title'">
+                                        <label>Round Number</label>
+                                        <input type="number" x-model="currentQuiz.questions[selectedQuestionIndex].roundNumber">
+                                    </div>
                                 </div>
 
-                                <div class="input-group">
+                                <div class="input-group" x-show="currentQuiz.questions[selectedQuestionIndex].type === 'round-title'">
+                                    <label>Round Title</label>
+                                    <input type="text" x-model="currentQuiz.questions[selectedQuestionIndex].title" placeholder="e.g. Round 1: History">
+                                </div>
+
+                                <div class="input-group" x-show="currentQuiz.questions[selectedQuestionIndex].type !== 'round-title'">
+                                    <label>Question Text</label>
+                                    <textarea x-model="currentQuiz.questions[selectedQuestionIndex].question" rows="3" style="font-size: 1.1rem;"></textarea>
+                                </div>
+
+                                <div class="input-group" x-show="currentQuiz.questions[selectedQuestionIndex].type !== 'round-title'">
                                     <label>Image URL (Optional)</label>
                                     <input type="text" x-model="currentQuiz.questions[selectedQuestionIndex].image" placeholder="https://...">
                                 </div>

@@ -59,6 +59,16 @@ window.createEditorData = function(firebase, db, auth) {
             this.selectedQuestionIndex = this.currentQuiz.questions.length - 1;
         },
 
+        addRound() {
+            this.currentQuiz.questions.push({
+                type: "round-title",
+                title: "New Round",
+                roundNumber: 1,
+                timer: 20
+            });
+            this.selectedQuestionIndex = this.currentQuiz.questions.length - 1;
+        },
+
         removeQuestion(index) {
             this.currentQuiz.questions.splice(index, 1);
             if (index < this.selectedQuestionIndex) {
@@ -106,21 +116,38 @@ window.createEditorData = function(firebase, db, auth) {
                     let finalData;
 
                     if (Array.isArray(rawData)) {
-                        // Handle flat array format
+                        // Handle flat array format (e.g. EOY-2025.json)
                         const titleItem = rawData.find(i => i.type === 'round-title');
                         finalData = {
                             title: titleItem ? titleItem.title : file.name.replace('.json', ''),
-                            questions: rawData.filter(i => i.type === 'question').map(q => ({
-                                question: q.text,
-                                type: q.questionType === 'MC' ? 'multiple' : 'short',
-                                options: q.options ? q.options.map(o => o.replace(/^[A-D]\)\s*/, '')) : ["A", "B", "C", "D"],
-                                correctAnswer: q.answer ? q.answer.replace(/^[A-D]\)\s*/, '') : '',
-                                timer: q.timer || 20,
-                                image: q.image || null,
-                                notes: q.notes || null,
-                                category: q.category || ''
-                            }))
+                            questions: rawData.map(item => {
+                                if (item.type === 'round-title') {
+                                    return {
+                                        type: 'round-title',
+                                        title: item.title,
+                                        roundNumber: item.roundNumber || 1,
+                                        timer: item.timer || 20
+                                    };
+                                } else {
+                                    return {
+                                        question: item.text || item.question,
+                                        type: item.questionType === 'MC' ? 'multiple' : 'short',
+                                        options: item.options ? item.options.map(o => o.replace(/^[A-D]\)\s*/, '')) : ["A", "B", "C", "D"],
+                                        correctAnswer: item.answer || item.correctAnswer || '',
+                                        timer: item.timer || 20,
+                                        image: item.image || null,
+                                        notes: item.notes || null,
+                                        category: item.category || ''
+                                    };
+                                }
+                            })
                         };
+                        // Clean up correct answer if it had A) prefix
+                        finalData.questions.forEach(q => {
+                            if (q.type === 'multiple' && typeof q.correctAnswer === 'string') {
+                                q.correctAnswer = q.correctAnswer.replace(/^[A-D]\)\s*/, '');
+                            }
+                        });
                     } else if (rawData.questions) {
                         // Standard object format
                         finalData = rawData;

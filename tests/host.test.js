@@ -69,6 +69,32 @@ describe('Host Logic', () => {
             expect(short.answer).toBe('Au');
             expect(short.acceptedAnswers).toContain('au');
         });
+
+        it('should handle round-title items within the questions array', () => {
+            const sampleInput = {
+                title: "Overall Title",
+                questions: [
+                    {
+                        type: "round-title",
+                        title: "Round 1 Intro",
+                        roundNumber: 1
+                    },
+                    {
+                        question: "Q1",
+                        type: "short",
+                        correctAnswer: "A1"
+                    }
+                ]
+            };
+
+            const result = host.convertSampleQuizFormat(sampleInput);
+
+            // It should NOT add the top-level title as a round-title because the first question is already a round-title
+            expect(result).toHaveLength(2);
+            expect(result[0].type).toBe('round-title');
+            expect(result[0].title).toBe('Round 1 Intro');
+            expect(result[1].type).toBe('question');
+        });
     });
 
     describe('Answer Checking', () => {
