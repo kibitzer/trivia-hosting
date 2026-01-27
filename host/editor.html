@@ -157,6 +157,12 @@
                                     <p style="font-size: 0.8rem; color: #666; margin-top: 5px;">This text will be displayed prominently on the intro slide. Round numbers are calculated automatically on save.</p>
                                 </div>
 
+                                <div class="input-group" x-show="currentQuiz.questions[selectedQuestionIndex].type === 'round-title'">
+                                    <label>Background Image URL (Optional)</label>
+                                    <input type="text" x-model="currentQuiz.questions[selectedQuestionIndex].image" placeholder="https://...">
+                                    <p style="font-size: 0.8rem; color: #666; margin-top: 5px;">This image will appear at 20% transparency behind the round title.</p>
+                                </div>
+
                                 <div class="input-group" x-show="currentQuiz.questions[selectedQuestionIndex].type !== 'round-title'">
                                     <label>Question Text</label>
                                     <textarea x-model="currentQuiz.questions[selectedQuestionIndex].question" rows="3" style="font-size: 1.1rem;"></textarea>

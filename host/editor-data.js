@@ -110,7 +110,6 @@ window.createEditorData = function(firebase, db, auth) {
                     delete q.options;
                     delete q.correctAnswer;
                     delete q.category;
-                    delete q.image;
                     delete q.notes;
                 } else {
                     q.questionNumber = qNum++;

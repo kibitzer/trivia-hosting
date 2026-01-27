@@ -24,7 +24,18 @@
     button:disabled { opacity: 0.5; cursor: not-allowed; }
     .quiz-selector { background: #fff3e0; border: 2px solid #ff9800; border-radius: 12px; padding: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
     .quiz-selector select, .quiz-selector input { padding: 10px; border-radius: 8px; border: 2px solid #ff9800; }
-    .round-title-slide { background: linear-gradient(135deg, #1565c0 0%, #42a5f5 100%); color: white; text-align: center; padding: 40px; border-radius: 15px; min-height: 400px; display: flex; flex-direction: column; justify-content: center; }
+    .round-title-slide { 
+        background: linear-gradient(135deg, #1565c0 0%, #42a5f5 100%); 
+        color: white; text-align: center; padding: 40px; border-radius: 15px; 
+        min-height: 400px; display: flex; flex-direction: column; justify-content: center;
+        position: relative; overflow: hidden;
+    }
+    .round-title-bg {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background-size: cover; background-position: center;
+        opacity: 0.2; z-index: 1;
+    }
+    .round-title-content { position: relative; z-index: 2; }
     .round-title-slide h2 { color: white; font-size: 3rem; }
     .question-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
     .question-number { background: #1565c0; color: white; padding: 5px 15px; border-radius: 20px; }
@@ -138,8 +149,13 @@
         <br>
         <template x-if="currentItem && currentItem.type === 'round-title'">
             <div class="round-title-slide">
-                <div style="opacity: 0.8; font-size: 1.5rem;">ROUND <span x-text="currentItem.roundNumber"></span></div>
-                <h2 x-text="currentItem.title"></h2>
+                <template x-if="currentItem.image">
+                    <div class="round-title-bg" :style="`background-image: url('${currentItem.image}')`"></div>
+                </template>
+                <div class="round-title-content">
+                    <div style="opacity: 0.8; font-size: 1.5rem;">ROUND <span x-text="currentItem.roundNumber"></span></div>
+                    <h2 x-text="currentItem.title"></h2>
+                </div>
             </div>
         </template>
         <template x-if="currentItem && currentItem.type === 'question'">

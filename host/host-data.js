@@ -238,7 +238,12 @@ window.createHostData = function(firebase, db, auth) {
                 timerStatus: this.timerStatus,
                 timestamp: firebase.database.ServerValue.TIMESTAMP 
             };
-            if (this.currentItem.type === 'round-title') Object.assign(base, { type: 'round-title', roundNumber: this.currentItem.roundNumber, roundTitle: this.currentItem.title });
+            if (this.currentItem.type === 'round-title') Object.assign(base, { 
+                type: 'round-title', 
+                roundNumber: this.currentItem.roundNumber, 
+                roundTitle: this.currentItem.title,
+                image: this.currentItem.image || null
+            });
             else Object.assign(base, { 
                 type: 'question', 
                 questionNumber: this.currentItem.questionNumber, 

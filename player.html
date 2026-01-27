@@ -32,7 +32,17 @@
         .spinner { font-size: 3rem; animation: bounce 1s infinite; display: inline-block; margin-bottom: 20px; }
         
         /* Round */
-        .round-display { background: linear-gradient(135deg, #1565c0 0%, #42a5f5 100%); border-radius: 15px; padding: 50px 30px; text-align: center; color: white; }
+        .round-display { 
+            background: linear-gradient(135deg, #1565c0 0%, #42a5f5 100%); 
+            border-radius: 15px; padding: 50px 30px; text-align: center; color: white;
+            position: relative; overflow: hidden;
+        }
+        .round-display-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center;
+            opacity: 0.2; z-index: 1;
+        }
+        .round-display-content { position: relative; z-index: 2; }
         .round-display h2 { font-size: 2rem; color: white; margin-top: 10px; }
         
         /* Question */
@@ -174,8 +184,13 @@
                 <!-- ROUND TITLE -->
                 <template x-if="currentItem.type === 'round-title'">
                     <div class="round-display">
-                        <div class="round-number" x-text="'ROUND ' + currentItem.roundNumber"></div>
-                        <h2 x-text="currentItem.roundTitle"></h2>
+                        <template x-if="currentItem.image">
+                            <div class="round-display-bg" :style="`background-image: url('${currentItem.image}')`"></div>
+                        </template>
+                        <div class="round-display-content">
+                            <div class="round-number" x-text="'ROUND ' + currentItem.roundNumber"></div>
+                            <h2 x-text="currentItem.roundTitle"></h2>
+                        </div>
                     </div>
                 </template>
 
