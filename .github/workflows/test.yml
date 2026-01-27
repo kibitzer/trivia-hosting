@@ -24,8 +24,10 @@ jobs:
       run: npm ci
 
     - name: Create Firebase Config
+      env:
+        FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
       run: |
-        echo "${{ secrets.FIREBASE_CONFIG }}" > config/firebase-config.js
+        echo "$FIREBASE_CONFIG" > config/firebase-config.js
         if [ ! -s config/firebase-config.js ]; then
           echo "Error: config/firebase-config.js is empty or was not created."
           exit 1
