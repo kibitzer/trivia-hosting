@@ -49,16 +49,20 @@ window.createEditorData = function(firebase, db, auth) {
         },
 
         getQuestionNumber(index) {
+            if (!this.currentQuiz || !this.currentQuiz.questions) return 0;
             let count = 0;
-            for (let i = 0; i <= index; i++) {
+            const limit = Math.min(index, this.currentQuiz.questions.length - 1);
+            for (let i = 0; i <= limit; i++) {
                 if (this.currentQuiz.questions[i].type !== 'round-title') count++;
             }
             return count;
         },
 
         getRoundNumber(index) {
+            if (!this.currentQuiz || !this.currentQuiz.questions) return 0;
             let count = 0;
-            for (let i = 0; i <= index; i++) {
+            const limit = Math.min(index, this.currentQuiz.questions.length - 1);
+            for (let i = 0; i <= limit; i++) {
                 if (this.currentQuiz.questions[i].type === 'round-title') count++;
             }
             return count;
@@ -78,10 +82,11 @@ window.createEditorData = function(firebase, db, auth) {
         },
 
         addRound() {
+            const currentRoundCount = this.currentQuiz.questions.filter(q => q.type === 'round-title').length;
             this.currentQuiz.questions.push({
                 type: "round-title",
                 title: "New Round",
-                roundNumber: this.getRoundNumber(this.currentQuiz.questions.length) + 1,
+                roundNumber: currentRoundCount + 1,
                 timer: 20
             });
             this.selectedQuestionIndex = this.currentQuiz.questions.length - 1;
