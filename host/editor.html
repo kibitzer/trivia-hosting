@@ -112,7 +112,7 @@
                     <div class="sidebar">
                         <template x-for="(q, index) in currentQuiz.questions" :key="index">
                             <div class="slide-thumb" :class="{ 'active': selectedQuestionIndex === index }" @click="selectQuestion(index)">
-                                <div class="slide-number" x-text="currentQuiz.questions[index].type === 'round-title' ? 'ROUND' : 'QUESTION ' + (index + 1)"></div>
+                                <div class="slide-number" x-text="currentQuiz.questions[index].type === 'round-title' ? 'ROUND ' + getRoundNumber(index) : 'QUESTION ' + getQuestionNumber(index)"></div>
                                 <div class="slide-preview" x-text="currentQuiz.questions[index].type === 'round-title' ? currentQuiz.questions[index].title : (currentQuiz.questions[index].question || '(New Question)')"></div>
                                 <div style="margin-top: auto; font-size: 0.6rem; color: #999;" x-text="currentQuiz.questions[index].type === 'multiple' ? 'Multiple Choice' : (currentQuiz.questions[index].type === 'short' ? 'Short Answer' : 'Round Title')"></div>
                             </div>
@@ -149,15 +149,12 @@
                                         <label>Category (Optional)</label>
                                         <input type="text" x-model="currentQuiz.questions[selectedQuestionIndex].category">
                                     </div>
-                                    <div class="input-group" x-show="currentQuiz.questions[selectedQuestionIndex].type === 'round-title'">
-                                        <label>Round Number</label>
-                                        <input type="number" x-model="currentQuiz.questions[selectedQuestionIndex].roundNumber">
-                                    </div>
                                 </div>
 
                                 <div class="input-group" x-show="currentQuiz.questions[selectedQuestionIndex].type === 'round-title'">
-                                    <label>Round Title</label>
-                                    <input type="text" x-model="currentQuiz.questions[selectedQuestionIndex].title" placeholder="e.g. Round 1: History">
+                                    <label>Round Title Text</label>
+                                    <input type="text" x-model="currentQuiz.questions[selectedQuestionIndex].title" placeholder="e.g. Round 1: History" style="font-size: 1.2rem; font-weight: bold;">
+                                    <p style="font-size: 0.8rem; color: #666; margin-top: 5px;">This text will be displayed prominently on the intro slide. Round numbers are calculated automatically on save.</p>
                                 </div>
 
                                 <div class="input-group" x-show="currentQuiz.questions[selectedQuestionIndex].type !== 'round-title'">

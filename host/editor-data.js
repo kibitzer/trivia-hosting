@@ -48,13 +48,31 @@ window.createEditorData = function(firebase, db, auth) {
             this.selectedQuestionIndex = index;
         },
 
+        getQuestionNumber(index) {
+            let count = 0;
+            for (let i = 0; i <= index; i++) {
+                if (this.currentQuiz.questions[i].type !== 'round-title') count++;
+            }
+            return count;
+        },
+
+        getRoundNumber(index) {
+            let count = 0;
+            for (let i = 0; i <= index; i++) {
+                if (this.currentQuiz.questions[i].type === 'round-title') count++;
+            }
+            return count;
+        },
+
         addQuestion() {
             this.currentQuiz.questions.push({
                 question: "New Question?",
                 type: "multiple",
                 options: ["A", "B", "C", "D"],
                 correctAnswer: "A",
-                timer: 30
+                timer: 30,
+                notes: "",
+                category: ""
             });
             this.selectedQuestionIndex = this.currentQuiz.questions.length - 1;
         },
@@ -63,7 +81,7 @@ window.createEditorData = function(firebase, db, auth) {
             this.currentQuiz.questions.push({
                 type: "round-title",
                 title: "New Round",
-                roundNumber: 1,
+                roundNumber: this.getRoundNumber(this.currentQuiz.questions.length) + 1,
                 timer: 20
             });
             this.selectedQuestionIndex = this.currentQuiz.questions.length - 1;
@@ -81,6 +99,24 @@ window.createEditorData = function(firebase, db, auth) {
         async saveQuiz() {
             if (!this.editingQuizId) return;
             this.loading = true;
+
+            // Before saving, ensure questionNumber and roundNumber are synced based on order
+            let qNum = 1;
+            let rNum = 1;
+            this.currentQuiz.questions.forEach(q => {
+                if (q.type === 'round-title') {
+                    q.roundNumber = rNum++;
+                    delete q.question;
+                    delete q.options;
+                    delete q.correctAnswer;
+                    delete q.category;
+                    delete q.image;
+                    delete q.notes;
+                } else {
+                    q.questionNumber = qNum++;
+                }
+            });
+
             this.currentQuiz.updatedAt = firebase.database.ServerValue.TIMESTAMP;
             try {
                 await db.ref(`quizzes/${this.editingQuizId}`).set(this.currentQuiz);
