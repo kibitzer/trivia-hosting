@@ -141,6 +141,7 @@ describe('Editor Logic', () => {
             const roundTitle = editor.currentQuiz.questions[0];
             expect(roundTitle.options).toBeUndefined();
             expect(roundTitle.correctAnswer).toBeUndefined();
+            expect(roundTitle.timer).toBeUndefined();
         });
     });
 });

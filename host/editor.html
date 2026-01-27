@@ -141,7 +141,7 @@
                                             <option value="round-title">Round Title (Intro)</option>
                                         </select>
                                     </div>
-                                    <div class="input-group">
+                                    <div class="input-group" x-show="currentQuiz.questions[selectedQuestionIndex].type !== 'round-title'">
                                         <label>Timer (seconds)</label>
                                         <input type="number" x-model="currentQuiz.questions[selectedQuestionIndex].timer">
                                     </div>

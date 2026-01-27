@@ -87,7 +87,7 @@ window.createEditorData = function(firebase, db, auth) {
                 type: "round-title",
                 title: "New Round",
                 roundNumber: currentRoundCount + 1,
-                timer: 20
+                image: ""
             });
             this.selectedQuestionIndex = this.currentQuiz.questions.length - 1;
         },
@@ -128,6 +128,7 @@ window.createEditorData = function(firebase, db, auth) {
                     delete q.correctAnswer;
                     delete q.category;
                     delete q.notes;
+                    delete q.timer;
                 } else {
                     q.questionNumber = qNum++;
                 }
