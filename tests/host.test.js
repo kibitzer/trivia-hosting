@@ -4,6 +4,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import '../host/host-data.js'; // Execute side effects (assigns to window)
 
+// Mock Swal
+global.Swal = {
+    fire: vi.fn(() => Promise.resolve({ isConfirmed: true }))
+};
+
 // Mock Firebase
 const mockDb = {
     ref: vi.fn(() => ({
@@ -127,7 +132,7 @@ describe('Host Logic', () => {
     });
 
     describe('Scoring Logic', () => {
-        it('should award more points for faster answers', () => {
+        it('should award more points for faster answers', async () => {
             const mockSet = vi.fn();
             // Mock DB behavior for this test
             const dbRefMock = vi.fn(() => ({ set: mockSet, update: vi.fn() }));
@@ -148,7 +153,7 @@ describe('Host Logic', () => {
                 1: { 'p1': { answer: 'A', timestamp: 2000 } }
             };
             
-            customHost.revealAnswer();
+            await customHost.revealAnswer();
             
             // Expected: 500 base + (~90% of 500 bonus) = ~950 points
             const scoreSent = mockSet.mock.calls[0][0];
@@ -156,7 +161,7 @@ describe('Host Logic', () => {
             expect(scoreSent).toBeLessThan(1000);
         });
 
-        it('should award flat 1000 points when speed scoring is disabled', () => {
+        it('should award flat 1000 points when speed scoring is disabled', async () => {
             const mockSet = vi.fn();
             const dbRefMock = vi.fn(() => ({ set: mockSet, update: vi.fn() }));
             const customHost = window.createHostData(mockFirebase, { ref: dbRefMock });
@@ -177,7 +182,7 @@ describe('Host Logic', () => {
                 1: { 'p1': { answer: 'A', timestamp: 10000 } }
             };
             
-            customHost.revealAnswer();
+            await customHost.revealAnswer();
             
             // Expected: Exactly 1000 points regardless of speed
             expect(mockSet).toHaveBeenCalledWith(1000);

@@ -92,12 +92,24 @@ window.createEditorData = function(firebase, db, auth) {
             this.selectedQuestionIndex = this.currentQuiz.questions.length - 1;
         },
 
-        removeQuestion(index) {
-            this.currentQuiz.questions.splice(index, 1);
-            if (index < this.selectedQuestionIndex) {
-                this.selectedQuestionIndex--;
-            } else if (this.selectedQuestionIndex >= this.currentQuiz.questions.length) {
-                this.selectedQuestionIndex = Math.max(0, this.currentQuiz.questions.length - 1);
+        async removeQuestion(index) {
+            const result = await Swal.fire({
+                title: 'Remove Question?',
+                text: "Are you sure you want to remove this slide?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#f44336',
+                cancelButtonColor: '#78909c',
+                confirmButtonText: 'Yes, remove'
+            });
+
+            if (result.isConfirmed) {
+                this.currentQuiz.questions.splice(index, 1);
+                if (index < this.selectedQuestionIndex) {
+                    this.selectedQuestionIndex--;
+                } else if (this.selectedQuestionIndex >= this.currentQuiz.questions.length) {
+                    this.selectedQuestionIndex = Math.max(0, this.currentQuiz.questions.length - 1);
+                }
             }
         },
 
@@ -133,8 +145,18 @@ window.createEditorData = function(firebase, db, auth) {
             }
         },
 
-        deleteQuiz(id) {
-            if (confirm("Delete this quiz permanently?")) {
+        async deleteQuiz(id) {
+            const result = await Swal.fire({
+                title: 'Delete Quiz?',
+                text: "This will permanently remove the quiz from Firebase.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f44336',
+                cancelButtonColor: '#78909c',
+                confirmButtonText: 'Yes, delete it!'
+            });
+
+            if (result.isConfirmed) {
                 db.ref(`quizzes/${id}`).remove();
                 if (this.editingQuizId === id) this.closeEditor();
             }

@@ -144,8 +144,18 @@ window.createHostData = function(firebase, db, auth) {
             return qs;
         },
         startGame() { this.currentView = 'game'; this.currentIndex = 0; this.syncGameState(); },
-        resetGame() {
-            if (!confirm("Reset?")) return;
+        async resetGame() {
+            const result = await Swal.fire({
+                title: 'Reset Quiz?',
+                text: "This will stop the game and clear all scores.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f44336',
+                cancelButtonColor: '#78909c',
+                confirmButtonText: 'Yes, reset everything'
+            });
+            if (!result.isConfirmed) return;
+
             this.stopAllTimers(); this.currentIndex = -1; this.currentView = 'setup';
             db.ref('gameState').set({ status: 'waiting' }); db.ref('answers').remove();
             Object.keys(this.players).forEach(p => db.ref(`players/${p}/score`).set(0));
@@ -256,7 +266,27 @@ window.createHostData = function(firebase, db, auth) {
             db.ref('gameState').set(base);
         },
         adjustScore(pid, amt) { db.ref(`players/${pid}/score`).set(Math.max(0, (this.players[pid]?.score || 0) + amt)); },
-        removePlayer(pid) { if (confirm("Kick?")) db.ref(`players/${pid}`).remove(); },
-        clearPlayers() { if (confirm("Clear?")) { db.ref('players').remove(); db.ref('answers').remove(); } }
+        async removePlayer(pid) { 
+            const result = await Swal.fire({
+                title: 'Kick Player?',
+                text: `Are you sure you want to remove ${this.players[pid]?.name}?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f44336',
+                confirmButtonText: 'Yes, kick them'
+            });
+            if (result.isConfirmed) db.ref(`players/${pid}`).remove(); 
+        },
+        async clearPlayers() { 
+            const result = await Swal.fire({
+                title: 'Kick All Players?',
+                text: "This will remove every player and clear all answers.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f44336',
+                confirmButtonText: 'Yes, clear all'
+            });
+            if (result.isConfirmed) { db.ref('players').remove(); db.ref('answers').remove(); } 
+        }
     };
 };

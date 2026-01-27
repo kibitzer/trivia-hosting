@@ -4,6 +4,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import '../host/editor-data.js';
 
+// Mock Swal
+global.Swal = {
+    fire: vi.fn(() => Promise.resolve({ isConfirmed: true }))
+};
+
 const mockDb = {
     ref: vi.fn(() => ({
         on: vi.fn(),
@@ -92,16 +97,16 @@ describe('Editor Logic', () => {
             expect(editor.currentQuiz.questions[initialLength].roundNumber).toBe(2);
         });
 
-        it('should remove a question and adjust selection', () => {
+        it('should remove a question and adjust selection', async () => {
             editor.selectedQuestionIndex = 2;
-            editor.removeQuestion(1); // Remove Q1
+            await editor.removeQuestion(1); // Remove Q1
             expect(editor.currentQuiz.questions.length).toBe(2);
             expect(editor.selectedQuestionIndex).toBe(1); // Selection should shift left
         });
 
-        it('should handle removing the last item', () => {
+        it('should handle removing the last item', async () => {
             editor.selectedQuestionIndex = 2;
-            editor.removeQuestion(2);
+            await editor.removeQuestion(2);
             expect(editor.selectedQuestionIndex).toBe(1);
         });
     });
