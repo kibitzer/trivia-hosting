@@ -23,16 +23,6 @@ jobs:
     - name: Install Dependencies
       run: npm ci
 
-    - name: Create Firebase Config
-      env:
-        FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
-      run: |
-        echo "$FIREBASE_CONFIG" > config/firebase-config.js
-        if [ ! -s config/firebase-config.js ]; then
-          echo "Error: config/firebase-config.js is empty or was not created."
-          exit 1
-        fi
-
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
 
