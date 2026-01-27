@@ -3,6 +3,9 @@
     console.log("Player Alpine Script Loaded (v1.3)");
 
     document.addEventListener('alpine:init', () => {
+        const hasFirebase = typeof firebase !== 'undefined';
+        const hasConfig = typeof firebaseConfig !== 'undefined';
+
         Alpine.data('triviaPlayer', () => ({
             // --- State ---
             isConnected: false,
@@ -24,6 +27,8 @@
             streak: 0,
             showFeedback: false, // For the color flash
             isCorrect: false,
+
+            errorMsg: (!hasFirebase || !hasConfig) ? "Configuration Error: " + (!hasFirebase ? "Firebase JS missing. " : "") + (!hasConfig ? "firebase-config.js missing." : "") : null,
 
             // --- Computed ---
             get scoreboard() {

@@ -137,8 +137,10 @@
                 <h1>Trivia Night</h1>
                 <p style="color: #546e7a; margin-bottom: 30px;">Enter your name to join!</p>
                 
-                <input type="text" x-model="playerName" placeholder="Enter your name..." maxlength="20" @keyup.enter="joinGame()">
-                <button @click="joinGame()">Join Game 🎉</button>
+                <div x-show="errorMsg" style="color: red; background: #ffebee; padding: 10px; border-radius: 8px; margin-bottom: 20px;" x-text="errorMsg"></div>
+
+                <input type="text" x-model="playerName" placeholder="Enter your name..." maxlength="20" @keyup.enter="joinGame()" :disabled="!!errorMsg">
+                <button @click="joinGame()" :disabled="!!errorMsg">Join Game 🎉</button>
             </div>
         </div>
 
