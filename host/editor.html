@@ -217,15 +217,18 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="../config/firebase-config.js"></script>
+    <script src="../shared/firebase-helper.js"></script>
     <script src="editor-data.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <script>
         document.addEventListener('alpine:init', () => {
-            if (firebase.apps.length === 0) firebase.initializeApp(firebaseConfig);
-            const db = firebase.database();
-            const auth = firebase.auth();
-            Alpine.data('quizEditor', () => window.createEditorData(firebase, db, auth));
+            const fb = TriviaFirebase.init();
+            if (fb) {
+                Alpine.data('quizEditor', () => window.createEditorData(fb.firebase, fb.db, fb.auth));
+            } else {
+                console.error("Firebase init failed in editor");
+            }
         });
 
         document.addEventListener('DOMContentLoaded', () => {

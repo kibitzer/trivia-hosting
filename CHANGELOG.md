@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.8] - 2026-01-28
+### Added
+- **Code Health**: Introduced `shared/firebase-helper.js` to centralize and standardize Firebase initialization logic across all views.
+### Changed
+- **Refactor**: Simplified `host-alpine.js`, `player-alpine.js`, and `editor.html` by utilizing the new `TriviaFirebase` shared helper.
+
 ## [0.3.7] - 2026-01-27
 ### Changed
 - **UI**: Removed timer from round-title slides to distinct them from question slides.

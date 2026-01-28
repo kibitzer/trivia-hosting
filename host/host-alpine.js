@@ -5,18 +5,16 @@
     function initApp() {
         console.log("Initializing App...");
         
-        const hasFirebase = typeof firebase !== 'undefined';
-        const hasConfig = typeof firebaseConfig !== 'undefined';
+        const fb = TriviaFirebase.init();
         const hasData = typeof window.createHostData === 'function';
 
-        if (!hasFirebase || !hasConfig || !hasData) {
-            console.error("Initialization failed:", { hasFirebase, hasConfig, hasData });
+        if (!fb || !hasData) {
+            console.error("Initialization failed:", { fb, hasData });
             Alpine.data('triviaHost', () => ({
                 isConnected: false,
                 isAuthenticated: false,
                 errorMsg: "Configuration Error: " + 
-                    (!hasFirebase ? "Firebase JS missing. " : "") + 
-                    (!hasConfig ? "firebase-config.js missing. " : "") + 
+                    (!fb ? "Firebase helper failed. " : "") + 
                     (!hasData ? "host-data.js missing. " : ""),
                 loginError: "System not ready",
                 loading: false,
@@ -26,12 +24,7 @@
             return;
         }
 
-        if (firebase.apps.length === 0) firebase.initializeApp(firebaseConfig);
-        
-        const db = firebase.database();
-        const auth = firebase.auth();
-        
-        Alpine.data('triviaHost', () => window.createHostData(firebase, db, auth));
+        Alpine.data('triviaHost', () => window.createHostData(fb.firebase, fb.db, fb.auth));
         console.log("Alpine component registered");
     }
 

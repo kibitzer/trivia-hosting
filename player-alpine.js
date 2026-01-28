@@ -50,13 +50,12 @@
             init() {
                 const self = this;
                 
-                // Initialize Firebase (Safely)
-                if (typeof firebase === 'undefined') return console.error("Firebase missing");
-                if (typeof firebaseConfig === 'undefined') return console.error("Config missing");
-                if (firebase.apps.length === 0) firebase.initializeApp(firebaseConfig);
+                // Initialize Firebase via helper
+                const fb = TriviaFirebase.init();
+                if (!fb) return;
                 
-                const db = firebase.database();
-                const auth = firebase.auth();
+                const db = fb.db;
+                const auth = fb.auth;
 
                 // Connection Status
                 db.ref('.info/connected').on('value', snap => {
