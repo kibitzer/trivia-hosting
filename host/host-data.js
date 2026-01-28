@@ -1,5 +1,5 @@
 // host/host-data.js
-window.createHostData = function(firebase, db, auth) {
+window.createHostData = function(firebase, db, auth, analytics) {
     return {
         // --- State ---
         isConnected: false,
@@ -143,7 +143,19 @@ window.createHostData = function(firebase, db, auth) {
             });
             return qs;
         },
-        startGame() { this.currentView = 'game'; this.currentIndex = 0; this.syncGameState(); },
+        startGame() { 
+            this.currentView = 'game'; 
+            this.currentIndex = 0; 
+            this.syncGameState(); 
+            
+            if (analytics) {
+                analytics.logEvent('game_start', {
+                    quiz_title: this.quizData.find(i => i.type === 'round-title')?.title || 'Unknown Quiz',
+                    item_count: this.quizData.length,
+                    player_count: this.playerCount
+                });
+            }
+        },
         async resetGame() {
             const result = await Swal.fire({
                 title: 'Reset Quiz?',
@@ -161,7 +173,15 @@ window.createHostData = function(firebase, db, auth) {
             Object.keys(this.players).forEach(p => db.ref(`players/${p}/score`).set(0));
         },
         nextItem() {
-            if (this.currentIndex >= this.quizData.length - 1) return;
+            if (this.currentIndex >= this.quizData.length - 1) {
+                if (analytics) {
+                    analytics.logEvent('game_complete', {
+                        quiz_title: this.quizData.find(i => i.type === 'round-title')?.title || 'Unknown Quiz',
+                        player_count: this.playerCount
+                    });
+                }
+                return;
+            }
             this.currentIndex++; this.answerRevealed = false; this.stopAllTimers();
             this.timerValue = this.currentItem.timer || this.defaultTimer;
             if (this.currentItem.type === 'question') {
@@ -212,8 +232,14 @@ window.createHostData = function(firebase, db, auth) {
             const questionStartTime = this.gameState.timestamp; // When the question was synced to Firebase
             const totalTimeLimit = (this.currentItem.timer || this.defaultTimer) * 1000; // ms
 
+            let correctCount = 0;
+            let totalResponseTime = 0;
+            let responseCount = 0;
+
             Object.entries(answers).forEach(([pid, data]) => {
-                if (this.checkCorrectness(data.answer)) {
+                const isCorrect = this.checkCorrectness(data.answer);
+                if (isCorrect) {
+                    correctCount++;
                     let totalPoints = 1000; // Default flat score
 
                     if (this.speedScoringEnabled && typeof questionStartTime === 'number' && typeof data.timestamp === 'number') {
@@ -223,12 +249,30 @@ window.createHostData = function(firebase, db, auth) {
                         const timeLeftRatio = Math.max(0, (totalTimeLimit - timeTaken) / totalTimeLimit);
                         const speedBonus = Math.floor(timeLeftRatio * 500);
                         totalPoints = 500 + speedBonus;
+                        
+                        totalResponseTime += timeTaken;
+                        responseCount++;
                     }
 
                     const currentScore = this.players[pid]?.score || 0;
                     db.ref(`players/${pid}/score`).set(currentScore + totalPoints);
+                } else {
+                    if (typeof questionStartTime === 'number' && typeof data.timestamp === 'number') {
+                        totalResponseTime += (data.timestamp - questionStartTime);
+                        responseCount++;
+                    }
                 }
             });
+
+            if (analytics && this.currentItem.type === 'question') {
+                analytics.logEvent('question_summary', {
+                    question_number: this.currentItem.questionNumber,
+                    question_text: this.currentItem.text.substring(0, 100),
+                    correct_count: correctCount,
+                    total_answers: Object.keys(answers).length,
+                    avg_response_time_ms: responseCount > 0 ? Math.floor(totalResponseTime / responseCount) : 0
+                });
+            }
 
             this.syncGameState();
         },

@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-01-28
+### Added
+- **Infrastructure**: Integrated **Firebase Storage** for direct image uploads in the Quiz Editor.
+- **PWA**: Added Progressive Web App support (manifest, service worker) for mobile installability.
+- **Analytics**: Integrated **Firebase Analytics** to track game engagement, question difficulty, and player streaks.
+- **Testing**: Added a new unit test suite for Player logic (`tests/player.test.js`) and expanded E2E tests for PWA and Analytics.
+
 ## [0.3.8] - 2026-01-28
 ### Added
 - **Code Health**: Introduced `shared/firebase-helper.js` to centralize and standardize Firebase initialization logic across all views.

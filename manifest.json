@@ -1,0 +1,29 @@
+{
+  "name": "Trivia Night",
+  "short_name": "Trivia",
+  "description": "Real-time Trivia Hosting and Playing App",
+  "start_url": "./player.html",
+  "display": "standalone",
+  "background_color": "#1565c0",
+  "theme_color": "#1565c0",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3407/3407024.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Join Game",
+      "url": "./player.html",
+      "description": "Join an ongoing trivia game"
+    },
+    {
+      "name": "Host Panel",
+      "url": "./host/host.html",
+      "description": "Open the host control panel"
+    }
+  ]
+}

@@ -159,7 +159,11 @@
 
                                 <div class="input-group" x-show="currentQuiz.questions[selectedQuestionIndex].type === 'round-title'">
                                     <label>Background Image URL (Optional)</label>
-                                    <input type="text" x-model="currentQuiz.questions[selectedQuestionIndex].image" placeholder="https://...">
+                                    <div style="display: flex; gap: 10px;">
+                                        <input type="text" x-model="currentQuiz.questions[selectedQuestionIndex].image" placeholder="https://..." style="flex: 1;">
+                                        <button class="btn btn-secondary" @click="$refs.roundFile.click()">📁 Upload</button>
+                                        <input type="file" x-ref="roundFile" style="display: none;" accept="image/*" @change="uploadImage($event, 'image')">
+                                    </div>
                                     <p style="font-size: 0.8rem; color: #666; margin-top: 5px;">This image will appear at 20% transparency behind the round title.</p>
                                 </div>
 
@@ -170,7 +174,11 @@
 
                                 <div class="input-group" x-show="currentQuiz.questions[selectedQuestionIndex].type !== 'round-title'">
                                     <label>Image URL (Optional)</label>
-                                    <input type="text" x-model="currentQuiz.questions[selectedQuestionIndex].image" placeholder="https://...">
+                                    <div style="display: flex; gap: 10px;">
+                                        <input type="text" x-model="currentQuiz.questions[selectedQuestionIndex].image" placeholder="https://..." style="flex: 1;">
+                                        <button class="btn btn-secondary" @click="$refs.questionFile.click()">📁 Upload</button>
+                                        <input type="file" x-ref="questionFile" style="display: none;" accept="image/*" @change="uploadImage($event, 'image')">
+                                    </div>
                                 </div>
 
                                 <!-- Options for Multiple Choice -->
@@ -216,6 +224,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <script src="../config/firebase-config.js"></script>
     <script src="../shared/firebase-helper.js"></script>
     <script src="editor-data.js"></script>
@@ -225,7 +234,7 @@
         document.addEventListener('alpine:init', () => {
             const fb = TriviaFirebase.init();
             if (fb) {
-                Alpine.data('quizEditor', () => window.createEditorData(fb.firebase, fb.db, fb.auth));
+                Alpine.data('quizEditor', () => window.createEditorData(fb.firebase, fb.db, fb.auth, fb.storage));
             } else {
                 console.error("Firebase init failed in editor");
             }

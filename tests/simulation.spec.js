@@ -29,6 +29,12 @@ test('Trivia Full Simulation', async ({ browser }) => {
     const hostContext = await browser.newContext();
     const hostPage = await setupPage(hostContext, 'HOST');
     await hostPage.goto(HOST_URL);
+
+    // Verify PWA Manifest
+    const manifestResponse = await hostPage.request.get(`http://localhost:${PORT}/manifest.json`);
+    expect(manifestResponse.status()).toBe(200);
+    const manifest = await manifestResponse.json();
+    expect(manifest.short_name).toBe('Trivia');
     
     // Host Login
     await hostPage.fill('input[x-model="email"]', TEST_EMAIL);
@@ -82,7 +88,27 @@ test('Trivia Full Simulation', async ({ browser }) => {
     // 3. Host: Load Quiz and Start
     await hostPage.selectOption('select[x-model="filename"]', '../quizzes/sample_quiz.json');
     await hostPage.click('button:has-text("Load Quiz")');
+
+    // Setup Analytics spy
+    await hostPage.evaluate(() => {
+        window.analyticsEvents = [];
+        if (window.firebase && window.firebase.analytics) {
+            // Hijack logEvent to track calls
+            const originalLog = window.firebase.analytics().logEvent;
+            window.firebase.analytics().logEvent = (name, params) => {
+                window.analyticsEvents.push({ name, params });
+                // originalLog.apply(window.firebase.analytics(), [name, params]);
+            };
+        }
+    });
+
     await hostPage.click('button:has-text("Start Game")');
+    
+    // Check if analytics event was captured
+    const events = await hostPage.evaluate(() => window.analyticsEvents);
+    const startEvent = events.find(e => e.name === 'game_start');
+    expect(startEvent).toBeDefined();
+    expect(startEvent.params.quiz_title).toBeDefined();
     
     // Advance from Title to Question 1
     await hostPage.click('button:has-text("Next")');

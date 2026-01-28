@@ -1,4 +1,4 @@
-window.createEditorData = function(firebase, db, auth) {
+window.createEditorData = function(firebase, db, auth, storage) {
     return {
         isAuthenticated: false,
         loading: false,
@@ -17,6 +17,42 @@ window.createEditorData = function(firebase, db, auth) {
                     });
                 }
             });
+        },
+
+        async uploadImage(event, targetField) {
+            const file = event.target.files[0];
+            if (!file || !storage) return;
+
+            if (file.size > 2 * 1024 * 1024) {
+                alert("File is too large! Please choose an image under 2MB.");
+                return;
+            }
+
+            this.loading = true;
+            this.statusMsg = "Uploading...";
+
+            try {
+                // Create a unique filename
+                const extension = file.name.split('.').pop();
+                const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${extension}`;
+                const storageRef = storage.ref(`quiz_images/${fileName}`);
+
+                const snapshot = await storageRef.put(file);
+                const downloadURL = await snapshot.ref.getDownloadURL();
+
+                // Update the field in the current question
+                this.currentQuiz.questions[this.selectedQuestionIndex][targetField] = downloadURL;
+                this.statusMsg = "Upload successful!";
+                setTimeout(() => this.statusMsg = '', 3000);
+            } catch (e) {
+                console.error("Upload failed", e);
+                alert("Upload failed: " + e.message);
+                this.statusMsg = "Upload failed.";
+            } finally {
+                this.loading = false;
+                // Reset file input so same file can be re-selected if needed
+                event.target.value = '';
+            }
         },
 
         createNewQuiz() {

@@ -56,6 +56,8 @@
                 
                 const db = fb.db;
                 const auth = fb.auth;
+                const analytics = fb.analytics;
+                this.analytics = analytics; // Store for methods
 
                 // Connection Status
                 db.ref('.info/connected').on('value', snap => {
@@ -83,6 +85,12 @@
                     const result = await firebase.auth().signInAnonymously();
                     this.playerId = result.user.uid;
                     this.registerPlayer(firebase.database());
+                    
+                    if (this.analytics) {
+                        this.analytics.logEvent('player_join', {
+                            player_name: this.playerName
+                        });
+                    }
                 } catch (error) {
                     console.error("Auth failed", error);
                     alert("Failed to join: " + error.message);
@@ -156,6 +164,14 @@
                     if (this.hasSubmitted) {
                         if (this.isCorrect) {
                             this.streak++;
+                            
+                            // Log streak milestones
+                            if (this.analytics && [3, 5, 10].includes(this.streak)) {
+                                this.analytics.logEvent('streak_milestone', {
+                                    streak_count: this.streak,
+                                    player_name: this.playerName
+                                });
+                            }
                         } else {
                             this.streak = 0;
                         }

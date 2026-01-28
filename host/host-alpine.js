@@ -24,7 +24,7 @@
             return;
         }
 
-        Alpine.data('triviaHost', () => window.createHostData(fb.firebase, fb.db, fb.auth));
+        Alpine.data('triviaHost', () => window.createHostData(fb.firebase, fb.db, fb.auth, fb.analytics));
         console.log("Alpine component registered");
     }
 

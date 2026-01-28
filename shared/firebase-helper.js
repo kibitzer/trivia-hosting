@@ -26,7 +26,9 @@ window.TriviaFirebase = {
         return {
             firebase: firebase,
             db: firebase.database(),
-            auth: firebase.auth()
+            auth: firebase.auth(),
+            storage: firebase.storage ? firebase.storage() : null,
+            analytics: firebase.analytics ? firebase.analytics() : null
         };
     }
 };
