@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-02-02
+### Removed
+- **Host**: Ability to manually add or subtract scores from players. All scoring is now automatic.
+
 ## [0.4.0] - 2026-01-28
 ### Added
 - **Infrastructure**: Integrated **Firebase Storage** for direct image uploads in the Quiz Editor.

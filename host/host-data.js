@@ -288,7 +288,7 @@ window.createHostData = function(firebase, db, auth, analytics) {
                 currentIndex: this.currentIndex, 
                 status: 'active', 
                 answerRevealed: !!this.answerRevealed, 
-                timerValue: this.timerValue,
+                timerValue: this.timerValue, 
                 timerStatus: this.timerStatus,
                 timestamp: firebase.database.ServerValue.TIMESTAMP 
             };
@@ -309,7 +309,6 @@ window.createHostData = function(firebase, db, auth, analytics) {
             });
             db.ref('gameState').set(base);
         },
-        adjustScore(pid, amt) { db.ref(`players/${pid}/score`).set(Math.max(0, (this.players[pid]?.score || 0) + amt)); },
         async removePlayer(pid) { 
             const result = await Swal.fire({
                 title: 'Kick Player?',
