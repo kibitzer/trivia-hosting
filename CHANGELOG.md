@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.4.4] - 2026-02-02
+## [0.4.5] - 2026-02-02
+### Added
+- **Editor**: Implemented **Autosave** which automatically syncs quiz changes to Firebase after a 2-second debounce.
+- **Editor**: Integrated **SortableJS** for drag-and-drop slide reordering in the sidebar.
+- **Editor**: Added visual status indicators for saving and validation states.
+
 ### Fixed
 - **Security**: Restricted `quizzes` read access to Host only to prevent players from fetching answers via the console.
 - **Security**: Fixed an issue where anonymous players were unable to read the `players` node, which broke the live scoreboard.

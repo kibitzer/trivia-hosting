@@ -98,7 +98,10 @@
                     <input type="text" x-model="currentQuiz.title" style="font-size: 1.3rem; font-weight: bold; border: none; background: transparent; padding: 5px; border-bottom: 2px solid transparent;" onfocus="this.style.borderBottomColor='#1565c0'" onblur="this.style.borderBottomColor='transparent'">
                 </div>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <div x-show="statusMsg" style="color: #2e7d32; font-weight: bold; font-size: 0.9rem;" x-text="statusMsg"></div>
+                    <div x-show="statusMsg" 
+                         style="padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold;"
+                         :style="statusMsg.includes('⚠️') ? 'background: #fff3e0; color: #ef6c00;' : (statusMsg.includes('❌') ? 'background: #ffebee; color: #c62828;' : 'background: #e8f5e9; color: #2e7d32;')"
+                         x-text="statusMsg"></div>
                     <button @click="saveQuiz()" class="btn btn-success" :disabled="loading">
                         <span x-show="!loading">💾 Save Quiz</span>
                         <span x-show="loading">Saving...</span>
@@ -109,7 +112,7 @@
             <template x-if="currentQuiz">
                 <div class="editor-layout">
                     <!-- Sidebar: Question List -->
-                    <div class="sidebar">
+                    <div class="sidebar" id="slide-list">
                         <template x-for="(q, index) in currentQuiz.questions" :key="index">
                             <div class="slide-thumb" :class="{ 'active': selectedQuestionIndex === index }" @click="selectQuestion(index)">
                                 <div class="slide-number" x-text="currentQuiz.questions[index].type === 'round-title' ? 'ROUND ' + getRoundNumber(index) : 'QUESTION ' + getQuestionNumber(index)"></div>
@@ -221,6 +224,7 @@
     <!-- Scripts -->
     <script src="../shared/version.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>

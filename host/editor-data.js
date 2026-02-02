@@ -7,6 +7,11 @@ window.createEditorData = function(firebase, db, auth, storage) {
         currentQuiz: null,
         selectedQuestionIndex: 0,
         statusMsg: '',
+        autosaveTimeout: null,
+
+        // Placeholder for Alpine magic properties
+        $watch: (name, cb) => {},
+        $nextTick: (cb) => cb(),
 
         init() {
             auth.onAuthStateChanged(user => {
@@ -17,6 +22,21 @@ window.createEditorData = function(firebase, db, auth, storage) {
                     });
                 }
             });
+
+            // Set up autosave watcher
+            this.$watch('currentQuiz', (value) => {
+                if (value && this.editingQuizId) {
+                    this.triggerAutosave();
+                }
+            }, { deep: true });
+        },
+
+        triggerAutosave() {
+            if (this.autosaveTimeout) clearTimeout(this.autosaveTimeout);
+            this.statusMsg = "Typing...";
+            this.autosaveTimeout = setTimeout(() => {
+                this.saveQuiz(true); // true indicates it's an autosave
+            }, 2000);
         },
 
         async uploadImage(event, targetField) {
@@ -78,6 +98,39 @@ window.createEditorData = function(firebase, db, auth, storage) {
             this.editingQuizId = id;
             this.currentQuiz = JSON.parse(JSON.stringify(this.quizzes[id])); // Deep clone
             this.selectedQuestionIndex = 0;
+            
+            // Initialize Sortable after Alpine has rendered the list
+            this.$nextTick(() => {
+                this.initSortable();
+            });
+        },
+
+        initSortable() {
+            const el = document.getElementById('slide-list');
+            if (!el || typeof Sortable === 'undefined') return;
+
+            Sortable.create(el, {
+                animation: 150,
+                draggable: '.slide-thumb',
+                onEnd: (evt) => {
+                    const oldIndex = evt.oldIndex;
+                    const newIndex = evt.newIndex;
+                    
+                    if (oldIndex === newIndex) return;
+
+                    // Reorder the questions array
+                    const questions = [...this.currentQuiz.questions];
+                    const [movedItem] = questions.splice(oldIndex, 1);
+                    questions.splice(newIndex, 0, movedItem);
+                    
+                    // Update state
+                    this.currentQuiz.questions = questions;
+                    this.selectedQuestionIndex = newIndex;
+                    
+                    // Trigger autosave
+                    this.triggerAutosave();
+                }
+            });
         },
 
         selectQuestion(index) {
@@ -149,9 +202,10 @@ window.createEditorData = function(firebase, db, auth, storage) {
             }
         },
 
-        async saveQuiz() {
+        async saveQuiz(isAutosave = false) {
             if (!this.editingQuizId) return;
-            this.loading = true;
+            if (!isAutosave) this.loading = true;
+            this.statusMsg = isAutosave ? "Saving..." : "Saving...";
 
             // Before saving, ensure questionNumber and roundNumber are synced based on order
             let qNum = 1;
@@ -180,7 +234,11 @@ window.createEditorData = function(firebase, db, auth, storage) {
             });
 
             if (validationError) {
-                alert(validationError);
+                if (!isAutosave) {
+                    alert(validationError);
+                } else {
+                    this.statusMsg = "⚠️ Missing answers - not saved";
+                }
                 this.loading = false;
                 return;
             }
@@ -188,10 +246,11 @@ window.createEditorData = function(firebase, db, auth, storage) {
             this.currentQuiz.updatedAt = firebase.database.ServerValue.TIMESTAMP;
             try {
                 await db.ref(`quizzes/${this.editingQuizId}`).set(this.currentQuiz);
-                this.statusMsg = "Saved successfully!";
-                setTimeout(() => this.statusMsg = '', 3000);
+                this.statusMsg = isAutosave ? "✓ Autosaved" : "✓ Saved successfully!";
+                if (!isAutosave) setTimeout(() => this.statusMsg = '', 3000);
             } catch (e) {
-                alert("Save failed: " + e.message);
+                if (!isAutosave) alert("Save failed: " + e.message);
+                this.statusMsg = "❌ Save failed";
             } finally {
                 this.loading = false;
             }

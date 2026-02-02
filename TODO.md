@@ -28,8 +28,8 @@ This file tracks planned features, UI improvements, and technical debt.
 - [ ] **Analytics Dashboard**: Create a simple internal view to visualize question difficulty and player engagement over time.
 
 ## 📝 Editor Improvements
-- [ ] **Drag-and-Drop Reordering**: Allow the host to drag slides in the left-hand sidebar to easily change the question order.
-- [ ] **Autosave**: Save changes to the current quiz draft automatically after every edit.
+- [x] **Drag-and-Drop Reordering**: Allow the host to drag slides in the left-hand sidebar to easily change the question order.
+- [x] **Autosave**: Save changes to the current quiz draft automatically after every edit.
 
 ## 🧹 Code Health
 - [ ] **Shared UI Components**: Extract common elements (Timer, Scoreboard row, Option button) into shared files to ensure consistency between Host and Player.
