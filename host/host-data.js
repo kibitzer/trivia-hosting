@@ -220,6 +220,7 @@ window.createHostData = function(firebase, db, auth, analytics) {
             if (online > 0 && ansCount >= online && !this.autoRevealTimeout) {
                 this.autoRevealTimeout = setTimeout(() => {
                     this.autoRevealTimeout = null; // Clear before calling reveal
+                    this.timerStatus = 'revealed'; // Update local status first
                     this.revealAnswer();
                 }, 2000);
             }

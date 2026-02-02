@@ -22,9 +22,9 @@ window.TriviaUI = {
     timer() {
         return `
             <div class="timer-display" 
-                 x-text="timerStatus === 'countdown' ? `Starting in ${timerValue}...` : (timerStatus === 'ended' ? `⏰ TIME'S UP!` : (timerStatus === 'revealed' ? 'Answer Revealed' : timerValue))"
-                 :class="{
-                    'countdown': timerStatus === 'countdown',
+                 x-text="timerStatus === 'countdown' ? 'Starting in ' + timerValue + '...' : (timerStatus === 'ended' ? '⏰ TIME\\'S UP!' : (timerStatus === 'revealed' ? 'Answer Revealed' : timerValue))"
+                 :class="{ 
+                    'countdown': timerStatus === 'countdown', 
                     'danger': timerStatus === 'running' && timerValue <= 5,
                     'stopped': timerStatus === 'ended' || timerStatus === 'revealed'
                  }">

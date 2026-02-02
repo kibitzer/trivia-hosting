@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.4.6] - 2026-02-02
+## [0.4.7] - 2026-02-02
+### Fixed
+- **Shared Components**: Fixed a bug where the shared Timer component displayed "undefined" due to template literal evaluation issues.
+- **Auto-Reveal**: Improved synchronization by ensuring `timerStatus` is explicitly updated to `revealed` during auto-reveal.
+- **UI**: Fixed background image visibility on Round Title slides by correcting the CSS stacking context (z-index).
+
 ### Added
 - **Code Health**: Introduced `shared/ui-components.js` to centralize reusable HTML components (Timer, Connection Status).
 - **UX**: Implemented a global **Connectivity Overlay** that blurs the screen and notifies users when the Firebase connection is lost.
