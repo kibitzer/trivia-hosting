@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.4.5] - 2026-02-02
+## [0.4.6] - 2026-02-02
+### Added
+- **Code Health**: Introduced `shared/ui-components.js` to centralize reusable HTML components (Timer, Connection Status).
+- **UX**: Implemented a global **Connectivity Overlay** that blurs the screen and notifies users when the Firebase connection is lost.
+- **Refactor**: Harmonized the Timer display logic between Host and Player views using the new shared component system.
+
 ### Added
 - **Editor**: Implemented **Autosave** which automatically syncs quiz changes to Firebase after a 2-second debounce.
 - **Editor**: Integrated **SortableJS** for drag-and-drop slide reordering in the sidebar.

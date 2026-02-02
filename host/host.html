@@ -65,15 +65,16 @@
 </head>
 
 <body x-data="triviaHost">
+  <!-- Connectivity Overlay -->
+  <div x-html="TriviaUI.connectivityOverlay()"></div>
+
   <div class="container">
     <div class="main-panel">
       <div class="header">
         <h1>🎯 Trivia Night</h1>
         <p>Host Control Panel</p>
         <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
-            <span class="connection-status" 
-                  :class="isConnected ? 'connected' : 'disconnected'"
-                  x-text="isConnected ? '● Connected' : '● Connecting...'"></span>
+            <div x-html="TriviaUI.connectionStatus()"></div>
             <button x-show="isAuthenticated" @click="logout()" class="btn-secondary" style="padding: 5px 10px; font-size: 0.8rem;">Logout</button>
         </div>
       </div>
@@ -215,10 +216,7 @@
                     <span class="question-number">Q<span x-text="currentItem.questionNumber"></span></span>
                     <span class="question-type" x-text="currentItem.questionType === 'MC' ? 'Multiple Choice' : 'Short Answer'"></span>
                 </div>
-                <div class="timer-display" 
-                     x-text="timerStatus === 'countdown' ? `Starting in ${timerValue}...` : (timerStatus === 'ended' ? `⏰ TIME'S UP!` : timerValue)"
-                     :class="{ 'countdown': timerStatus === 'countdown', 'danger': timerStatus === 'running' && timerValue <= 5 }">
-                </div>
+                <div x-html="TriviaUI.timer()"></div>
                 <h2 class="question-text" x-text="currentItem.text"></h2>
                 <template x-if="currentItem.image">
                     <img :src="currentItem.image" class="question-image" onerror="this.style.display='none'">
@@ -309,6 +307,7 @@
   <!-- SCRIPT LOADING (CRITICAL ORDER) -->
   <!-- 0. Version Info -->
   <script src="../shared/version.js"></script>
+  <script src="../shared/ui-components.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <!-- 1. Firebase Compat Libraries -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>

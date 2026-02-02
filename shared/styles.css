@@ -48,3 +48,8 @@ button {
 [x-cloak] {
     display: none !important;
 }
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
