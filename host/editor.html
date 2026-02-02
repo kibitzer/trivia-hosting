@@ -113,7 +113,7 @@
                 <div class="editor-layout">
                     <!-- Sidebar: Question List -->
                     <div class="sidebar" id="slide-list">
-                        <template x-for="(q, index) in currentQuiz.questions" :key="index">
+                        <template x-for="(q, index) in currentQuiz.questions" :key="q.id">
                             <div class="slide-thumb" :class="{ 'active': selectedQuestionIndex === index }" @click="selectQuestion(index)">
                                 <div class="slide-number" x-text="currentQuiz.questions[index].type === 'round-title' ? 'ROUND ' + getRoundNumber(index) : 'QUESTION ' + getQuestionNumber(index)"></div>
                                 <div class="slide-preview" x-text="currentQuiz.questions[index].type === 'round-title' ? currentQuiz.questions[index].title : (currentQuiz.questions[index].question || '(New Question)')"></div>

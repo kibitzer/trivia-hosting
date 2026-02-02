@@ -100,6 +100,18 @@ describe('Host Logic', () => {
             expect(result[0].title).toBe('Round 1 Intro');
             expect(result[1].type).toBe('question');
         });
+
+        it('should preserve images for round-title slides', () => {
+            const input = {
+                questions: [{
+                    type: "round-title",
+                    title: "Image Round",
+                    image: "https://example.com/bg.jpg"
+                }]
+            };
+            const result = host.convertSampleQuizFormat(input);
+            expect(result[0].image).toBe("https://example.com/bg.jpg");
+        });
     });
 
     describe('Answer Checking', () => {

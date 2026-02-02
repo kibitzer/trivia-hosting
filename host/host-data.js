@@ -117,7 +117,8 @@ window.createHostData = function(firebase, db, auth, analytics) {
                         type: "round-title",
                         roundNumber: q.roundNumber || 1,
                         title: q.title || q.question || "New Round",
-                        timer: q.timer || 20
+                        timer: q.timer || 20,
+                        image: q.image || null
                     });
                 } else {
                     const newQ = { 

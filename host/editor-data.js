@@ -80,6 +80,7 @@ window.createEditorData = function(firebase, db, auth, storage) {
                 title: "New Quiz",
                 questions: [
                     {
+                        id: 'q-' + Date.now(),
                         question: "Sample Question?",
                         type: "multiple",
                         options: ["Option 1", "Option 2", "Option 3", "Option 4"],
@@ -97,39 +98,17 @@ window.createEditorData = function(firebase, db, auth, storage) {
         editQuiz(id) {
             this.editingQuizId = id;
             this.currentQuiz = JSON.parse(JSON.stringify(this.quizzes[id])); // Deep clone
+            
+            // Backfill IDs for older quizzes that might not have them
+            this.currentQuiz.questions.forEach((q, i) => {
+                if (!q.id) q.id = 'q-' + Date.now() + '-' + i;
+            });
+            
             this.selectedQuestionIndex = 0;
             
             // Initialize Sortable after Alpine has rendered the list
             this.$nextTick(() => {
                 this.initSortable();
-            });
-        },
-
-        initSortable() {
-            const el = document.getElementById('slide-list');
-            if (!el || typeof Sortable === 'undefined') return;
-
-            Sortable.create(el, {
-                animation: 150,
-                draggable: '.slide-thumb',
-                onEnd: (evt) => {
-                    const oldIndex = evt.oldIndex;
-                    const newIndex = evt.newIndex;
-                    
-                    if (oldIndex === newIndex) return;
-
-                    // Reorder the questions array
-                    const questions = [...this.currentQuiz.questions];
-                    const [movedItem] = questions.splice(oldIndex, 1);
-                    questions.splice(newIndex, 0, movedItem);
-                    
-                    // Update state
-                    this.currentQuiz.questions = questions;
-                    this.selectedQuestionIndex = newIndex;
-                    
-                    // Trigger autosave
-                    this.triggerAutosave();
-                }
             });
         },
 
@@ -159,6 +138,7 @@ window.createEditorData = function(firebase, db, auth, storage) {
 
         addQuestion() {
             this.currentQuiz.questions.push({
+                id: 'q-' + Date.now(),
                 question: "New Question?",
                 type: "multiple",
                 options: ["A", "B", "C", "D"],
@@ -173,6 +153,7 @@ window.createEditorData = function(firebase, db, auth, storage) {
         addRound() {
             const currentRoundCount = this.currentQuiz.questions.filter(q => q.type === 'round-title').length;
             this.currentQuiz.questions.push({
+                id: 'r-' + Date.now(),
                 type: "round-title",
                 title: "New Round",
                 roundNumber: currentRoundCount + 1,
@@ -278,6 +259,35 @@ window.createEditorData = function(firebase, db, auth, storage) {
             this.currentQuiz = null;
         },
 
+        initSortable() {
+            const el = document.getElementById('slide-list');
+            if (!el || typeof Sortable === 'undefined') return;
+
+            Sortable.create(el, {
+                animation: 150,
+                draggable: '.slide-thumb',
+                onEnd: (evt) => {
+                    const oldIndex = evt.oldIndex;
+                    const newIndex = evt.newIndex;
+                    
+                    if (oldIndex === newIndex) return;
+
+                    // IMPORTANT: SortableJS moves the DOM element, but Alpine.js
+                    // also wants to control the DOM. To avoid 'flakiness', we 
+                    // update the data and let Alpine re-render the list correctly.
+                    
+                    const questions = [...this.currentQuiz.questions];
+                    const [movedItem] = questions.splice(oldIndex, 1);
+                    questions.splice(newIndex, 0, movedItem);
+                    
+                    this.currentQuiz.questions = questions;
+                    this.selectedQuestionIndex = newIndex;
+                    
+                    this.triggerAutosave();
+                }
+            });
+        },
+
         // Helper to import JSON
         async importFromJSON(event) {
             const file = event.target.files[0];
@@ -299,7 +309,8 @@ window.createEditorData = function(firebase, db, auth, storage) {
                                         type: 'round-title',
                                         title: item.title,
                                         roundNumber: item.roundNumber || 1,
-                                        timer: item.timer || 20
+                                        timer: item.timer || 20,
+                                        image: item.image || null
                                     };
                                 } else {
                                     return {

@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.4.8] - 2026-02-02
+## [0.4.9] - 2026-02-02
+### Fixed
+- **Host/Editor**: Resolved a critical bug where background images on Round Title slides were being stripped during quiz loading and JSON importing.
+- **Editor**: Significantly improved Drag-and-Drop stability by implementing unique, persistent IDs for all slides and using them as Alpine.js keys.
+- **Testing**: Added regression tests for round-title image preservation.
+
 ### Added
 - **Testing**: Significant expansion of the test suite (total 28 tests).
 - **Testing**: Added `tests/shared.test.js` to verify integrity of shared UI components and Alpine.js directives.
