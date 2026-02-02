@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-02-02
+### Changed
+- **UX**: Consolidated all host settings (Speed Scoring, Timer, Auto-Reveal) into a dedicated "Game Settings" view.
+- **UX**: Replaced inline settings controls in Setup and Sidebar with a navigation button to the new view.
+
 ## [0.4.1] - 2026-02-02
 ### Removed
 - **Host**: Ability to manually add or subtract scores from players. All scoring is now automatic.

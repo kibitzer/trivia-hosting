@@ -16,6 +16,7 @@ window.createHostData = function(firebase, db, auth, analytics) {
         filename: '../quizzes/EOY-2025.json',
         customFilename: '',
         currentView: 'setup',
+        previousView: null,
         currentIndex: -1,
         timerValue: 20,
         defaultTimer: 20,
@@ -330,6 +331,14 @@ window.createHostData = function(firebase, db, auth, analytics) {
                 confirmButtonText: 'Yes, clear all'
             });
             if (result.isConfirmed) { db.ref('players').remove(); db.ref('answers').remove(); } 
+        },
+        openSettings() {
+            this.previousView = this.currentView;
+            this.currentView = 'settings';
+        },
+        closeSettings() {
+            this.currentView = this.previousView || 'setup';
+            this.previousView = null;
         }
     };
 };

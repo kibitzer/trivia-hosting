@@ -124,10 +124,9 @@
         </div>
         
         <div style="margin-bottom: 20px; text-align: center;">
-            <label style="font-size: 1.1rem; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; background: #fff3e0; padding: 10px 20px; border-radius: 8px; border: 1px solid #ff9800;">
-                <input type="checkbox" x-model="speedScoringEnabled" style="width: 20px; height: 20px;">
-                <span>⚡ Enable Speed Scoring (Fast answers get bonus points)</span>
-            </label>
+            <button @click="openSettings()" class="btn-secondary" style="padding: 10px 20px;">
+                ⚙️ Game Settings
+            </button>
         </div>
 
         <div x-show="errorMsg" style="color: red; background: #ffebee; padding: 10px; border-radius: 8px; margin-bottom: 10px;" x-text="errorMsg"></div>
@@ -141,6 +140,53 @@
                 🚀 Start Game
             </button>
         </div>
+      </div>
+
+      <!-- VIEW: Settings -->
+      <div x-show="isAuthenticated && currentView === 'settings'">
+          <div class="header">
+              <h2>⚙️ Game Settings</h2>
+          </div>
+          
+          <div style="max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 30px;">
+              
+              <!-- Scoring Section -->
+              <div style="background: #e3f2fd; padding: 20px; border-radius: 15px;">
+                  <h3>🏆 Scoring</h3>
+                  <label style="display: flex; gap: 15px; align-items: center; font-size: 1.1rem; cursor: pointer; margin-top: 15px;">
+                      <input type="checkbox" x-model="speedScoringEnabled" style="width: 25px; height: 25px;">
+                      <div>
+                          <strong>Enable Speed Scoring</strong>
+                          <div style="font-size: 0.9rem; color: #546e7a;">Fast answers get bonus points (500 base + bonus).</div>
+                      </div>
+                  </label>
+              </div>
+
+              <!-- Timing Section -->
+              <div style="background: #fff3e0; padding: 20px; border-radius: 15px;">
+                  <h3>⏱️ Timing & Automation</h3>
+                  
+                  <div style="margin-top: 15px; margin-bottom: 20px;">
+                      <label style="font-weight: bold; display: block; margin-bottom: 5px;">Default Timer (seconds):</label>
+                      <input type="number" x-model="defaultTimer" style="padding: 10px; border-radius: 8px; border: 1px solid #ff9800; width: 100px; font-size: 1.1rem;">
+                  </div>
+
+                  <label style="display: flex; gap: 15px; align-items: center; font-size: 1.1rem; cursor: pointer;">
+                      <input type="checkbox" x-model="autoReveal" style="width: 25px; height: 25px;">
+                      <div>
+                          <strong>Auto-Reveal Answers</strong>
+                          <div style="font-size: 0.9rem; color: #5d4037;">Automatically show the answer once all players have submitted.</div>
+                      </div>
+                  </label>
+              </div>
+
+              <!-- Action Buttons -->
+              <div style="text-align: center; margin-top: 20px;">
+                  <button class="btn-primary" style="padding: 15px 40px; font-size: 1.2rem;" @click="closeSettings()">
+                      ✅ Done
+                  </button>
+              </div>
+          </div>
       </div>
 
       <!-- VIEW: Game -->
@@ -210,15 +256,9 @@
     <!-- Sidebar -->
     <div class="sidebar" x-show="isAuthenticated">
         <div x-show="currentView === 'game'">
-            <h3>⏱️ Settings</h3>
-            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
-                <label>Default:</label>
-                <input type="number" x-model="defaultTimer" style="width: 60px; padding: 5px;">
-            </div>
-            <label style="display: flex; gap: 10px; align-items: center; font-size: 0.9rem; cursor: pointer;">
-                <input type="checkbox" x-model="autoReveal"> Auto-reveal when all answered
-            </label>
-            <button class="btn-primary" style="width: 100%; margin-top: 10px;" @click="startMainTimer()">▶️ Manual Start Timer</button>
+            <h3>⏱️ Controls</h3>
+            <button class="btn-secondary" style="width: 100%; margin-bottom: 10px;" @click="openSettings()">⚙️ Game Settings</button>
+            <button class="btn-primary" style="width: 100%;" @click="startMainTimer()">▶️ Manual Start Timer</button>
         </div>
         <div x-show="currentView === 'game'">
             <h3>📥 Answers</h3>
