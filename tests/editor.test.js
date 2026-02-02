@@ -143,5 +143,20 @@ describe('Editor Logic', () => {
             expect(roundTitle.correctAnswer).toBeUndefined();
             expect(roundTitle.timer).toBeUndefined();
         });
+
+        it('should fail validation if a question is missing a correct answer', async () => {
+            editor.editQuiz('q1');
+            // Remove correct answer from a question
+            editor.currentQuiz.questions[1].correctAnswer = '';
+            
+            const alertSpy = vi.spyOn(global, 'alert').mockImplementation(() => {});
+            
+            await editor.saveQuiz();
+            
+            expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('missing a correct answer'));
+            expect(mockDb.ref().set).not.toHaveBeenCalled();
+            
+            alertSpy.mockRestore();
+        });
     });
 });

@@ -138,6 +138,10 @@
                 const oldRevealed = !!this.gameState.answerRevealed;
                 
                 // Update gameState properties while maintaining reactivity
+                // Clear old properties that are not in the new state (e.g. images, answers)
+                Object.keys(this.gameState).forEach(key => {
+                    if (!(key in newState)) delete this.gameState[key];
+                });
                 Object.assign(this.gameState, newState);
                 
                 const nowRevealed = !!this.gameState.answerRevealed;

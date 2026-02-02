@@ -156,7 +156,9 @@ window.createEditorData = function(firebase, db, auth, storage) {
             // Before saving, ensure questionNumber and roundNumber are synced based on order
             let qNum = 1;
             let rNum = 1;
-            this.currentQuiz.questions.forEach(q => {
+            let validationError = null;
+
+            this.currentQuiz.questions.forEach((q, index) => {
                 if (q.type === 'round-title') {
                     q.roundNumber = rNum++;
                     delete q.question;
@@ -167,8 +169,21 @@ window.createEditorData = function(firebase, db, auth, storage) {
                     delete q.timer;
                 } else {
                     q.questionNumber = qNum++;
+                    // Validation: Must have a correct answer
+                    const hasAnswer = q.correctAnswer !== undefined && q.correctAnswer !== null && 
+                                     (Array.isArray(q.correctAnswer) ? q.correctAnswer.length > 0 : String(q.correctAnswer).trim() !== "");
+                    
+                    if (!hasAnswer) {
+                        validationError = `Question ${q.questionNumber} ("${(q.question || '').substring(0, 30)}...") is missing a correct answer.`;
+                    }
                 }
             });
+
+            if (validationError) {
+                alert(validationError);
+                this.loading = false;
+                return;
+            }
 
             this.currentQuiz.updatedAt = firebase.database.ServerValue.TIMESTAMP;
             try {

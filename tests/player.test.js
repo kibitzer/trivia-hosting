@@ -120,4 +120,31 @@ describe('Player Logic', () => {
             expect(mockAnalytics.logEvent).not.toHaveBeenCalledWith('streak_milestone', expect.anything());
         });
     });
+
+    describe('State Persistence', () => {
+        it('should clear properties when they are missing from the new state', () => {
+            // Initial state with image and answer
+            player.handleStateChange({
+                type: 'question',
+                questionText: 'Q1',
+                questionImage: 'img1.jpg',
+                answer: 'Ans1',
+                answerRevealed: true
+            });
+
+            expect(player.gameState.questionImage).toBe('img1.jpg');
+            expect(player.gameState.answer).toBe('Ans1');
+
+            // New state without image and answer
+            player.handleStateChange({
+                type: 'question',
+                questionText: 'Q2',
+                answerRevealed: false
+            });
+
+            expect(player.gameState.questionText).toBe('Q2');
+            expect(player.gameState.questionImage).toBeUndefined();
+            expect(player.gameState.answer).toBeUndefined();
+        });
+    });
 });

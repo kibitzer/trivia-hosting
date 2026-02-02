@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.3] - 2026-02-02
+### Fixed
+- **Player**: Resolved issue where images would persist from previous questions if the current question had no image.
+- **Player**: Fixed a bug where a previous question's correct answer would be displayed for subsequent questions if they were missing a correct answer.
+### Added
+- **Editor**: Added validation to the Quiz Editor to prevent saving questions without a correct answer.
+
+
+
 ## [0.4.2] - 2026-02-02
 ### Changed
 - **UX**: Consolidated all host settings (Speed Scoring, Timer, Auto-Reveal) into a dedicated "Game Settings" view.
