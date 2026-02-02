@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.4.3] - 2026-02-02
+## [0.4.4] - 2026-02-02
+### Fixed
+- **Security**: Restricted `quizzes` read access to Host only to prevent players from fetching answers via the console.
+- **Security**: Fixed an issue where anonymous players were unable to read the `players` node, which broke the live scoreboard.
+
 ### Fixed
 - **Player**: Resolved issue where images would persist from previous questions if the current question had no image.
 - **Player**: Fixed a bug where a previous question's correct answer would be displayed for subsequent questions if they were missing a correct answer.
