@@ -188,4 +188,57 @@ describe('Host Logic', () => {
             expect(mockSet).toHaveBeenCalledWith(1000);
         });
     });
+
+    describe('Timing & Automation', () => {
+        beforeEach(() => {
+            vi.useFakeTimers();
+        });
+
+        afterEach(() => {
+            vi.useRealTimers();
+        });
+
+        it('should transition from countdown to main timer automatically', () => {
+            host.currentIndex = 0;
+            host.quizData = [{ type: 'question', timer: 20 }];
+            
+            host.startCountdown();
+            expect(host.timerStatus).toBe('countdown');
+            
+            // Ticking the countdown (3, 2, 1, 0)
+            vi.advanceTimersByTime(1000); // 3
+            vi.advanceTimersByTime(1000); // 2
+            vi.advanceTimersByTime(1000); // 1
+            vi.advanceTimersByTime(1000); // 0 -> triggers startMainTimer
+            
+            expect(host.timerStatus).toBe('running');
+            // Check that it's running
+            expect(host.timerValue).toBeLessThanOrEqual(20);
+        });
+
+        it('should auto-reveal after delay when all players have answered', () => {
+            const revealSpy = vi.spyOn(host, 'revealAnswer');
+            
+            host.autoReveal = true;
+            host.currentIndex = 0;
+            host.quizData = [{ type: 'question', questionNumber: 1 }]; // Ensure currentItem works
+            host.players = { 
+                'p1': { online: true }, 
+                'p2': { online: true } 
+            };
+            host.currentAnswers = {
+                1: { 'p1': { answer: 'A' }, 'p2': { answer: 'B' } }
+            };
+
+            host.checkAutoReveal();
+            
+            // Should not reveal immediately
+            expect(revealSpy).not.toHaveBeenCalled();
+            
+            // Advance 2.1 seconds
+            vi.advanceTimersByTime(2100);
+            
+            expect(revealSpy).toHaveBeenCalled();
+        });
+    });
 });

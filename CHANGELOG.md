@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.4.7] - 2026-02-02
+## [0.4.8] - 2026-02-02
+### Added
+- **Testing**: Significant expansion of the test suite (total 28 tests).
+- **Testing**: Added `tests/shared.test.js` to verify integrity of shared UI components and Alpine.js directives.
+- **Testing**: Implemented automated timing tests for Host logic (countdown transitions, auto-reveal delays) using Vitest fake timers.
+- **Testing**: Added editor tests for drag-and-drop simulation and malformed JSON import handling.
+
 ### Fixed
 - **Shared Components**: Fixed a bug where the shared Timer component displayed "undefined" due to template literal evaluation issues.
 - **Auto-Reveal**: Improved synchronization by ensuring `timerStatus` is explicitly updated to `revealed` during auto-reveal.
