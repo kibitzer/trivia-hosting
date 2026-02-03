@@ -29,6 +29,7 @@ This file tracks planned features, UI improvements, and technical debt.
 
 ## 📝 Editor Improvements
 - [x] **Drag-and-Drop Reordering**: Allow the host to drag slides in the left-hand sidebar to easily change the question order.
+- [ ] **Fix Flaky Drag-and-Drop**: The current SortableJS implementation is flaky; improve stability and ensure reliable reordering.
 - [x] **Autosave**: Save changes to the current quiz draft automatically after every edit.
 - [ ] **AI-Powered Options**: If a multiple choice question has only one option supplied, use Gemini to supply other likely options.
 

@@ -2,6 +2,7 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import '../shared/quiz-parser.js';
 import '../host/host-data.js'; // Execute side effects (assigns to window)
 
 // Mock Swal
@@ -32,86 +33,6 @@ describe('Host Logic', () => {
 
     beforeEach(() => {
         host = window.createHostData(mockFirebase, mockDb);
-    });
-
-    describe('Quiz Parsing', () => {
-        it('should convert sample quiz format correctly', () => {
-            const sampleInput = {
-                title: "Test Quiz",
-                questions: [
-                    {
-                        question: "Capital of France?",
-                        type: "multiple",
-                        options: ["London", "Paris"],
-                        correctAnswer: "Paris"
-                    },
-                    {
-                        question: "Symbol for Gold?",
-                        type: "short",
-                        correctAnswer: ["Au", "AU"]
-                    }
-                ]
-            };
-
-            const result = host.convertSampleQuizFormat(sampleInput);
-
-            expect(result).toHaveLength(3); // Title slide + 2 questions
-            
-            // Check Title
-            expect(result[0].type).toBe('round-title');
-            expect(result[0].title).toBe('Test Quiz');
-
-            // Check MC Question
-            const mc = result[1];
-            expect(mc.questionType).toBe('MC');
-            expect(mc.text).toBe('Capital of France?');
-            expect(mc.options[1]).toBe('B) Paris'); // Options get letter prefixes
-            expect(mc.answer).toBe('B) Paris');     // Answer matches option format
-
-            // Check Short Answer
-            const short = result[2];
-            expect(short.questionType).toBe('SHORT');
-            expect(short.answer).toBe('Au');
-            expect(short.acceptedAnswers).toContain('au');
-        });
-
-        it('should handle round-title items within the questions array', () => {
-            const sampleInput = {
-                title: "Overall Title",
-                questions: [
-                    {
-                        type: "round-title",
-                        title: "Round 1 Intro",
-                        roundNumber: 1
-                    },
-                    {
-                        question: "Q1",
-                        type: "short",
-                        correctAnswer: "A1"
-                    }
-                ]
-            };
-
-            const result = host.convertSampleQuizFormat(sampleInput);
-
-            // It should NOT add the top-level title as a round-title because the first question is already a round-title
-            expect(result).toHaveLength(2);
-            expect(result[0].type).toBe('round-title');
-            expect(result[0].title).toBe('Round 1 Intro');
-            expect(result[1].type).toBe('question');
-        });
-
-        it('should preserve images for round-title slides', () => {
-            const input = {
-                questions: [{
-                    type: "round-title",
-                    title: "Image Round",
-                    image: "https://example.com/bg.jpg"
-                }]
-            };
-            const result = host.convertSampleQuizFormat(input);
-            expect(result[0].image).toBe("https://example.com/bg.jpg");
-        });
     });
 
     describe('Answer Checking', () => {

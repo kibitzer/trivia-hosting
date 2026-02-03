@@ -296,48 +296,11 @@ window.createEditorData = function(firebase, db, auth, storage) {
             reader.onload = async (e) => {
                 try {
                     const rawData = JSON.parse(e.target.result);
-                    let finalData;
-
-                    if (Array.isArray(rawData)) {
-                        // Handle flat array format (e.g. EOY-2025.json)
-                        const titleItem = rawData.find(i => i.type === 'round-title');
-                        finalData = {
-                            title: titleItem ? titleItem.title : file.name.replace('.json', ''),
-                            questions: rawData.map(item => {
-                                if (item.type === 'round-title') {
-                                    return {
-                                        type: 'round-title',
-                                        title: item.title,
-                                        roundNumber: item.roundNumber || 1,
-                                        timer: item.timer || 20,
-                                        image: item.image || null
-                                    };
-                                } else {
-                                    return {
-                                        question: item.text || item.question,
-                                        type: item.questionType === 'MC' ? 'multiple' : 'short',
-                                        options: item.options ? item.options.map(o => o.replace(/^[A-D]\)\s*/, '')) : ["A", "B", "C", "D"],
-                                        correctAnswer: item.answer || item.correctAnswer || '',
-                                        timer: item.timer || 20,
-                                        image: item.image || null,
-                                        notes: item.notes || null,
-                                        category: item.category || ''
-                                    };
-                                }
-                            })
-                        };
-                        // Clean up correct answer if it had A) prefix
-                        finalData.questions.forEach(q => {
-                            if (q.type === 'multiple' && typeof q.correctAnswer === 'string') {
-                                q.correctAnswer = q.correctAnswer.replace(/^[A-D]\)\s*/, '');
-                            }
-                        });
-                    } else if (rawData.questions) {
-                        // Standard object format
-                        finalData = rawData;
-                    } else {
-                        throw new Error("Unrecognized quiz format");
-                    }
+                    
+                    // Use shared parser to normalize data
+                    // Use file name as default title if needed
+                    const defaultTitle = file.name.replace('.json', '');
+                    const finalData = QuizParser.toStructured(rawData, defaultTitle);
 
                     const ref = db.ref('quizzes').push();
                     await ref.set({

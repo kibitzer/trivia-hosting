@@ -100,50 +100,10 @@ window.createHostData = function(firebase, db, auth, analytics) {
                     const response = await fetch(fileToLoad);
                     data = await response.json();
                 }
-                this.quizData = Array.isArray(data) ? data : this.convertSampleQuizFormat(data);
+                this.quizData = QuizParser.toFlatSlides(data);
                 this.successMsg = `✓ Loaded ${this.quizData.length} items`;
             } catch (e) { this.errorMsg = `Error: ${e.message}`; }
             finally { this.loading = false; }
-        },
-        convertSampleQuizFormat(data) {
-            const qs = [];
-            if (data.title && (!data.questions || data.questions.length === 0 || data.questions[0].type !== 'round-title')) {
-                qs.push({ type: "round-title", roundNumber: 1, title: data.title, timer: 20 });
-            }
-            let qCounter = 1;
-            data.questions.forEach((q) => {
-                if (q.type === 'round-title') {
-                    qs.push({
-                        type: "round-title",
-                        roundNumber: q.roundNumber || 1,
-                        title: q.title || q.question || "New Round",
-                        timer: q.timer || 20,
-                        image: q.image || null
-                    });
-                } else {
-                    const newQ = { 
-                        type: "question", 
-                        questionNumber: q.questionNumber || qCounter++, 
-                        text: q.question, 
-                        timer: q.timer || 20, 
-                        image: q.image || null, 
-                        notes: q.notes || null 
-                    };
-                    if (q.type === "multiple") {
-                        const letters = ["A", "B", "C", "D"];
-                        newQ.questionType = "MC";
-                        newQ.options = q.options.map((opt, j) => `${letters[j] || "?"}) ${opt}`);
-                        const idx = q.options.indexOf(q.correctAnswer);
-                        newQ.answer = idx !== -1 ? newQ.options[idx] : q.correctAnswer;
-                    } else {
-                        newQ.questionType = "SHORT";
-                        newQ.answer = Array.isArray(q.correctAnswer) ? q.correctAnswer[0] : q.correctAnswer;
-                        newQ.acceptedAnswers = Array.isArray(q.correctAnswer) ? q.correctAnswer.map(a => a.toLowerCase()) : [q.correctAnswer.toLowerCase()];
-                    }
-                    qs.push(newQ);
-                }
-            });
-            return qs;
         },
         startGame() { 
             this.currentView = 'game'; 
