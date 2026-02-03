@@ -181,6 +181,20 @@
                   </label>
               </div>
 
+              <!-- Theme Section -->
+              <div style="background: #f3e5f5; padding: 20px; border-radius: 15px;">
+                <h3>🎨 Visual Theme</h3>
+                <div style="margin-top: 15px;">
+                    <label style="font-weight: bold; display: block; margin-bottom: 10px;">Select Theme:</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <button @click="theme = 'classic'; syncGameState()" :class="theme === 'classic' ? 'btn-primary' : 'btn-secondary'" style="padding: 15px;">Classic Blue</button>
+                        <button @click="theme = 'neon'; syncGameState()" :class="theme === 'neon' ? 'btn-primary' : 'btn-secondary'" style="padding: 15px;">Neon Night</button>
+                        <button @click="theme = 'dark'; syncGameState()" :class="theme === 'dark' ? 'btn-primary' : 'btn-secondary'" style="padding: 15px;">Dark Mode</button>
+                        <button @click="theme = 'classroom'; syncGameState()" :class="theme === 'classroom' ? 'btn-primary' : 'btn-secondary'" style="padding: 15px;">Classroom</button>
+                    </div>
+                </div>
+              </div>
+
               <!-- Action Buttons -->
               <div style="text-align: center; margin-top: 20px;">
                   <button class="btn-primary" style="padding: 15px 40px; font-size: 1.2rem;" @click="closeSettings()">

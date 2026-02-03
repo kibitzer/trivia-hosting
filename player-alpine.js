@@ -143,6 +143,11 @@
                     if (!(key in newState)) delete this.gameState[key];
                 });
                 Object.assign(this.gameState, newState);
+
+                // Apply theme from state
+                if (this.gameState.theme) {
+                    document.body.className = this.gameState.theme === 'classic' ? '' : 'theme-' + this.gameState.theme;
+                }
                 
                 const nowRevealed = !!this.gameState.answerRevealed;
                 

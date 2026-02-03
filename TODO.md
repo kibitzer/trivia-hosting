@@ -8,7 +8,7 @@ This file tracks planned features, UI improvements, and technical debt.
     - [ ] Timer tick-tock sounds.
     - [ ] Correct answer "ding" / Incorrect answer buzzer.
     - [ ] Low-stakes background music during question time.
-- [ ] **Themes**: Implement preset visual styles (e.g., "Neon Night", "Classic Classroom", "Dark Mode").
+- [x] **Themes**: Implement preset visual styles (e.g., "Neon Night", "Classic Classroom", "Dark Mode").
 - [ ] **Confetti**: Trigger a confetti explosion for the top 3 winners at the end of the game.
 
 ## 🛠️ Advanced Mechanics
