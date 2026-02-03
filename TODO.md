@@ -41,7 +41,7 @@ This file tracks planned features, UI improvements, and technical debt.
 - [x] **AI-Powered Options**: If a multiple choice question has only one option supplied, use Gemini to supply other likely options.
 - [ ] **Auto generate quiz**: Auto-generate a quiz based on heuristics: nbr of rounds, nbr of questions per round, round categories, expected age range of participants
 - [ ] **Question import**: Ability to import questions (just questions, not quizzes) from e.g. a CSV file
-- [ ] **Settings**: Ability to save editor settings, such as autosave time
+- [x] **Settings**: Ability to save editor settings, such as autosave time
 
 ## Data Structure
 - [ ] **Decouple questions**: Questions should be entities on their own so they can be included in multiple quizzes.

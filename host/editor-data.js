@@ -8,12 +8,25 @@ window.createEditorData = function(firebase, db, auth, storage) {
         selectedQuestionIndex: 0,
         statusMsg: '',
         autosaveTimeout: null,
+        showSettings: false,
+        settings: {
+            autosaveDelay: 2000,
+            showQuestionNumbers: true
+        },
 
         // Placeholder for Alpine magic properties
         $watch: (name, cb) => {},
         $nextTick: (cb) => cb(),
 
         init() {
+            // Load settings
+            const savedSettings = localStorage.getItem('triviaEditorSettings');
+            if (savedSettings) {
+                try {
+                    this.settings = { ...this.settings, ...JSON.parse(savedSettings) };
+                } catch (e) { console.error("Failed to load settings", e); }
+            }
+
             auth.onAuthStateChanged(user => {
                 this.isAuthenticated = !!user;
                 if (user) {
@@ -50,7 +63,18 @@ window.createEditorData = function(firebase, db, auth, storage) {
             this.statusMsg = "Typing...";
             this.autosaveTimeout = setTimeout(() => {
                 this.saveQuiz(true); // true indicates it's an autosave
-            }, 2000);
+            }, this.settings.autosaveDelay);
+        },
+
+        saveSettings() {
+            localStorage.setItem('triviaEditorSettings', JSON.stringify(this.settings));
+            this.showSettings = false;
+            Swal.fire({
+                title: 'Settings Saved',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+            });
         },
 
         async uploadImage(event, targetField) {

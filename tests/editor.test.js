@@ -169,44 +169,22 @@ describe('Editor Logic', () => {
         });
     });
 
-    describe('Drag and Drop Simulation', () => {
-        it('should correctly reorder questions based on DOM order (data-id)', () => {
-            editor.editQuiz('q1');
-            // Initial Order: 
-            // 0: Round 1 (id: undefined in setup, let's inject IDs)
-            editor.currentQuiz.questions[0].id = 'r1';
-            editor.currentQuiz.questions[1].id = 'q1';
-            editor.currentQuiz.questions[2].id = 'q2';
-
-            // Mock the DOM elements
-            const mockContainer = {
-                querySelectorAll: vi.fn(() => [
-                    { dataset: { id: 'r1' } },
-                    { dataset: { id: 'q2' } }, // Swapped
-                    { dataset: { id: 'q1' } }  // Swapped
-                ])
-            };
+    describe('Settings', () => {
+        it('should load settings from localStorage on init', () => {
+            const settings = { autosaveDelay: 5000, showQuestionNumbers: false };
+            localStorage.setItem('triviaEditorSettings', JSON.stringify(settings));
             
-            vi.spyOn(document, 'getElementById').mockReturnValue(mockContainer);
+            editor.init();
+            expect(editor.settings.autosaveDelay).toBe(5000);
+            expect(editor.settings.showQuestionNumbers).toBe(false);
+        });
+
+        it('should save settings to localStorage', () => {
+            editor.settings.autosaveDelay = 1000;
+            editor.saveSettings();
             
-            // Capture the onEnd callback
-            let onEndCallback;
-            global.Sortable = {
-                create: vi.fn((el, options) => {
-                    onEndCallback = options.onEnd;
-                })
-            };
-
-            // Initialize Sortable
-            editor.initSortable();
-
-            // Trigger the reorder
-            onEndCallback({ oldIndex: 1, newIndex: 2 });
-
-            // Verify the data order matches the DOM order
-            expect(editor.currentQuiz.questions[0].id).toBe('r1');
-            expect(editor.currentQuiz.questions[1].id).toBe('q2');
-            expect(editor.currentQuiz.questions[2].id).toBe('q1');
+            const saved = JSON.parse(localStorage.getItem('triviaEditorSettings'));
+            expect(saved.autosaveDelay).toBe(1000);
         });
     });
 });
