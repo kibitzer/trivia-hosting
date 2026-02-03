@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **E2E Testing**: Simulation tests now automatically seed a temporary quiz into Firebase to facilitate testing without local files.
+- **E2E Testing**: Robust cleanup logic ensures test data is removed even if the test fails.
 
 ### Changed
 - **Architecture**: Migrated to a fully Firebase-hosted quiz model. Local `.json` files in `quizzes/` are no longer supported.

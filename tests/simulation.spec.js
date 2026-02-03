@@ -85,118 +85,122 @@ test('Trivia Full Simulation', async ({ browser }) => {
         
             }
 
-    // 3. Host: Seed a quiz into Firebase for testing and Load it
-    const testQuizId = await hostPage.evaluate(() => {
-        const db = firebase.database();
-        const quizRef = db.ref('quizzes').push();
-        const sampleQuiz = {
-            title: "Test Simulation Quiz",
-            questions: [
-                {
-                    type: "round-title",
-                    title: "Round 1: Basics",
-                    roundNumber: 1
-                },
-                {
-                    type: "multiple",
-                    question: "What is the capital of France?",
-                    options: ["Paris", "London", "Berlin", "Madrid"],
-                    correctAnswer: "Paris",
-                    timer: 30
-                },
-                {
-                    type: "short",
-                    question: "What is the chemical symbol for Gold?",
-                    correctAnswer: "Au",
-                    timer: 30
-                }
-            ],
-            updatedAt: firebase.database.ServerValue.TIMESTAMP
-        };
-        return quizRef.set(sampleQuiz).then(() => quizRef.key);
-    });
+    let testQuizId = null;
 
-    // Wait for the select to populate and select the quiz
-    await expect(hostPage.locator(`select[x-model="selectedQuizId"] option[value="${testQuizId}"]`)).toBeAttached({ timeout: 10000 });
-    await hostPage.selectOption('select[x-model="selectedQuizId"]', testQuizId);
-    await hostPage.click('button:has-text("Load Quiz")');
-
-    // Setup Analytics spy
-    await hostPage.evaluate(() => {
-        window.analyticsEvents = [];
-        if (window.firebase && window.firebase.analytics) {
-            // Hijack logEvent to track calls
-            const originalLog = window.firebase.analytics().logEvent;
-            window.firebase.analytics().logEvent = (name, params) => {
-                window.analyticsEvents.push({ name, params });
-                // originalLog.apply(window.firebase.analytics(), [name, params]);
+    try {
+        // 3. Host: Seed a quiz into Firebase for testing and Load it
+        testQuizId = await hostPage.evaluate(() => {
+            const db = firebase.database();
+            const quizRef = db.ref('quizzes').push();
+            const sampleQuiz = {
+                title: "Test Simulation Quiz",
+                questions: [
+                    {
+                        type: "round-title",
+                        title: "Round 1: Basics",
+                        roundNumber: 1
+                    },
+                    {
+                        type: "multiple",
+                        question: "What is the capital of France?",
+                        options: ["Paris", "London", "Berlin", "Madrid"],
+                        correctAnswer: "Paris",
+                        timer: 30
+                    },
+                    {
+                        type: "short",
+                        question: "What is the chemical symbol for Gold?",
+                        correctAnswer: "Au",
+                        timer: 30
+                    }
+                ],
+                updatedAt: firebase.database.ServerValue.TIMESTAMP
             };
+            return quizRef.set(sampleQuiz).then(() => quizRef.key);
+        });
+
+        // Wait for the select to populate and select the quiz
+        await expect(hostPage.locator(`select[x-model="selectedQuizId"] option[value="${testQuizId}"]`)).toBeAttached({ timeout: 10000 });
+        await hostPage.selectOption('select[x-model="selectedQuizId"]', testQuizId);
+        await hostPage.click('button:has-text("Load Quiz")');
+
+        // Setup Analytics spy
+        await hostPage.evaluate(() => {
+            window.analyticsEvents = [];
+            if (window.firebase && window.firebase.analytics) {
+                // Hijack logEvent to track calls
+                const originalLog = window.firebase.analytics().logEvent;
+                window.firebase.analytics().logEvent = (name, params) => {
+                    window.analyticsEvents.push({ name, params });
+                    // originalLog.apply(window.firebase.analytics(), [name, params]);
+                };
+            }
+        });
+
+        await hostPage.click('button:has-text("Start Game")');
+        
+        // Check if analytics event was captured
+        const events = await hostPage.evaluate(() => window.analyticsEvents);
+        const startEvent = events.find(e => e.name === 'game_start');
+        expect(startEvent).toBeDefined();
+        expect(startEvent.params.quiz_title).toBeDefined();
+        
+        // Advance from Title to Question 1
+        await hostPage.click('button:has-text("Next")');
+
+        // 4. Run through first few questions
+        // Question 1: Multiple Choice (Capital of France?)
+        await expect(hostPage.locator('text=Q1')).toBeVisible();
+        
+        // Players answer
+        for (const p of players) {
+            await expect(p.page.locator('text=Question 1')).toBeVisible();
+            await p.page.click('button:has-text("Paris")');
+            await expect(p.page.locator('text=Answer submitted!')).toBeVisible();
         }
-    });
 
-    await hostPage.click('button:has-text("Start Game")');
-    
-    // Check if analytics event was captured
-    const events = await hostPage.evaluate(() => window.analyticsEvents);
-    const startEvent = events.find(e => e.name === 'game_start');
-    expect(startEvent).toBeDefined();
-    expect(startEvent.params.quiz_title).toBeDefined();
-    
-    // Advance from Title to Question 1
-    await hostPage.click('button:has-text("Next")');
+        // Host reveals answer
+        await hostPage.click('button:has-text("Reveal Answer")');
+        
+        // Verify results on player screens
+        for (const p of players) {
+            await expect(p.page.locator('.answer-reveal')).toBeVisible();
+            await expect(p.page.locator('.answer-reveal .answer-text')).toContainText('Paris');
+        }
 
-    // 4. Run through first few questions
-    // Question 1: Multiple Choice (Capital of France?)
-    await expect(hostPage.locator('text=Q1')).toBeVisible();
-    
-    // Players answer
-    for (const p of players) {
-        await expect(p.page.locator('text=Question 1')).toBeVisible();
-        await p.page.click('button:has-text("Paris")');
-        await expect(p.page.locator('text=Answer submitted!')).toBeVisible();
+        // 5. Host: Move to Question 2 (Short Answer: Gold Symbol)
+        await hostPage.click('button:has-text("Next")');
+        await expect(hostPage.locator('text=Q2')).toBeVisible();
+
+        // Players answer short answer
+        for (const p of players) {
+            await expect(p.page.locator('text=Question 2')).toBeVisible();
+            await p.page.fill('input[x-model="currentAnswer"]', 'Au');
+            await p.page.click('button:has-text("Submit")');
+        }
+
+        await hostPage.click('button:has-text("Reveal Answer")');
+
+        // Final Scoreboard Check
+        const scoreboardRows = hostPage.locator('.scroll-list .list-row');
+        await expect(scoreboardRows.first()).toBeVisible({ timeout: 10000 });
+        
+        const count = await scoreboardRows.count();
+        if (count < 3) {
+            throw new Error(`Expected at least 3 players in scoreboard, found ${count}`);
+        }
+    } finally {
+        // --- Cleanup Step ---
+        // Use the host's existing access to wipe the nodes we used during simulation
+        console.log("[TEST] Cleaning up Firebase data...");
+        await hostPage.evaluate((quizId) => {
+            const db = firebase.database();
+            return Promise.all([
+                db.ref('players').remove(),
+                db.ref('answers').remove(),
+                db.ref('gameState').set({ status: 'waiting' }),
+                quizId ? db.ref(`quizzes/${quizId}`).remove() : Promise.resolve()
+            ]);
+        }, testQuizId);
     }
-
-    // Host reveals answer
-    await hostPage.click('button:has-text("Reveal Answer")');
-    
-    // Verify results on player screens
-    for (const p of players) {
-        await expect(p.page.locator('.answer-reveal')).toBeVisible();
-        await expect(p.page.locator('.answer-reveal .answer-text')).toContainText('Paris');
-    }
-
-    // 5. Host: Move to Question 2 (Short Answer: Gold Symbol)
-    await hostPage.click('button:has-text("Next")');
-    await expect(hostPage.locator('text=Q2')).toBeVisible();
-
-    // Players answer short answer
-    for (const p of players) {
-        await expect(p.page.locator('text=Question 2')).toBeVisible();
-        await p.page.fill('input[x-model="currentAnswer"]', 'Au');
-        await p.page.click('button:has-text("Submit")');
-    }
-
-    await hostPage.click('button:has-text("Reveal Answer")');
-
-    // Final Scoreboard Check
-    const scoreboardRows = hostPage.locator('.scroll-list .list-row');
-    await expect(scoreboardRows.first()).toBeVisible({ timeout: 10000 });
-    
-    const count = await scoreboardRows.count();
-    if (count < 3) {
-        throw new Error(`Expected at least 3 players in scoreboard, found ${count}`);
-    }
-
-    // --- Cleanup Step ---
-    // Use the host's existing access to wipe the nodes we used during simulation
-    console.log("[TEST] Cleaning up Firebase data...");
-    await hostPage.evaluate((quizId) => {
-        const db = firebase.database();
-        return Promise.all([
-            db.ref('players').remove(),
-            db.ref('answers').remove(),
-            db.ref('gameState').set({ status: 'waiting' }),
-            quizId ? db.ref(`quizzes/${quizId}`).remove() : Promise.resolve()
-        ]);
-    }, testQuizId);
 });
