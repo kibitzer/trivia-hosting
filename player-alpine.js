@@ -1,6 +1,6 @@
 // player-alpine.js
 (function() {
-    console.log("Player Alpine Script Loaded (v1.3)");
+    console.log("Player Alpine Script Loaded");
 
     document.addEventListener('alpine:init', () => {
         const hasFirebase = typeof firebase !== 'undefined';

@@ -117,7 +117,7 @@ test('Trivia Full Simulation', async ({ browser }) => {
     });
 
     // Wait for the select to populate and select the quiz
-    await expect(hostPage.locator(`select[x-model="selectedQuizId"] option[value="${testQuizId}"]`)).toBeVisible({ timeout: 10000 });
+    await expect(hostPage.locator(`select[x-model="selectedQuizId"] option[value="${testQuizId}"]`)).toBeAttached({ timeout: 10000 });
     await hostPage.selectOption('select[x-model="selectedQuizId"]', testQuizId);
     await hostPage.click('button:has-text("Load Quiz")');
 

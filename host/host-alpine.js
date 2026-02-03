@@ -1,6 +1,6 @@
 // host/host-alpine.js
 (function() {
-    console.log("Host Alpine Script Loaded (v1.3)");
+    console.log("Host Alpine Script Loaded");
 
     function initApp() {
         console.log("Initializing App...");
