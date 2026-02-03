@@ -161,23 +161,43 @@ describe('Editor Logic', () => {
     });
 
     describe('Drag and Drop Simulation', () => {
-        it('should correctly reorder questions on Sortable end event', () => {
+        it('should correctly reorder questions based on DOM order (data-id)', () => {
             editor.editQuiz('q1');
-            const initialQuestions = [...editor.currentQuiz.questions];
-            
-            // Mock the internal reordering logic that usually happens in the onEnd callback
-            // In our implementation, onEnd handles the array splice
-            
-            // Move item at index 1 (Q1) to index 2 (Q2 position)
-            const questions = [...editor.currentQuiz.questions];
-            const [movedItem] = questions.splice(1, 1);
-            questions.splice(2, 0, movedItem);
-            
-            editor.currentQuiz.questions = questions;
-            editor.selectedQuestionIndex = 2;
+            // Initial Order: 
+            // 0: Round 1 (id: undefined in setup, let's inject IDs)
+            editor.currentQuiz.questions[0].id = 'r1';
+            editor.currentQuiz.questions[1].id = 'q1';
+            editor.currentQuiz.questions[2].id = 'q2';
 
-            expect(editor.currentQuiz.questions[2].question).toBe('Q1');
-            expect(editor.currentQuiz.questions[1].question).toBe('Q2');
+            // Mock the DOM elements
+            const mockContainer = {
+                querySelectorAll: vi.fn(() => [
+                    { dataset: { id: 'r1' } },
+                    { dataset: { id: 'q2' } }, // Swapped
+                    { dataset: { id: 'q1' } }  // Swapped
+                ])
+            };
+            
+            vi.spyOn(document, 'getElementById').mockReturnValue(mockContainer);
+            
+            // Capture the onEnd callback
+            let onEndCallback;
+            global.Sortable = {
+                create: vi.fn((el, options) => {
+                    onEndCallback = options.onEnd;
+                })
+            };
+
+            // Initialize Sortable
+            editor.initSortable();
+
+            // Trigger the reorder
+            onEndCallback({ oldIndex: 1, newIndex: 2 });
+
+            // Verify the data order matches the DOM order
+            expect(editor.currentQuiz.questions[0].id).toBe('r1');
+            expect(editor.currentQuiz.questions[1].id).toBe('q2');
+            expect(editor.currentQuiz.questions[2].id).toBe('q1');
         });
     });
 

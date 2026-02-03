@@ -113,13 +113,15 @@
                 <div class="editor-layout">
                     <!-- Sidebar: Question List -->
                     <div class="sidebar" id="slide-list">
-                        <template x-for="(q, index) in currentQuiz.questions" :key="q.id">
-                            <div class="slide-thumb" :class="{ 'active': selectedQuestionIndex === index }" @click="selectQuestion(index)">
-                                <div class="slide-number" x-text="currentQuiz.questions[index].type === 'round-title' ? 'ROUND ' + getRoundNumber(index) : 'QUESTION ' + getQuestionNumber(index)"></div>
-                                <div class="slide-preview" x-text="currentQuiz.questions[index].type === 'round-title' ? currentQuiz.questions[index].title : (currentQuiz.questions[index].question || '(New Question)')"></div>
-                                <div style="margin-top: auto; font-size: 0.6rem; color: #999;" x-text="currentQuiz.questions[index].type === 'multiple' ? 'Multiple Choice' : (currentQuiz.questions[index].type === 'short' ? 'Short Answer' : 'Round Title')"></div>
-                            </div>
-                        </template>
+                        <div id="slide-list-container">
+                            <template x-for="(q, index) in currentQuiz.questions" :key="q.id">
+                                <div class="slide-thumb" :data-id="q.id" :class="{ 'active': selectedQuestionIndex === index }" @click="selectQuestion(index)">
+                                    <div class="slide-number" x-text="currentQuiz.questions[index].type === 'round-title' ? 'ROUND ' + getRoundNumber(index) : 'QUESTION ' + getQuestionNumber(index)"></div>
+                                    <div class="slide-preview" x-text="currentQuiz.questions[index].type === 'round-title' ? currentQuiz.questions[index].title : (currentQuiz.questions[index].question || '(New Question)')"></div>
+                                    <div style="margin-top: auto; font-size: 0.6rem; color: #999;" x-text="currentQuiz.questions[index].type === 'multiple' ? 'Multiple Choice' : (currentQuiz.questions[index].type === 'short' ? 'Short Answer' : 'Round Title')"></div>
+                                </div>
+                            </template>
+                        </div>
                         <div style="display: flex; gap: 10px; margin-top: 10px;">
                             <button @click="addQuestion()" class="btn btn-primary" style="flex: 1; justify-content: center;">+ Add Question</button>
                             <button @click="addRound()" class="btn btn-secondary" style="flex: 1; justify-content: center;">+ Add Round</button>

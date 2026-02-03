@@ -260,7 +260,7 @@ window.createEditorData = function(firebase, db, auth, storage) {
         },
 
         initSortable() {
-            const el = document.getElementById('slide-list');
+            const el = document.getElementById('slide-list-container');
             if (!el || typeof Sortable === 'undefined') return;
 
             Sortable.create(el, {
@@ -272,16 +272,21 @@ window.createEditorData = function(firebase, db, auth, storage) {
                     
                     if (oldIndex === newIndex) return;
 
-                    // IMPORTANT: SortableJS moves the DOM element, but Alpine.js
-                    // also wants to control the DOM. To avoid 'flakiness', we 
-                    // update the data and let Alpine re-render the list correctly.
+                    // Reorder data based on the DOM order to ensure consistency
+                    const newOrderIds = Array.from(el.querySelectorAll('.slide-thumb'))
+                                             .map(thumb => thumb.dataset.id);
+
+                    // Create a map for fast lookup
+                    const questionMap = new Map(this.currentQuiz.questions.map(q => [q.id, q]));
                     
-                    const questions = [...this.currentQuiz.questions];
-                    const [movedItem] = questions.splice(oldIndex, 1);
-                    questions.splice(newIndex, 0, movedItem);
+                    // Rebuild the array in the new order
+                    // Filter ensures we only keep items that actually exist (handling potential ghost elements)
+                    const newQuestions = newOrderIds
+                        .map(id => questionMap.get(id))
+                        .filter(q => q !== undefined);
                     
-                    this.currentQuiz.questions = questions;
-                    this.selectedQuestionIndex = newIndex;
+                    this.currentQuiz.questions = newQuestions;
+                    this.selectedQuestionIndex = newIndex; // Approximate logic, or find index of moved item
                     
                     this.triggerAutosave();
                 }
