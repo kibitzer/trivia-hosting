@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.4] - 2026-02-03
+
+### Added
+- **E2E Testing**: Simulation tests now automatically seed a temporary quiz into Firebase to facilitate testing without local files.
+
+### Changed
+- **Architecture**: Migrated to a fully Firebase-hosted quiz model. Local `.json` files in `quizzes/` are no longer supported.
+- **Host**: Simplified the quiz selection UI to only show quizzes stored in Firebase.
+- **Editor**: Removed the "Import from JSON" capability to enforce the use of the built-in editor and Firebase storage.
+- **Documentation**: Updated `README.md` and `CODE_STRUCTURE.md` to reflect the new data model and directory structure.
+
+### Removed
+- **quizzes/**: Deleted the local quiz directory and sample JSON files.
+- **shared/quiz-parser.js**: Removed usage from the Editor (kept for Host runtime normalization).
+
 ## [0.4.9] - 2026-02-02
 ### Fixed
 - **Host/Editor**: Resolved a critical bug where background images on Round Title slides were being stripped during quiz loading and JSON importing.

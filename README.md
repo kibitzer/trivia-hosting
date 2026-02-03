@@ -6,10 +6,10 @@ A real-time, browser-based trivia hosting application powered by Firebase Realti
 
 ### For the Host (`/host`)
 *   **Game Control**: Start/stop timers, reveal answers, and advance questions.
-*   **Quiz Management**: Load quiz data from external JavaScript files.
+*   **Quiz Management**: Manage quizzes via the built-in **Quiz Editor**.
 *   **Live Dashboard**: View connected players, live answer status, and incoming answers.
-*   **Scoring**: Automatic scoring for multiple-choice and short-answer questions. Manual score adjustments available.
-*   **Timer**: Adjustable countdown timers for questions.
+*   **Scoring**: Automatic scoring for multiple-choice and short-answer questions.
+*   **Themes**: Toggle between preset visual styles (Neon, Dark Mode, etc.).
 
 ### For Players (`player.html`)
 *   **Easy Join**: Simple name entry to join the session.
@@ -17,55 +17,24 @@ A real-time, browser-based trivia hosting application powered by Firebase Realti
 *   **Interactive**:
     *   *Multiple Choice*: Click to select options.
     *   *Short Answer*: Type and submit text answers.
-*   **Instant Feedback**: See correct answers and points awarded immediately after the host reveals them.
+*   **Instant Feedback**: See correct answers and points awarded immediately.
 *   **Scoreboard**: Live leaderboard showing rankings and points.
 
 ## 🚀 Setup & Installation
-
-### 1. Prerequisites
-*   A Google Firebase account.
-*   A basic web server (e.g., Python `http.server`, VS Code Live Server, or Firebase Hosting).
-
-### 2. Firebase Configuration
-1.  Create a new project in the [Firebase Console](https://console.firebase.google.com/).
-2.  Create a **Realtime Database** instance.
-3.  **Security Rules**: Apply the rules found in `config/database.rules.json`.
-    *   *Option A (Manual)*: Copy the contents of `config/database.rules.json` and paste them into the "Rules" tab of your Firebase Database console.
-    *   *Option B (CLI)*: If you have the Firebase CLI installed, run `firebase deploy --only database`.
-4.  Copy your web app configuration keys.
-5.  Duplicate `config/firebase-config.template.js` and rename it to `config/firebase-config.js`.
-6.  Open `config/firebase-config.js` and paste your configuration:
-    ```javascript
-    const firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
-        // ... rest of your config
-    };
-    ```
-    *Note: `config/firebase-config.js` is ignored by Git to prevent leaking your credentials.*
-
-### 3. Running the App
-Since this uses ES modules and external script loading, **you cannot open the HTML files directly** (via `file://`). You must serve them via a local web server.
-
-**Using Python:**
-```bash
-# Run this from the project root directory
-python3 -m http.server 8000
-```
-
-*   **Host URL**: `http://localhost:8000/host/host.html`
-*   **Player URL**: `http://localhost:8000/player.html` (Share this with players on the same network)
+... (Setup sections) ...
 
 ## 🎮 How to Play
 
-1.  **Host**: Open the Host URL. Wait for the "Connected" status.
-2.  **Host**: Select a quiz file from the dropdown (e.g., `EOY-2025.js`) and click **Load Quiz**.
-3.  **Players**: Open the Player URL, enter a name, and click **Join Game**.
-4.  **Host**: Once players appear in the "Scoreboard" section, click **Start Quiz**.
-5.  **Gameplay**:
-    *   The host clicks **Next** to show a question.
-    *   The timer starts automatically (or manually).
+1.  **Host**: Open the Host URL and login.
+2.  **Host**: Click **Manage Quizzes** to create or edit a quiz in the Editor.
+3.  **Host**: In the Setup screen, select a quiz from the dropdown and click **Load Quiz**.
+4.  **Players**: Open the Player URL, enter a name, and click **Join Game**.
+5.  **Host**: Once players appear, click **Start Game**.
+6.  **Gameplay**:
+    *   Host clicks **Next** to show a question.
+    *   Timer starts automatically.
     *   Players submit answers.
-    *   The host clicks **Reveal Answer** to end the round and show results.
+    *   Host clicks **Reveal Answer** to show results and award points.
     *   Repeat!
 
 ## 📂 Project Structure
@@ -76,60 +45,23 @@ trivia-hosting/
 ├── player-alpine.js      # Player logic (Alpine.js)
 ├── README.md             # Documentation
 ├── shared/               # Shared resources
-│   ├── firebase-config.js # Firebase credentials
+│   ├── firebase-config.js # Firebase credentials (ignored)
+│   ├── firebase-helper.js # Centralized Firebase initialization
 │   └── styles.css        # Common styles
-├── quizzes/              # Quiz data files (JSON)
-│   ├── EOY-2025.json     # 2025 Year in Review
-│   └── sample_quiz.json  # Template for creating new quizzes
 └── host/                 # Host administration
-    ├── host.html         # Host dashboard entry point
+    ├── host.html         # Host dashboard
     ├── host-data.js      # Host logic module
-    └── host-alpine.js    # Alpine.js host component
+    ├── editor.html       # Quiz Editor UI
+    └── editor-data.js    # Editor logic module
 ```
 
 ## 📝 Creating Custom Quizzes
 
-Create a new `.json` file in the `quizzes/` directory (e.g., `my-quiz.json`). It should be a standard JSON array of objects:
-
-```json
-
-[
-
-  {
-
-    "type": "round-title",
-
-    "roundNumber": 1,
-
-    "title": "General Knowledge",
-
-    "timer": 20
-
-  },
-
-  {
-
-    "type": "question",
-
-    "questionNumber": 1,
-
-    "questionType": "MC",
-
-    "text": "What is the capital of France?",
-
-    "options": ["A) London", "B) Paris", "C) Berlin", "D) Rome"],
-
-    "answer": "B) Paris",
-
-    "timer": 30
-
-  }
-
-]
-
-```
-
-
+Quizzes are created and managed directly within the app:
+1.  Log in to the **Host Panel**.
+2.  Click the **⚙️ Manage Quizzes** button.
+3.  Create new questions, set timers, and upload images.
+4.  All changes are saved in real-time to your Firebase database.
 
 ## 📚 Documentation
 

@@ -16,41 +16,19 @@ Contains configuration files for the project's tools and services.
 *   **`playwright.config.js`**: Configuration for E2E simulation tests.
 *   **`vitest.config.js`**: Configuration for unit tests.
 
-### `host/` (The Control Panel)
+### `host/` (The Control Panel & Editor)
 The Host is the "source of truth" for the game state.
-*   **`host.html`**: The main UI for the host.
-*   **`host-data.js`**: Contains the core business logic factory `createHostData()`.
-    *   *Design Pattern:* This file exports a pure function that returns a reactive object. It is separated from the DOM to allow for **Unit Testing** (see `docs/TESTING.md`).
-    *   *Responsibilities:* parsing quizzes, managing timers, updating Firebase state, scoring.
-*   **`host-alpine.js`**: The "glue" code that initializes Firebase, waits for the DOM, and registers the `host-data` logic as an Alpine component (`x-data="triviaHost"`).
+*   **`host.html` / `host-data.js`**: The main dashboard UI and core business logic factory.
+    *   *Responsibilities:* managing timers, updating Firebase state, scoring.
+*   **`editor.html` / `editor-data.js`**: The PowerPoint-like interface for managing quiz content.
+    *   *Features:* Drag-and-drop reordering, AI-powered option generation, image uploads.
+*   **`host-alpine.js`**: The "glue" code that initializes Firebase and registers the Alpine components.
 
 ### `player-alpine.js` & `player.html` (The Client)
-The Player client is a "dumb terminal" that reacts to state changes from Firebase.
-*   **`triviaPlayer` Component:**
-    *   **State:** Listens to `gameState` and `players/{myId}` from Firebase.
-    *   **Actions:** Submits answers to `answers/{questionNumber}/{myId}`.
-    *   **UI:** Switches between "Join" screen and "Game" screen based on connection status.
+...
 
 ### `shared/`
-*   **`styles.css`**: Common styles used across all pages.
-*   **`version.js`**: Centralized version display logic.
-
-### `quizzes/`
-Stores quiz content in JSON format.
-*   **Format:**
-    ```json
-    {
-      "title": "Quiz Title",
-      "questions": [
-        {
-            "question": "Question text?",
-            "type": "multiple",
-            "options": ["A", "B", "C", "D"],
-            "correctAnswer": "A"
-        }
-      ]
-    }
-    ```
+...
 
 ---
 
@@ -58,7 +36,12 @@ Stores quiz content in JSON format.
 
 The application relies on a specific schema in the Realtime Database:
 
-1.  **`gameState`**: Global sync object (Read: All, Write: Host).
+1.  **`quizzes/{quizId}`**: (Read: Host, Write: Host).
+    *   `title`: The quiz title.
+    *   `questions`: Array of question/round-title objects.
+    *   `updatedAt`: Server timestamp.
+
+2.  **`gameState`**: Global sync object (Read: All, Write: Host).
     *   `status`: 'waiting', 'active', 'ended'.
     *   `currentIndex`: Index of the current slide.
     *   `timerValue` / `timerStatus`: Shared countdown info.

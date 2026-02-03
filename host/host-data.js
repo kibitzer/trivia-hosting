@@ -13,8 +13,6 @@ window.createHostData = function(firebase, db, auth, analytics) {
         quizData: [],
         availableQuizzes: {},
         selectedQuizId: '',
-        filename: '../quizzes/EOY-2025.json',
-        customFilename: '',
         currentView: 'setup',
         previousView: null,
         currentIndex: -1,
@@ -91,16 +89,10 @@ window.createHostData = function(firebase, db, auth, analytics) {
         async loadQuiz() {
             this.loading = true; this.errorMsg = ''; this.successMsg = '';
             try {
-                let data;
-                if (this.filename === 'firebase') {
-                    if (!this.selectedQuizId) throw new Error("Please select a quiz");
-                    data = this.availableQuizzes[this.selectedQuizId];
-                } else {
-                    let fileToLoad = this.filename === 'custom' ? this.customFilename : this.filename;
-                    if (!fileToLoad) throw new Error("Please enter a filename");
-                    const response = await fetch(fileToLoad);
-                    data = await response.json();
-                }
+                if (!this.selectedQuizId) throw new Error("Please select a quiz");
+                const data = this.availableQuizzes[this.selectedQuizId];
+                if (!data) throw new Error("Quiz data not found");
+                
                 this.quizData = QuizParser.toFlatSlides(data);
                 this.successMsg = `✓ Loaded ${this.quizData.length} items`;
             } catch (e) { this.errorMsg = `Error: ${e.message}`; }

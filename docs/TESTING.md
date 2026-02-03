@@ -34,7 +34,8 @@ The test performs the following sequence:
     *   Opens a **Host** browser window and logs in.
     *   Opens **3 Player** browser windows and joins the game with names (Alice, Bob, Charlie).
 2.  **Game Initialization:**
-    *   Host loads a sample quiz (`quizzes/sample_quiz.json`).
+    *   Host seeds a temporary sample quiz into Firebase.
+    *   Host selects and loads the seeded quiz.
     *   Host starts the game.
 3.  **Gameplay Loop (Round 1 & 2):**
     *   **Host:** Displays Question 1 (Multiple Choice).

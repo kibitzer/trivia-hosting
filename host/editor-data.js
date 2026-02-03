@@ -337,33 +337,6 @@ window.createEditorData = function(firebase, db, auth, storage) {
             } finally {
                 this.loading = false;
             }
-        },
-
-        // Helper to import JSON
-        async importFromJSON(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                try {
-                    const rawData = JSON.parse(e.target.result);
-                    
-                    // Use shared parser to normalize data
-                    // Use file name as default title if needed
-                    const defaultTitle = file.name.replace('.json', '');
-                    const finalData = QuizParser.toStructured(rawData, defaultTitle);
-
-                    const ref = db.ref('quizzes').push();
-                    await ref.set({
-                        ...finalData,
-                        updatedAt: firebase.database.ServerValue.TIMESTAMP
-                    });
-                    alert("Imported successfully!");
-                } catch (err) {
-                    alert("Import failed: " + err.message);
-                }
-            };
-            reader.readAsText(file);
         }
     };
 };

@@ -22,16 +22,25 @@ This file tracks planned features, UI improvements, and technical debt.
 - [ ] **Live Reaction Emojis**: Let players send temporary emojis that float up on the host screen.
 
 ## 🏗️ Infrastructure & Maintenance
-- [ ] **Automated Rule Deployment**: Set up GitHub Action to deploy `database.rules.json` to Firebase on every push to main.
+- [x] **Automated Rule Deployment**: Set up GitHub Action to deploy `database.rules.json` to Firebase on every push to main where it has changed.
+- [x] **Cleanup**: Remove the local `quizzes/` directory and the quiz import capability from the editor, transitioning fully to Firebase-hosted data.
 - [ ] **Image Optimization**: Automatically resize/compress images uploaded to Firebase Storage.
 - [ ] **Push Notifications**: Notify players when a game they previously joined is starting.
 - [ ] **Analytics Dashboard**: Create a simple internal view to visualize question difficulty and player engagement over time.
 
 ## 📝 Editor Improvements
 - [x] **Drag-and-Drop Reordering**: Allow the host to drag slides in the left-hand sidebar to easily change the question order.
-- [x] **Fix Flaky Drag-and-Drop**: The current SortableJS implementation is flaky; improve stability and ensure reliable reordering.
+- [ ] **Fix Flaky Drag-and-Drop**: The current SortableJS implementation is flaky; improve stability and ensure reliable reordering.
 - [x] **Autosave**: Save changes to the current quiz draft automatically after every edit.
 - [x] **AI-Powered Options**: If a multiple choice question has only one option supplied, use Gemini to supply other likely options.
+- [ ] **Auto generate quiz**: Auto-generate a quiz based on heuristics: nbr of rounds, nbr of questions per round, round categories, expected age range of participants
+- [ ] **Question import**: Ability to import questions (just questions, not quizzes) from e.g. a CSV file
+
+## Data Structure
+- [ ] **Decouple questions**: Questions should be entities on their own so they can be included in multiple quizzes.
+- [ ] **OpenTDB**: Possibility to include OpenTDB questions in database. If pulled in from OpenTDB, there should be an acknowledgement included whenever such a question is shown.
+- [ ] **Selection criteria**: Include selection criteria in each question: category, difficulty, expected age range (likely to know answer)
+- [ ] **Question types**: New question types: True/False, Identify (a picture), Music Clip, Estimation (provide an estimate and score on proximity to correct answer), Rebus, Video Clip
 
 ## 🧹 Code Health
 - [x] **Shared UI Components**: Extract common elements (Timer, Scoreboard row, Option button) into shared files to ensure consistency between Host and Player.

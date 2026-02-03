@@ -200,23 +200,4 @@ describe('Editor Logic', () => {
             expect(editor.currentQuiz.questions[2].id).toBe('q1');
         });
     });
-
-    describe('Import Edge Cases', () => {
-        it('should alert on unrecognized quiz format', async () => {
-            const alertSpy = vi.spyOn(global, 'alert').mockImplementation(() => {});
-            const invalidData = JSON.stringify({ random: "data" });
-            
-            // Mock FileReader as a class
-            global.FileReader = class {
-                readAsText() { 
-                    this.onload({ target: { result: invalidData } }); 
-                }
-            };
-
-            await editor.importFromJSON({ target: { files: [{ name: 'bad.json' }] } });
-            
-            expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('Import failed'));
-            alertSpy.mockRestore();
-        });
-    });
 });

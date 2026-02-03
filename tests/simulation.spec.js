@@ -85,8 +85,40 @@ test('Trivia Full Simulation', async ({ browser }) => {
         
             }
 
-    // 3. Host: Load Quiz and Start
-    await hostPage.selectOption('select[x-model="filename"]', '../quizzes/sample_quiz.json');
+    // 3. Host: Seed a quiz into Firebase for testing and Load it
+    const testQuizId = await hostPage.evaluate(() => {
+        const db = firebase.database();
+        const quizRef = db.ref('quizzes').push();
+        const sampleQuiz = {
+            title: "Test Simulation Quiz",
+            questions: [
+                {
+                    type: "round-title",
+                    title: "Round 1: Basics",
+                    roundNumber: 1
+                },
+                {
+                    type: "multiple",
+                    question: "What is the capital of France?",
+                    options: ["Paris", "London", "Berlin", "Madrid"],
+                    correctAnswer: "Paris",
+                    timer: 30
+                },
+                {
+                    type: "short",
+                    question: "What is the chemical symbol for Gold?",
+                    correctAnswer: "Au",
+                    timer: 30
+                }
+            ],
+            updatedAt: firebase.database.ServerValue.TIMESTAMP
+        };
+        return quizRef.set(sampleQuiz).then(() => quizRef.key);
+    });
+
+    // Wait for the select to populate and select the quiz
+    await expect(hostPage.locator(`select[x-model="selectedQuizId"] option[value="${testQuizId}"]`)).toBeVisible({ timeout: 10000 });
+    await hostPage.selectOption('select[x-model="selectedQuizId"]', testQuizId);
     await hostPage.click('button:has-text("Load Quiz")');
 
     // Setup Analytics spy
@@ -158,12 +190,13 @@ test('Trivia Full Simulation', async ({ browser }) => {
     // --- Cleanup Step ---
     // Use the host's existing access to wipe the nodes we used during simulation
     console.log("[TEST] Cleaning up Firebase data...");
-    await hostPage.evaluate(() => {
+    await hostPage.evaluate((quizId) => {
         const db = firebase.database();
         return Promise.all([
             db.ref('players').remove(),
             db.ref('answers').remove(),
-            db.ref('gameState').set({ status: 'waiting' })
+            db.ref('gameState').set({ status: 'waiting' }),
+            quizId ? db.ref(`quizzes/${quizId}`).remove() : Promise.resolve()
         ]);
-    });
+    }, testQuizId);
 });

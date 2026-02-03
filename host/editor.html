@@ -64,17 +64,6 @@
             <h3>Your Quizzes</h3>
             <div x-show="Object.keys(quizzes).length === 0" style="padding: 20px; text-align: center; color: #999;">
                 No quizzes found in Firebase. 
-                <br><br>
-                <label class="btn btn-secondary" style="display: inline-block; cursor: pointer;">
-                    📤 Import from JSON file
-                    <input type="file" @change="importFromJSON($event)" style="display: none;">
-                </label>
-            </div>
-            <div x-show="Object.keys(quizzes).length > 0" style="margin-bottom: 20px;">
-                <label class="btn btn-secondary" style="display: inline-block; cursor: pointer;">
-                    📤 Import another JSON
-                    <input type="file" @change="importFromJSON($event)" style="display: none;">
-                </label>
             </div>
             <template x-for="(quiz, id) in quizzes" :key="id">
                 <div class="quiz-item">
@@ -236,7 +225,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <script src="../config/firebase-config.js"></script>
     <script src="../shared/firebase-helper.js"></script>
-    <script src="../shared/quiz-parser.js"></script>
     <script src="../shared/ai-helper.js"></script>
     <script src="editor-data.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
