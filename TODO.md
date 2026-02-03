@@ -19,6 +19,12 @@ This file tracks planned features, UI improvements, and technical debt.
 - [ ] **New Question Types**:
     - [ ] **Ordering**: Drag and drop items into the correct sequence.
     - [ ] **Matching**: Match pairs of related items.
+    - [ ] **True/False**
+    - [ ] **Identify**: Identify something e.g. a picture
+    - [ ] **Music Clip**: Use a music clip to pose a question
+    - [ ] **Estimation**: A number question whereby players provide an estimate, which is scored on proximity to correct answer
+    - [ ] **Rebus**: a series of pictures that lead to an answer (e.g. answer is Burning Down The House, question is a pic of a fire, a pic of a down arrow, a pic of a house)
+    - [ ] **Video Clip**: Use a video clip to pose a question
 - [ ] **Live Reaction Emojis**: Let players send temporary emojis that float up on the host screen.
 
 ## 🏗️ Infrastructure & Maintenance
@@ -35,12 +41,12 @@ This file tracks planned features, UI improvements, and technical debt.
 - [x] **AI-Powered Options**: If a multiple choice question has only one option supplied, use Gemini to supply other likely options.
 - [ ] **Auto generate quiz**: Auto-generate a quiz based on heuristics: nbr of rounds, nbr of questions per round, round categories, expected age range of participants
 - [ ] **Question import**: Ability to import questions (just questions, not quizzes) from e.g. a CSV file
+- [ ] **Settings**: Ability to save editor settings, such as autosave time
 
 ## Data Structure
 - [ ] **Decouple questions**: Questions should be entities on their own so they can be included in multiple quizzes.
 - [ ] **OpenTDB**: Possibility to include OpenTDB questions in database. If pulled in from OpenTDB, there should be an acknowledgement included whenever such a question is shown.
-- [ ] **Selection criteria**: Include selection criteria in each question: category, difficulty, expected age range (likely to know answer)
-- [ ] **Question types**: New question types: True/False, Identify (a picture), Music Clip, Estimation (provide an estimate and score on proximity to correct answer), Rebus, Video Clip
+- [ ] **Selection criteria**: Include selection criteria in each question: category, sub-category, difficulty, expected age range (likely to know answer)
 
 ## 🧹 Code Health
 - [x] **Shared UI Components**: Extract common elements (Timer, Scoreboard row, Option button) into shared files to ensure consistency between Host and Player.

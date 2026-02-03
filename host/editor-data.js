@@ -29,6 +29,20 @@ window.createEditorData = function(firebase, db, auth, storage) {
                     this.triggerAutosave();
                 }
             }, { deep: true });
+
+            // Watch for question type changes to set defaults
+            this.$watch('currentQuiz.questions', (questions) => {
+                if (!questions || !questions[this.selectedQuestionIndex]) return;
+                const q = questions[this.selectedQuestionIndex];
+                
+                if (q.type === 'true-false' && (!q.options || q.options.length !== 2)) {
+                    q.options = ['True', 'False'];
+                    if (!q.correctAnswer) q.correctAnswer = 'True';
+                }
+                if (q.type === 'identify' && (!q.question || q.question === 'New Question?')) {
+                    q.question = 'Identify this picture:';
+                }
+            }, { deep: true });
         },
 
         triggerAutosave() {

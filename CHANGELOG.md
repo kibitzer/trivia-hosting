@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Editor**: New question types: "True / False" and "Identify (Picture)".
+- **Editor**: Automatic defaults for new question types (options for T/F, prompt for Identify).
+
 ## [0.5.4] - 2026-02-03
 
 ### Added

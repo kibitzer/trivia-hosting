@@ -52,8 +52,8 @@ window.QuizParser = {
                     image: item.image || null
                 });
             } else {
-                // It's a question (type='multiple', 'short', 'question', or 'MC')
-                const isMC = item.type === "multiple" || item.type === "MC" || item.questionType === "MC";
+                // It's a question (type='multiple', 'short', 'true-false', 'identify', etc)
+                const isMC = ['multiple', 'MC', 'true-false'].includes(item.type) || item.questionType === "MC";
                 
                 const newQ = {
                     type: "question", // Host expects this exact string
@@ -142,7 +142,7 @@ window.QuizParser = {
                     // It sets `type: "question"` and `questionType: "MC"` or "SHORT".
                     
                     type: "question", 
-                    questionType: item.type === "multiple" || item.questionType === "MC" ? "MC" : "SHORT",
+                    questionType: (item.type === "multiple" || item.type === "true-false" || item.questionType === "MC") ? "MC" : "SHORT",
                     questionNumber: item.questionNumber || qCounter++,
                     text: item.question || item.text,
                     timer: item.timer || 20,
