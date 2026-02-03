@@ -188,7 +188,10 @@
 
                                 <!-- Options for Multiple Choice -->
                                 <div x-show="currentQuiz.questions[selectedQuestionIndex].type === 'multiple'">
-                                    <label>Options & Correct Answer (Check the correct one)</label>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                        <label style="margin: 0;">Options & Correct Answer (Check the correct one)</label>
+                                        <button @click="autoGenerateOptions()" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; background: #9c27b0;">✨ AI Options</button>
+                                    </div>
                                     <div class="options-grid">
                                         <template x-for="(opt, oIdx) in currentQuiz.questions[selectedQuestionIndex].options" :key="oIdx">
                                             <div style="display: flex; gap: 10px; align-items: center; background: #f5f7f9; padding: 10px; border-radius: 8px;">
@@ -234,6 +237,7 @@
     <script src="../config/firebase-config.js"></script>
     <script src="../shared/firebase-helper.js"></script>
     <script src="../shared/quiz-parser.js"></script>
+    <script src="../shared/ai-helper.js"></script>
     <script src="editor-data.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 

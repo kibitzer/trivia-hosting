@@ -293,6 +293,52 @@ window.createEditorData = function(firebase, db, auth, storage) {
             });
         },
 
+        async autoGenerateOptions() {
+            const q = this.currentQuiz.questions[this.selectedQuestionIndex];
+            if (!q.question || q.question.trim().length < 5) {
+                return Swal.fire('Missing Info', 'Please enter a valid question text first.', 'warning');
+            }
+            if (!q.correctAnswer || q.correctAnswer.trim() === '') {
+                return Swal.fire('Missing Info', 'Please provide (and select) the correct answer first.', 'warning');
+            }
+            
+            this.statusMsg = "✨ Generating...";
+            this.loading = true;
+
+            try {
+                // Find empty slots
+                const emptyIndices = q.options
+                    .map((opt, i) => (!opt || opt.trim() === '') ? i : -1)
+                    .filter(i => i !== -1);
+                
+                // If no empty slots, maybe replace non-correct ones? 
+                // For now, let's just fill empty ones.
+                if (emptyIndices.length === 0) {
+                     this.loading = false;
+                     return Swal.fire('Full', 'All options are already filled. Clear some slots to generate new ones.', 'info');
+                }
+
+                const distractors = await TriviaAI.generateDistractors(q.question, q.correctAnswer, emptyIndices.length);
+                
+                if (distractors && distractors.length > 0) {
+                    distractors.forEach((d, i) => {
+                        if (emptyIndices[i] !== undefined) {
+                            q.options[emptyIndices[i]] = d;
+                        }
+                    });
+                    this.statusMsg = "✨ Done!";
+                    setTimeout(() => this.statusMsg = '', 2000);
+                } else {
+                    this.statusMsg = "";
+                }
+            } catch (e) {
+                this.statusMsg = "Error";
+                console.error(e);
+            } finally {
+                this.loading = false;
+            }
+        },
+
         // Helper to import JSON
         async importFromJSON(event) {
             const file = event.target.files[0];
