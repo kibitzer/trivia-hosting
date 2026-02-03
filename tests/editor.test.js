@@ -158,6 +158,15 @@ describe('Editor Logic', () => {
             
             alertSpy.mockRestore();
         });
+
+        it('should update local quizzes cache after successful save', async () => {
+            editor.editQuiz('q1');
+            editor.currentQuiz.title = 'Updated Title';
+            
+            await editor.saveQuiz();
+            
+            expect(editor.quizzes['q1'].title).toBe('Updated Title');
+        });
     });
 
     describe('Drag and Drop Simulation', () => {

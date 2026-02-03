@@ -227,6 +227,11 @@ window.createEditorData = function(firebase, db, auth, storage) {
             this.currentQuiz.updatedAt = firebase.database.ServerValue.TIMESTAMP;
             try {
                 await db.ref(`quizzes/${this.editingQuizId}`).set(this.currentQuiz);
+                
+                // CRITICAL: Update the local cache so that slide switching doesn't revert to old data
+                // before the Firebase listener catches up.
+                this.quizzes[this.editingQuizId] = JSON.parse(JSON.stringify(this.currentQuiz));
+                
                 this.statusMsg = isAutosave ? "✓ Autosaved" : "✓ Saved successfully!";
                 if (!isAutosave) setTimeout(() => this.statusMsg = '', 3000);
             } catch (e) {
