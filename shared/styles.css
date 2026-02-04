@@ -8,44 +8,6 @@
     --accent-color: #ff9800;
 }
 
-/* --- THEMES --- */
-
-/* Neon Night */
-.theme-neon {
-    --primary-color: #f0f;
-    --secondary-color: #0ff;
-    --bg-gradient: linear-gradient(135deg, #000 0%, #1a0033 100%);
-    --card-bg: rgba(20, 0, 40, 0.9);
-    --text-color: #0ff;
-    --accent-color: #f0f;
-}
-.theme-neon .card,
-.theme-neon .main-panel,
-.theme-neon .sidebar > div {
-    border: 1px solid #f0f;
-    box-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
-}
-
-/* Dark Mode */
-.theme-dark {
-    --primary-color: #90caf9;
-    --secondary-color: #42a5f5;
-    --bg-gradient: linear-gradient(135deg, #121212 0%, #1e1e1e 100%);
-    --card-bg: #2d2d2d;
-    --text-color: #e0e0e0;
-    --accent-color: #ffb74d;
-}
-
-/* Classic Classroom */
-.theme-classroom {
-    --primary-color: #2e7d32;
-    --secondary-color: #66bb6a;
-    --bg-gradient: linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%);
-    --card-bg: #fff;
-    --text-color: #1b5e20;
-    --accent-color: #fbc02d;
-}
-
 * {
     margin: 0;
     padding: 0;

@@ -2,6 +2,10 @@
 
 This file tracks planned features, UI improvements, and technical debt.
 
+## Tech Debt
+
+- [ ] **Update Docs**: With the addition of linting, we should update the current documentation in the appropriate files. Review docs in docs/
+
 ## 🎨 Visual Polish & UX
 
 - [ ] **Slide Transitions**: Add CSS animations (fade/slide) when changing questions or rounds in Host and Player views.
@@ -9,7 +13,6 @@ This file tracks planned features, UI improvements, and technical debt.
     - [ ] Timer tick-tock sounds.
     - [ ] Correct answer "ding" / Incorrect answer buzzer.
     - [ ] Low-stakes background music during question time.
-- [x] **Themes**: Implement preset visual styles (e.g., "Neon Night", "Classic Classroom", "Dark Mode").
 - [ ] **Confetti**: Trigger a confetti explosion for the top 3 winners at the end of the game.
 
 ## 🛠️ Advanced Mechanics

@@ -10,7 +10,6 @@ A real-time, browser-based trivia hosting application powered by Firebase Realti
 - **Quiz Management**: Manage quizzes via the built-in **Quiz Editor**.
 - **Live Dashboard**: View connected players, live answer status, and incoming answers.
 - **Scoring**: Automatic scoring for multiple-choice and short-answer questions.
-- **Themes**: Toggle between preset visual styles (Neon, Dark Mode, etc.).
 
 ### For Players (`player.html`)
 

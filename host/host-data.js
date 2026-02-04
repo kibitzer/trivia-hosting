@@ -22,7 +22,6 @@ window.createHostData = function (firebase, db, auth, analytics) {
         answerRevealed: false,
         autoReveal: true,
         speedScoringEnabled: true,
-        theme: 'classic',
         gameState: {},
         players: {},
         currentAnswers: {},
@@ -340,11 +339,8 @@ window.createHostData = function (firebase, db, auth, analytics) {
                 answerRevealed: !!this.answerRevealed,
                 timerValue: this.timerValue,
                 timerStatus: this.timerStatus,
-                theme: this.theme,
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
             };
-            // Apply theme to host body too
-            document.body.className = this.theme === 'classic' ? '' : 'theme-' + this.theme;
 
             if (this.currentItem.type === 'round-title')
                 Object.assign(base, {

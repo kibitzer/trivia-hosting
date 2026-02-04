@@ -5,15 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.5.8] - 2026-02-05
+
+### Removed
+
+- **Themes**: Completely removed the visual theme feature (Neon, Dark, Classroom) to simplify the codebase and maintain a consistent "Classic" look.
+- **Logic**: Excised theme-related state synchronization and dynamic CSS class application from Host and Player scripts.
+- **UI**: Removed the Theme Selection section from the Host Settings.
 
 ## [0.5.7] - 2026-02-04
+
 ### Added
+
 - Formal linting strategy using ESLint and Prettier.
 - `npm run lint`, `npm run format`, and `npm run format:fix` scripts.
 - CI integration for linting in GitHub Actions.
 
 ### Fixed
+
 - Syntax error in `shared/ai-helper.js` (broken template literal).
 - Duplicate key error in `shared/quiz-parser.js`.
 - Duplicate `</html>` tag in `player.html`.

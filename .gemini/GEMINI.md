@@ -1,17 +1,38 @@
-## Trivia Hosting Project Memories
+# Gemini Project Protocol
 
-### Project Overview
+## [PLAN_PROTOCOL]
+
+When I enter **Plan Mode** (`/plan`), adhere to the following rules:
+
+1. **Environmental Audit:** Before suggesting changes, use `ls -R` and `grep` to identify where logic is duplicated.
+2. **Dependency Check:** Always check `package.json` or `requirements.txt` before suggesting new libraries.
+3. **Drafting Output:** Structure your plan using the following British English headings:
+    - ### Architectural Impact
+    - ### Proposed Steps
+    - ### Potential Regressions
+4. **Token Conservation:** Do not provide full code blocks during the Planning phase. Use pseudocode or function signatures only to keep the context window light.
+5. **Validation:** End every plan with a single question: "Would you like me to proceed to Implement Mode for these steps?"
+
+## [IMPLEMENTATION_RULES]
+
+- Use **British spelling** in all comments and documentation (e.g., 'optimise', 'colour', 'initialise').
+- Ensure every script includes a proper **shebang line** (e.g., `#!/usr/bin/env python3`).
+- If a task is complex, implement it in chunks and ask for feedback after each logical milestone.
+
+# Trivia Hosting Project Memories
+
+## Project Overview
 
 - A real-time trivia-hosting system using Alpine.js for state management, Firebase Realtime Database for the backend, and Firebase Auth.
 - Quiz data is stored exclusively in Firebase.
 - Version: 0.5.3 (as of Feb 3, 2026).
 - The quiz editor uses a PowerPoint-like interface with a sidebar for question selection and a main editing area.
 
-### General Heurisitcs
+## General Heurisitcs
 
-- When I ask you to make recommendations, always keep in mind that I prefer offerings due to budget constraints. When a recommendation requires payment, please say so and estimate the cost(s).
+- When I ask you to make recommendations, always keep in mind that I prefer free offerings due to budget constraints. When a recommendation requires payment, please say so and estimate the cost(s).
 
-### Technical Decisions
+## Technical Decisions
 
 - **Architecture**: Strictly follow a "no-build" vanilla JavaScript architecture. Stick to global scripts rather than Native ES Modules (.mjs) to avoid synchronization complexity with Alpine.js auto-initialization.
     - An attempt to move to Native ES Modules was reverted due to synchronization issues.
@@ -22,26 +43,26 @@
 - **State Management**: In `player-alpine.js`, always explicitly clear `gameState` properties when they are absent in a state update to prevent data leakage between slides.
 - **Editor Validation**: The Quiz Editor requires a non-empty `correctAnswer` for all question slides before saving.
 
-### Testing Strategy
+## Testing Strategy
 
 - The project uses a two-tiered testing strategy:
     - **Unit Testing (Vitest + JSDOM)**: Validates core game logic in `host-data.js`, `player-alpine.js`, and `editor-data.js` in isolation.
     - **E2E Simulation (Playwright)**: Orchestrates multiple browser contexts (Host + 3 Players) to verify real-time Firebase synchronization. Always use `--reporter=line` to ensure the process terminates automatically.
 
-### CI/CD
+## CI/CD
 
 - Automated via GitHub Actions:
     - `test.yml`: Runs Vitest and Playwright on every push/PR.
     - `deploy.yml`: Automatically deploys Firebase Security Rules when modified.
     - `static.yml`: Handles static site deployment (GitHub Pages).
 
-### Versioning & Commits
+## Versioning & Commits
 
 - **Format**: Bumping the version updates `package.json`, `shared/version.js`, and tags the git commit. Automated via `npm version`.
 - **Commits**: Version bump commits must start with the version number in brackets followed by a brief description: `[x.x.x] Short description of changes`.
 - **Process**: Always ask the user before bumping (Major/Minor/Patch). Update `CHANGELOG.md` with every commit to keep it in sync.
 
-### UX & Preferences
+## UX & Preferences
 
 - Keep `README.md` simple and concise.
 - Future improvements list: UX/Visual Polish (PWA refinement), Advanced Mechanics (power-ups/teams), and Code Health.
