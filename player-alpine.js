@@ -1,6 +1,6 @@
 // player-alpine.js
-(function() {
-    console.log("Player Alpine Script Loaded");
+(function () {
+    console.log('Player Alpine Script Loaded');
 
     document.addEventListener('alpine:init', () => {
         const hasFirebase = typeof firebase !== 'undefined';
@@ -10,25 +10,30 @@
             // --- State ---
             isConnected: false,
             screen: 'join', // 'join', 'game'
-            
+
             playerName: '',
             playerId: null,
             score: 0,
             isWaiting: true,
-            
+
             gameState: { status: 'waiting' },
             allPlayers: {},
-            
+
             currentAnswer: null,
             hasSubmitted: false,
             lastQuestionNumber: null,
-            
+
             // --- Visual Feedback ---
             streak: 0,
             showFeedback: false, // For the color flash
             isCorrect: false,
 
-            errorMsg: (!hasFirebase || !hasConfig) ? "Configuration Error: " + (!hasFirebase ? "Firebase JS missing. " : "") + (!hasConfig ? "firebase-config.js missing." : "") : null,
+            errorMsg:
+                !hasFirebase || !hasConfig
+                    ? 'Configuration Error: ' +
+                      (!hasFirebase ? 'Firebase JS missing. ' : '') +
+                      (!hasConfig ? 'firebase-config.js missing.' : '')
+                    : null,
 
             // --- Computed ---
             get scoreboard() {
@@ -37,35 +42,41 @@
                         id,
                         name: data.name,
                         score: data.score || 0,
-                        isMe: id === this.playerId
+                        isMe: id === this.playerId,
                     }))
                     .sort((a, b) => b.score - a.score);
             },
 
-            get timerStatus() { return this.gameState.timerStatus; },
-            get timerValue() { return this.gameState.timerValue; },
-            get currentItem() { return this.gameState; },
+            get timerStatus() {
+                return this.gameState.timerStatus;
+            },
+            get timerValue() {
+                return this.gameState.timerValue;
+            },
+            get currentItem() {
+                return this.gameState;
+            },
 
             // --- Init ---
             init() {
                 const self = this;
-                
+
                 // Initialize Firebase via helper
                 const fb = TriviaFirebase.init();
                 if (!fb) return;
-                
+
                 const db = fb.db;
                 const auth = fb.auth;
                 const analytics = fb.analytics;
                 this.analytics = analytics; // Store for methods
 
                 // Connection Status
-                db.ref('.info/connected').on('value', snap => {
+                db.ref('.info/connected').on('value', (snap) => {
                     self.isConnected = snap.val() === true;
                 });
 
                 // Listen for Auth changes
-                auth.onAuthStateChanged(user => {
+                auth.onAuthStateChanged((user) => {
                     if (user) {
                         self.playerId = user.uid;
                         const savedName = localStorage.getItem('triviaPlayerName');
@@ -78,35 +89,35 @@
             },
 
             async joinGame() {
-                if (this.playerName.trim().length < 1) return alert("Please enter a name");
+                if (this.playerName.trim().length < 1) return alert('Please enter a name');
                 localStorage.setItem('triviaPlayerName', this.playerName);
-                
+
                 try {
                     const result = await firebase.auth().signInAnonymously();
                     this.playerId = result.user.uid;
                     this.registerPlayer(firebase.database());
-                    
+
                     if (this.analytics) {
                         this.analytics.logEvent('player_join', {
-                            player_name: this.playerName
+                            player_name: this.playerName,
                         });
                     }
                 } catch (error) {
-                    console.error("Auth failed", error);
-                    alert("Failed to join: " + error.message);
+                    console.error('Auth failed', error);
+                    alert('Failed to join: ' + error.message);
                 }
             },
 
             registerPlayer(db) {
                 if (!this.playerId || !this.playerName) return;
                 if (this.screen === 'game') return;
-                
+
                 const playerRef = db.ref(`players/${this.playerId}`);
-                
+
                 playerRef.update({
                     name: this.playerName,
                     online: true,
-                    joinedAt: firebase.database.ServerValue.TIMESTAMP
+                    joinedAt: firebase.database.ServerValue.TIMESTAMP,
                 });
 
                 // Disconnect handler
@@ -118,46 +129,51 @@
 
             startGame(db) {
                 // Listen for Global State
-                db.ref('gameState').on('value', snap => {
+                db.ref('gameState').on('value', (snap) => {
                     const state = snap.val();
                     if (state) this.handleStateChange(state);
                 });
 
                 // Listen for My Score
-                db.ref(`players/${this.playerId}/score`).on('value', snap => {
+                db.ref(`players/${this.playerId}/score`).on('value', (snap) => {
                     this.score = snap.val() || 0;
                 });
 
                 // Listen for All Players (Scoreboard)
-                db.ref('players').on('value', snap => {
+                db.ref('players').on('value', (snap) => {
                     this.allPlayers = snap.val() || {};
                 });
             },
 
             handleStateChange(newState) {
                 const oldRevealed = !!this.gameState.answerRevealed;
-                
+
                 // Update gameState properties while maintaining reactivity
                 // Clear old properties that are not in the new state (e.g. images, answers)
-                Object.keys(this.gameState).forEach(key => {
+                Object.keys(this.gameState).forEach((key) => {
                     if (!(key in newState)) delete this.gameState[key];
                 });
                 Object.assign(this.gameState, newState);
 
                 // Apply theme from state
                 if (this.gameState.theme) {
-                    document.body.className = this.gameState.theme === 'classic' ? '' : 'theme-' + this.gameState.theme;
+                    document.body.className =
+                        this.gameState.theme === 'classic' ? '' : 'theme-' + this.gameState.theme;
                 }
-                
+
                 const nowRevealed = !!this.gameState.answerRevealed;
-                
+
                 // Update isWaiting manually
-                this.isWaiting = (this.gameState.status === 'waiting') || 
-                                (this.gameState.currentIndex === -1) || 
-                                (!this.gameState.type);
+                this.isWaiting =
+                    this.gameState.status === 'waiting' ||
+                    this.gameState.currentIndex === -1 ||
+                    !this.gameState.type;
 
                 // Detect new question to reset inputs
-                if (this.gameState.type === 'question' && this.gameState.questionNumber !== this.lastQuestionNumber) {
+                if (
+                    this.gameState.type === 'question' &&
+                    this.gameState.questionNumber !== this.lastQuestionNumber
+                ) {
                     this.lastQuestionNumber = this.gameState.questionNumber;
                     this.currentAnswer = null;
                     this.hasSubmitted = false;
@@ -169,16 +185,16 @@
                 if (nowRevealed && !oldRevealed) {
                     // Calculate correctness for the feedback flash
                     this.isCorrect = this.isCorrectOption(this.currentAnswer);
-                    
+
                     if (this.hasSubmitted) {
                         if (this.isCorrect) {
                             this.streak++;
-                            
+
                             // Log streak milestones
                             if (this.analytics && [3, 5, 10].includes(this.streak)) {
                                 this.analytics.logEvent('streak_milestone', {
                                     streak_count: this.streak,
-                                    player_name: this.playerName
+                                    player_name: this.playerName,
                                 });
                             }
                         } else {
@@ -187,7 +203,9 @@
 
                         // Trigger visual flash
                         this.showFeedback = true;
-                        setTimeout(() => { this.showFeedback = false; }, 2500);
+                        setTimeout(() => {
+                            this.showFeedback = false;
+                        }, 2500);
                     }
                 }
             },
@@ -209,7 +227,7 @@
                 if (this.gameState.questionNumber) {
                     db.ref(`answers/${this.gameState.questionNumber}/${this.playerId}`).set({
                         answer: this.currentAnswer,
-                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                        timestamp: firebase.database.ServerValue.TIMESTAMP,
                     });
                 }
             },
@@ -225,7 +243,7 @@
                 if (!this.gameState.answerRevealed) return false;
                 if (this.currentAnswer !== opt) return false;
                 return !this.isCorrectOption(opt);
-            }
+            },
         }));
     });
 })();

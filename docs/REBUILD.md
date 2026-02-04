@@ -15,3 +15,24 @@ The goal of this rebuild is to transition from a "no-build" vanilla JavaScript a
 - **Server-Authoritative Game Loop:** Moving game logic (timers, scoring) to Firebase Cloud Functions or a Node.js backend to prevent "Host dependency" and increase security.
 - **XState/State Machines:** To manage complex game states (waiting, countdown, active, revealed) deterministically.
 - **Monorepo Structure:** To share TypeScript interfaces between the Host and Player clients.
+
+## Data Storage Strategy
+
+For a server-authoritative model, we recommend a hybrid storage approach:
+
+- **Cloud Firestore (Primary):** Use for all persistent data including the Question Bank, Quizzes, User Profiles, and Game History. Its document-based structure maps perfectly to TypeScript interfaces.
+- **Realtime Database (Ephemeral):** Use strictly for the "Live Session" state (timers, active player counts, current slide). Its sub-millisecond latency ensures a responsive feel for players.
+- **Alternative (Supabase):** A strong contender if a relational (PostgreSQL) structure is preferred, offering built-in real-time subscriptions and auto-generated types.
+
+## Estimated Costs
+
+The modernized architecture is designed to stay within the **Firebase Spark (Free) Plan** for most hobby and small-event use cases.
+
+| Component           | Free Tier (Spark)          | Blaze Plan (Pay-as-you-go) |
+| :------------------ | :------------------------- | :------------------------- |
+| **Firestore**       | 1GB storage, 50k reads/day | ~$0.06 per 100k reads      |
+| **RTDB**            | 10GB downloaded/month      | $1.00 per GB downloaded    |
+| **Cloud Functions** | 2M invocations/month       | ~$0.0000004 per invocation |
+| **Hosting**         | 10GB storage               | Minimal storage fees       |
+
+_Note: Cloud Functions require the Blaze plan (credit card on file), but you still benefit from the free usage tiers mentioned above._

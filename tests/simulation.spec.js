@@ -14,14 +14,14 @@ test('Trivia Full Simulation', async ({ browser }) => {
     const TEST_PASSWORD = process.env.TRIVIA_TEST_PASSWORD;
 
     if (!TEST_EMAIL || !TEST_PASSWORD) {
-        throw new Error("Missing TRIVIA_TEST_EMAIL or TRIVIA_TEST_PASSWORD environment variables");
+        throw new Error('Missing TRIVIA_TEST_EMAIL or TRIVIA_TEST_PASSWORD environment variables');
     }
 
     // Function to setup a page with console logging
     const setupPage = async (context, name) => {
         const page = await context.newPage();
-        page.on('console', msg => console.log(`[${name}] ${msg.type()}: ${msg.text()}`));
-        page.on('pageerror', err => console.log(`[${name}] ERROR: ${err.message}`));
+        page.on('console', (msg) => console.log(`[${name}] ${msg.type()}: ${msg.text()}`));
+        page.on('pageerror', (err) => console.log(`[${name}] ERROR: ${err.message}`));
         return page;
     };
 
@@ -35,23 +35,23 @@ test('Trivia Full Simulation', async ({ browser }) => {
     expect(manifestResponse.status()).toBe(200);
     const manifest = await manifestResponse.json();
     expect(manifest.short_name).toBe('Trivia');
-    
+
     // Host Login
     await hostPage.fill('input[x-model="email"]', TEST_EMAIL);
     await hostPage.fill('input[x-model="password"]', TEST_PASSWORD);
-    
+
     // Handle the confirm dialog for Reset Quiz
-    hostPage.on('dialog', dialog => dialog.accept());
-    
+    hostPage.on('dialog', (dialog) => dialog.accept());
+
     await hostPage.click('button[type="submit"]');
 
     // Wait for authentication and setup view
     await expect(hostPage.locator('button:has-text("Load Quiz")')).toBeVisible({ timeout: 10000 });
-    
+
     // Reset Game State to ensure we are starting fresh
-    // We only do this if we are not in a game, but the button is only in game view? 
+    // We only do this if we are not in a game, but the button is only in game view?
     // Actually, let's just Load the quiz first.
-    
+
     // 2. Setup 3 Players
     const players = [];
     const playerNames = ['Alice', 'Bob', 'Charlie'];
@@ -60,30 +60,27 @@ test('Trivia Full Simulation', async ({ browser }) => {
         const context = await browser.newContext();
         const page = await setupPage(context, `PLAYER:${name}`);
         await page.goto(PLAYER_URL);
-        
+
         await page.fill('input[x-model="playerName"]', name);
         await page.click('button:has-text("Join Game")');
-        
+
         // Wait for join section to disappear (indicates screen change)
         await expect(page.locator('.join-section')).toBeHidden({ timeout: 15000 });
-        
-                        // Wait for game screen to be active
-        
-                        await expect(page.locator('.header h1:has-text("Trivia Night")')).toBeVisible({ timeout: 15000 });
-        
-                
-        
-                // Either we are waiting or we see a question/round (allow both for robustness)
-        
-                        const gameScreens = page.locator('.waiting-screen, .question-display, .round-display');
-        
-                        await expect(gameScreens.filter({ visible: true }).first()).toBeVisible({ timeout: 15000 });
-        
-                
-        
-                players.push({ name, page });
-        
-            }
+
+        // Wait for game screen to be active
+
+        await expect(page.locator('.header h1:has-text("Trivia Night")')).toBeVisible({
+            timeout: 15000,
+        });
+
+        // Either we are waiting or we see a question/round (allow both for robustness)
+
+        const gameScreens = page.locator('.waiting-screen, .question-display, .round-display');
+
+        await expect(gameScreens.filter({ visible: true }).first()).toBeVisible({ timeout: 15000 });
+
+        players.push({ name, page });
+    }
 
     let testQuizId = null;
 
@@ -93,34 +90,36 @@ test('Trivia Full Simulation', async ({ browser }) => {
             const db = firebase.database();
             const quizRef = db.ref('quizzes').push();
             const sampleQuiz = {
-                title: "Test Simulation Quiz",
+                title: 'Test Simulation Quiz',
                 questions: [
                     {
-                        type: "round-title",
-                        title: "Round 1: Basics",
-                        roundNumber: 1
+                        type: 'round-title',
+                        title: 'Round 1: Basics',
+                        roundNumber: 1,
                     },
                     {
-                        type: "multiple",
-                        question: "What is the capital of France?",
-                        options: ["Paris", "London", "Berlin", "Madrid"],
-                        correctAnswer: "Paris",
-                        timer: 30
+                        type: 'multiple',
+                        question: 'What is the capital of France?',
+                        options: ['Paris', 'London', 'Berlin', 'Madrid'],
+                        correctAnswer: 'Paris',
+                        timer: 30,
                     },
                     {
-                        type: "short",
-                        question: "What is the chemical symbol for Gold?",
-                        correctAnswer: "Au",
-                        timer: 30
-                    }
+                        type: 'short',
+                        question: 'What is the chemical symbol for Gold?',
+                        correctAnswer: 'Au',
+                        timer: 30,
+                    },
                 ],
-                updatedAt: firebase.database.ServerValue.TIMESTAMP
+                updatedAt: firebase.database.ServerValue.TIMESTAMP,
             };
             return quizRef.set(sampleQuiz).then(() => quizRef.key);
         });
 
         // Wait for the select to populate and select the quiz
-        await expect(hostPage.locator(`select[x-model="selectedQuizId"] option[value="${testQuizId}"]`)).toBeAttached({ timeout: 10000 });
+        await expect(
+            hostPage.locator(`select[x-model="selectedQuizId"] option[value="${testQuizId}"]`)
+        ).toBeAttached({ timeout: 10000 });
         await hostPage.selectOption('select[x-model="selectedQuizId"]', testQuizId);
         await hostPage.click('button:has-text("Load Quiz")');
 
@@ -138,20 +137,20 @@ test('Trivia Full Simulation', async ({ browser }) => {
         });
 
         await hostPage.click('button:has-text("Start Game")');
-        
+
         // Check if analytics event was captured
         const events = await hostPage.evaluate(() => window.analyticsEvents);
-        const startEvent = events.find(e => e.name === 'game_start');
+        const startEvent = events.find((e) => e.name === 'game_start');
         expect(startEvent).toBeDefined();
         expect(startEvent.params.quiz_title).toBeDefined();
-        
+
         // Advance from Title to Question 1
         await hostPage.click('button:has-text("Next")');
 
         // 4. Run through first few questions
         // Question 1: Multiple Choice (Capital of France?)
         await expect(hostPage.locator('text=Q1')).toBeVisible();
-        
+
         // Players answer
         for (const p of players) {
             await expect(p.page.locator('text=Question 1')).toBeVisible();
@@ -161,7 +160,7 @@ test('Trivia Full Simulation', async ({ browser }) => {
 
         // Host reveals answer
         await hostPage.click('button:has-text("Reveal Answer")');
-        
+
         // Verify results on player screens
         for (const p of players) {
             await expect(p.page.locator('.answer-reveal')).toBeVisible();
@@ -184,7 +183,7 @@ test('Trivia Full Simulation', async ({ browser }) => {
         // Final Scoreboard Check
         const scoreboardRows = hostPage.locator('.scroll-list .list-row');
         await expect(scoreboardRows.first()).toBeVisible({ timeout: 10000 });
-        
+
         const count = await scoreboardRows.count();
         if (count < 3) {
             throw new Error(`Expected at least 3 players in scoreboard, found ${count}`);
@@ -192,14 +191,14 @@ test('Trivia Full Simulation', async ({ browser }) => {
     } finally {
         // --- Cleanup Step ---
         // Use the host's existing access to wipe the nodes we used during simulation
-        console.log("[TEST] Cleaning up Firebase data...");
+        console.log('[TEST] Cleaning up Firebase data...');
         await hostPage.evaluate((quizId) => {
             const db = firebase.database();
             return Promise.all([
                 db.ref('players').remove(),
                 db.ref('answers').remove(),
                 db.ref('gameState').set({ status: 'waiting' }),
-                quizId ? db.ref(`quizzes/${quizId}`).remove() : Promise.resolve()
+                quizId ? db.ref(`quizzes/${quizId}`).remove() : Promise.resolve(),
             ]);
         }, testQuizId);
     }

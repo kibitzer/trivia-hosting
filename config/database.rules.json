@@ -1,49 +1,49 @@
 {
-  "rules": {
-    "gameState": {
-      ".read": "auth != null",
-      ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
-      ".validate": "newData.hasChildren(['status'])"
-    },
-    "quizzes": {
-      ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
-      ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
-      "$quizId": {
-        ".validate": "newData.hasChildren(['title', 'questions'])"
-      }
-    },
-    "players": {
-      ".read": "auth != null",
-      ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
-      "$uid": {
-        "name": { 
-          ".write": "auth != null && (auth.uid === $uid || auth.token.firebase.sign_in_provider != 'anonymous')",
-          ".validate": "newData.isString() && newData.val().length <= 20" 
+    "rules": {
+        "gameState": {
+            ".read": "auth != null",
+            ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
+            ".validate": "newData.hasChildren(['status'])"
         },
-        "score": { 
-          ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
-          ".validate": "newData.isNumber()" 
+        "quizzes": {
+            ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
+            ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
+            "$quizId": {
+                ".validate": "newData.hasChildren(['title', 'questions'])"
+            }
         },
-        "online": { 
-          ".write": "auth != null && (auth.uid === $uid || auth.token.firebase.sign_in_provider != 'anonymous')",
-          ".validate": "newData.isBoolean()" 
+        "players": {
+            ".read": "auth != null",
+            ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
+            "$uid": {
+                "name": {
+                    ".write": "auth != null && (auth.uid === $uid || auth.token.firebase.sign_in_provider != 'anonymous')",
+                    ".validate": "newData.isString() && newData.val().length <= 20"
+                },
+                "score": {
+                    ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
+                    ".validate": "newData.isNumber()"
+                },
+                "online": {
+                    ".write": "auth != null && (auth.uid === $uid || auth.token.firebase.sign_in_provider != 'anonymous')",
+                    ".validate": "newData.isBoolean()"
+                },
+                "joinedAt": {
+                    ".write": "auth != null && (auth.uid === $uid || auth.token.firebase.sign_in_provider != 'anonymous')"
+                }
+            }
         },
-        "joinedAt": {
-          ".write": "auth != null && (auth.uid === $uid || auth.token.firebase.sign_in_provider != 'anonymous')"
+        "answers": {
+            ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
+            ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
+            "$questionId": {
+                "$uid": {
+                    // Players can only submit their own answers
+                    // SECURITY: Only allow submission if the timer is active (countdown or running)
+                    ".write": "auth != null && auth.uid === $uid && (root.child('gameState/timerStatus').val() === 'running' || root.child('gameState/timerStatus').val() === 'countdown')",
+                    ".validate": "newData.hasChildren(['answer', 'timestamp'])"
+                }
+            }
         }
-      }
-    },
-    "answers": {
-      ".read": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
-      ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
-      "$questionId": {
-        "$uid": {
-          // Players can only submit their own answers
-          // SECURITY: Only allow submission if the timer is active (countdown or running)
-          ".write": "auth != null && auth.uid === $uid && (root.child('gameState/timerStatus').val() === 'running' || root.child('gameState/timerStatus').val() === 'countdown')",
-          ".validate": "newData.hasChildren(['answer', 'timestamp'])"
-        }
-      }
     }
-  }
 }

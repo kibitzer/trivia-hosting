@@ -1,4 +1,4 @@
-window.createEditorData = function(firebase, db, auth, storage) {
+window.createEditorData = function (firebase, db, auth, storage) {
     return {
         isAuthenticated: false,
         loading: false,
@@ -11,7 +11,7 @@ window.createEditorData = function(firebase, db, auth, storage) {
         showSettings: false,
         settings: {
             autosaveDelay: 2000,
-            showQuestionNumbers: true
+            showQuestionNumbers: true,
         },
 
         // Placeholder for Alpine magic properties
@@ -24,43 +24,53 @@ window.createEditorData = function(firebase, db, auth, storage) {
             if (savedSettings) {
                 try {
                     this.settings = { ...this.settings, ...JSON.parse(savedSettings) };
-                } catch (e) { console.error("Failed to load settings", e); }
+                } catch (e) {
+                    console.error('Failed to load settings', e);
+                }
             }
 
-            auth.onAuthStateChanged(user => {
+            auth.onAuthStateChanged((user) => {
                 this.isAuthenticated = !!user;
                 if (user) {
-                    db.ref('quizzes').on('value', snap => {
+                    db.ref('quizzes').on('value', (snap) => {
                         this.quizzes = snap.val() || {};
                     });
                 }
             });
 
             // Set up autosave watcher
-            this.$watch('currentQuiz', (value) => {
-                if (value && this.editingQuizId) {
-                    this.triggerAutosave();
-                }
-            }, { deep: true });
+            this.$watch(
+                'currentQuiz',
+                (value) => {
+                    if (value && this.editingQuizId) {
+                        this.triggerAutosave();
+                    }
+                },
+                { deep: true }
+            );
 
             // Watch for question type changes to set defaults
-            this.$watch('currentQuiz.questions', (questions) => {
-                if (!questions || !questions[this.selectedQuestionIndex]) return;
-                const q = questions[this.selectedQuestionIndex];
-                
-                if (q.type === 'true-false' && (!q.options || q.options.length !== 2)) {
-                    q.options = ['True', 'False'];
-                    if (!q.correctAnswer) q.correctAnswer = 'True';
-                }
-                if (q.type === 'identify' && (!q.question || q.question === 'New Question?')) {
-                    q.question = 'Identify this picture:';
-                }
-            }, { deep: true });
+            this.$watch(
+                'currentQuiz.questions',
+                (questions) => {
+                    if (!questions || !questions[this.selectedQuestionIndex]) return;
+                    const q = questions[this.selectedQuestionIndex];
+
+                    if (q.type === 'true-false' && (!q.options || q.options.length !== 2)) {
+                        q.options = ['True', 'False'];
+                        if (!q.correctAnswer) q.correctAnswer = 'True';
+                    }
+                    if (q.type === 'identify' && (!q.question || q.question === 'New Question?')) {
+                        q.question = 'Identify this picture:';
+                    }
+                },
+                { deep: true }
+            );
         },
 
         triggerAutosave() {
             if (this.autosaveTimeout) clearTimeout(this.autosaveTimeout);
-            this.statusMsg = "Typing...";
+            this.statusMsg = 'Typing...';
             this.autosaveTimeout = setTimeout(() => {
                 this.saveQuiz(true); // true indicates it's an autosave
             }, this.settings.autosaveDelay);
@@ -73,7 +83,7 @@ window.createEditorData = function(firebase, db, auth, storage) {
                 title: 'Settings Saved',
                 icon: 'success',
                 timer: 1500,
-                showConfirmButton: false
+                showConfirmButton: false,
             });
         },
 
@@ -82,12 +92,12 @@ window.createEditorData = function(firebase, db, auth, storage) {
             if (!file || !storage) return;
 
             if (file.size > 2 * 1024 * 1024) {
-                alert("File is too large! Please choose an image under 2MB.");
+                alert('File is too large! Please choose an image under 2MB.');
                 return;
             }
 
             this.loading = true;
-            this.statusMsg = "Uploading...";
+            this.statusMsg = 'Uploading...';
 
             try {
                 // Create a unique filename
@@ -100,12 +110,12 @@ window.createEditorData = function(firebase, db, auth, storage) {
 
                 // Update the field in the current question
                 this.currentQuiz.questions[this.selectedQuestionIndex][targetField] = downloadURL;
-                this.statusMsg = "Upload successful!";
-                setTimeout(() => this.statusMsg = '', 3000);
+                this.statusMsg = 'Upload successful!';
+                setTimeout(() => (this.statusMsg = ''), 3000);
             } catch (e) {
-                console.error("Upload failed", e);
-                alert("Upload failed: " + e.message);
-                this.statusMsg = "Upload failed.";
+                console.error('Upload failed', e);
+                alert('Upload failed: ' + e.message);
+                this.statusMsg = 'Upload failed.';
             } finally {
                 this.loading = false;
                 // Reset file input so same file can be re-selected if needed
@@ -115,18 +125,18 @@ window.createEditorData = function(firebase, db, auth, storage) {
 
         createNewQuiz() {
             const newQuiz = {
-                title: "New Quiz",
+                title: 'New Quiz',
                 questions: [
                     {
                         id: 'q-' + Date.now(),
-                        question: "Sample Question?",
-                        type: "multiple",
-                        options: ["Option 1", "Option 2", "Option 3", "Option 4"],
-                        correctAnswer: "Option 1",
-                        timer: 30
-                    }
+                        question: 'Sample Question?',
+                        type: 'multiple',
+                        options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
+                        correctAnswer: 'Option 1',
+                        timer: 30,
+                    },
                 ],
-                updatedAt: firebase.database.ServerValue.TIMESTAMP
+                updatedAt: firebase.database.ServerValue.TIMESTAMP,
             };
             const ref = db.ref('quizzes').push();
             ref.set(newQuiz);
@@ -136,14 +146,14 @@ window.createEditorData = function(firebase, db, auth, storage) {
         editQuiz(id) {
             this.editingQuizId = id;
             this.currentQuiz = JSON.parse(JSON.stringify(this.quizzes[id])); // Deep clone
-            
+
             // Backfill IDs for older quizzes that might not have them
             this.currentQuiz.questions.forEach((q, i) => {
                 if (!q.id) q.id = 'q-' + Date.now() + '-' + i;
             });
-            
+
             this.selectedQuestionIndex = 0;
-            
+
             // Initialize Sortable after Alpine has rendered the list
             this.$nextTick(() => {
                 this.initSortable();
@@ -177,25 +187,27 @@ window.createEditorData = function(firebase, db, auth, storage) {
         addQuestion() {
             this.currentQuiz.questions.push({
                 id: 'q-' + Date.now(),
-                question: "New Question?",
-                type: "multiple",
-                options: ["A", "B", "C", "D"],
-                correctAnswer: "A",
+                question: 'New Question?',
+                type: 'multiple',
+                options: ['A', 'B', 'C', 'D'],
+                correctAnswer: 'A',
                 timer: 30,
-                notes: "",
-                category: ""
+                notes: '',
+                category: '',
             });
             this.selectedQuestionIndex = this.currentQuiz.questions.length - 1;
         },
 
         addRound() {
-            const currentRoundCount = this.currentQuiz.questions.filter(q => q.type === 'round-title').length;
+            const currentRoundCount = this.currentQuiz.questions.filter(
+                (q) => q.type === 'round-title'
+            ).length;
             this.currentQuiz.questions.push({
                 id: 'r-' + Date.now(),
-                type: "round-title",
-                title: "New Round",
+                type: 'round-title',
+                title: 'New Round',
                 roundNumber: currentRoundCount + 1,
-                image: ""
+                image: '',
             });
             this.selectedQuestionIndex = this.currentQuiz.questions.length - 1;
         },
@@ -203,12 +215,12 @@ window.createEditorData = function(firebase, db, auth, storage) {
         async removeQuestion(index) {
             const result = await Swal.fire({
                 title: 'Remove Question?',
-                text: "Are you sure you want to remove this slide?",
+                text: 'Are you sure you want to remove this slide?',
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#f44336',
                 cancelButtonColor: '#78909c',
-                confirmButtonText: 'Yes, remove'
+                confirmButtonText: 'Yes, remove',
             });
 
             if (result.isConfirmed) {
@@ -224,7 +236,7 @@ window.createEditorData = function(firebase, db, auth, storage) {
         async saveQuiz(isAutosave = false) {
             if (!this.editingQuizId) return;
             if (!isAutosave) this.loading = true;
-            this.statusMsg = isAutosave ? "Saving..." : "Saving...";
+            this.statusMsg = isAutosave ? 'Saving...' : 'Saving...';
 
             // Before saving, ensure questionNumber and roundNumber are synced based on order
             let qNum = 1;
@@ -243,9 +255,13 @@ window.createEditorData = function(firebase, db, auth, storage) {
                 } else {
                     q.questionNumber = qNum++;
                     // Validation: Must have a correct answer
-                    const hasAnswer = q.correctAnswer !== undefined && q.correctAnswer !== null && 
-                                     (Array.isArray(q.correctAnswer) ? q.correctAnswer.length > 0 : String(q.correctAnswer).trim() !== "");
-                    
+                    const hasAnswer =
+                        q.correctAnswer !== undefined &&
+                        q.correctAnswer !== null &&
+                        (Array.isArray(q.correctAnswer)
+                            ? q.correctAnswer.length > 0
+                            : String(q.correctAnswer).trim() !== '');
+
                     if (!hasAnswer) {
                         validationError = `Question ${q.questionNumber} ("${(q.question || '').substring(0, 30)}...") is missing a correct answer.`;
                     }
@@ -256,7 +272,7 @@ window.createEditorData = function(firebase, db, auth, storage) {
                 if (!isAutosave) {
                     alert(validationError);
                 } else {
-                    this.statusMsg = "⚠️ Missing answers - not saved";
+                    this.statusMsg = '⚠️ Missing answers - not saved';
                 }
                 this.loading = false;
                 return;
@@ -265,16 +281,16 @@ window.createEditorData = function(firebase, db, auth, storage) {
             this.currentQuiz.updatedAt = firebase.database.ServerValue.TIMESTAMP;
             try {
                 await db.ref(`quizzes/${this.editingQuizId}`).set(this.currentQuiz);
-                
+
                 // CRITICAL: Update the local cache so that slide switching doesn't revert to old data
                 // before the Firebase listener catches up.
                 this.quizzes[this.editingQuizId] = JSON.parse(JSON.stringify(this.currentQuiz));
-                
-                this.statusMsg = isAutosave ? "✓ Autosaved" : "✓ Saved successfully!";
-                if (!isAutosave) setTimeout(() => this.statusMsg = '', 3000);
+
+                this.statusMsg = isAutosave ? '✓ Autosaved' : '✓ Saved successfully!';
+                if (!isAutosave) setTimeout(() => (this.statusMsg = ''), 3000);
             } catch (e) {
-                if (!isAutosave) alert("Save failed: " + e.message);
-                this.statusMsg = "❌ Save failed";
+                if (!isAutosave) alert('Save failed: ' + e.message);
+                this.statusMsg = '❌ Save failed';
             } finally {
                 this.loading = false;
             }
@@ -283,12 +299,12 @@ window.createEditorData = function(firebase, db, auth, storage) {
         async deleteQuiz(id) {
             const result = await Swal.fire({
                 title: 'Delete Quiz?',
-                text: "This will permanently remove the quiz from Firebase.",
+                text: 'This will permanently remove the quiz from Firebase.',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#f44336',
                 cancelButtonColor: '#78909c',
-                confirmButtonText: 'Yes, delete it!'
+                confirmButtonText: 'Yes, delete it!',
             });
 
             if (result.isConfirmed) {
@@ -312,74 +328,91 @@ window.createEditorData = function(firebase, db, auth, storage) {
                 onEnd: (evt) => {
                     const oldIndex = evt.oldIndex;
                     const newIndex = evt.newIndex;
-                    
+
                     if (oldIndex === newIndex) return;
 
                     // Reorder data based on the DOM order to ensure consistency
-                    const newOrderIds = Array.from(el.querySelectorAll('.slide-thumb'))
-                                             .map(thumb => thumb.dataset.id);
+                    const newOrderIds = Array.from(el.querySelectorAll('.slide-thumb')).map(
+                        (thumb) => thumb.dataset.id
+                    );
 
                     // Create a map for fast lookup
-                    const questionMap = new Map(this.currentQuiz.questions.map(q => [q.id, q]));
-                    
+                    const questionMap = new Map(this.currentQuiz.questions.map((q) => [q.id, q]));
+
                     // Rebuild the array in the new order
                     // Filter ensures we only keep items that actually exist (handling potential ghost elements)
                     const newQuestions = newOrderIds
-                        .map(id => questionMap.get(id))
-                        .filter(q => q !== undefined);
-                    
+                        .map((id) => questionMap.get(id))
+                        .filter((q) => q !== undefined);
+
                     this.currentQuiz.questions = newQuestions;
                     this.selectedQuestionIndex = newIndex; // Approximate logic, or find index of moved item
-                    
+
                     this.triggerAutosave();
-                }
+                },
             });
         },
 
         async autoGenerateOptions() {
             const q = this.currentQuiz.questions[this.selectedQuestionIndex];
             if (!q.question || q.question.trim().length < 5) {
-                return Swal.fire('Missing Info', 'Please enter a valid question text first.', 'warning');
+                return Swal.fire(
+                    'Missing Info',
+                    'Please enter a valid question text first.',
+                    'warning'
+                );
             }
             if (!q.correctAnswer || q.correctAnswer.trim() === '') {
-                return Swal.fire('Missing Info', 'Please provide (and select) the correct answer first.', 'warning');
+                return Swal.fire(
+                    'Missing Info',
+                    'Please provide (and select) the correct answer first.',
+                    'warning'
+                );
             }
-            
-            this.statusMsg = "✨ Generating...";
+
+            this.statusMsg = '✨ Generating...';
             this.loading = true;
 
             try {
                 // Find empty slots
                 const emptyIndices = q.options
-                    .map((opt, i) => (!opt || opt.trim() === '') ? i : -1)
-                    .filter(i => i !== -1);
-                
-                // If no empty slots, maybe replace non-correct ones? 
+                    .map((opt, i) => (!opt || opt.trim() === '' ? i : -1))
+                    .filter((i) => i !== -1);
+
+                // If no empty slots, maybe replace non-correct ones?
                 // For now, let's just fill empty ones.
                 if (emptyIndices.length === 0) {
-                     this.loading = false;
-                     return Swal.fire('Full', 'All options are already filled. Clear some slots to generate new ones.', 'info');
+                    this.loading = false;
+                    return Swal.fire(
+                        'Full',
+                        'All options are already filled. Clear some slots to generate new ones.',
+                        'info'
+                    );
                 }
 
-                const distractors = await TriviaAI.generateDistractors(q.question, q.correctAnswer, emptyIndices.length);
-                
+                const distractors = await TriviaAI.generateDistractors(
+                    q.question,
+                    q.correctAnswer,
+                    emptyIndices.length
+                );
+
                 if (distractors && distractors.length > 0) {
                     distractors.forEach((d, i) => {
                         if (emptyIndices[i] !== undefined) {
                             q.options[emptyIndices[i]] = d;
                         }
                     });
-                    this.statusMsg = "✨ Done!";
-                    setTimeout(() => this.statusMsg = '', 2000);
+                    this.statusMsg = '✨ Done!';
+                    setTimeout(() => (this.statusMsg = ''), 2000);
                 } else {
-                    this.statusMsg = "";
+                    this.statusMsg = '';
                 }
             } catch (e) {
-                this.statusMsg = "Error";
+                this.statusMsg = 'Error';
                 console.error(e);
             } finally {
                 this.loading = false;
             }
-        }
+        },
     };
 };

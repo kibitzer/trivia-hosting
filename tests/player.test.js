@@ -5,7 +5,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Mock Alpine
 global.Alpine = {
-    data: vi.fn()
+    data: vi.fn(),
 };
 
 // Mock Firebase
@@ -14,23 +14,23 @@ const mockDb = {
         on: vi.fn(),
         update: vi.fn(),
         child: vi.fn(() => ({
-            onDisconnect: vi.fn(() => ({ set: vi.fn() }))
-        }))
-    }))
+            onDisconnect: vi.fn(() => ({ set: vi.fn() })),
+        })),
+    })),
 };
 
 const mockAuth = {
-    onAuthStateChanged: vi.fn()
+    onAuthStateChanged: vi.fn(),
 };
 
 const mockAnalytics = {
-    logEvent: vi.fn()
+    logEvent: vi.fn(),
 };
 
 const mockFirebase = {
     database: vi.fn(() => mockDb),
     auth: vi.fn(() => mockAuth),
-    analytics: vi.fn(() => mockAnalytics)
+    analytics: vi.fn(() => mockAnalytics),
 };
 
 // We need to import the script to get the data function
@@ -47,25 +47,30 @@ describe('Player Logic', () => {
         document.dispatchEvent(new Event('alpine:init'));
 
         // Get the data function registered with Alpine
-        const triviaPlayerCall = Alpine.data.mock.calls.find(call => call[0] === 'triviaPlayer');
-        if (!triviaPlayerCall) throw new Error("triviaPlayer not registered with Alpine");
-        
+        const triviaPlayerCall = Alpine.data.mock.calls.find((call) => call[0] === 'triviaPlayer');
+        if (!triviaPlayerCall) throw new Error('triviaPlayer not registered with Alpine');
+
         const triviaPlayer = triviaPlayerCall[1];
         player = triviaPlayer();
-        
+
         // Mock TriviaFirebase global
         global.TriviaFirebase = {
-            init: () => ({ firebase: mockFirebase, db: mockDb, auth: mockAuth, analytics: mockAnalytics })
+            init: () => ({
+                firebase: mockFirebase,
+                db: mockDb,
+                auth: mockAuth,
+                analytics: mockAnalytics,
+            }),
         };
-        
+
         player.init();
     });
 
     it('should correctly calculate scoreboard sorting', () => {
         player.allPlayers = {
-            'p1': { name: 'Alice', score: 100 },
-            'p2': { name: 'Bob', score: 500 },
-            'p3': { name: 'Charlie', score: 200 }
+            p1: { name: 'Alice', score: 100 },
+            p2: { name: 'Bob', score: 500 },
+            p3: { name: 'Charlie', score: 200 },
         };
         player.playerId = 'p1';
 
@@ -100,14 +105,14 @@ describe('Player Logic', () => {
 
         it('should log analytics event at milestone 3', () => {
             player.streak = 2;
-            player.playerName = "TestPlayer";
+            player.playerName = 'TestPlayer';
             player.gameState.answerRevealed = false;
             player.handleStateChange({ answerRevealed: true });
-            
+
             expect(player.streak).toBe(3);
             expect(mockAnalytics.logEvent).toHaveBeenCalledWith('streak_milestone', {
                 streak_count: 3,
-                player_name: 'TestPlayer'
+                player_name: 'TestPlayer',
             });
         });
 
@@ -115,9 +120,12 @@ describe('Player Logic', () => {
             player.streak = 0;
             player.gameState.answerRevealed = false;
             player.handleStateChange({ answerRevealed: true });
-            
+
             expect(player.streak).toBe(1);
-            expect(mockAnalytics.logEvent).not.toHaveBeenCalledWith('streak_milestone', expect.anything());
+            expect(mockAnalytics.logEvent).not.toHaveBeenCalledWith(
+                'streak_milestone',
+                expect.anything()
+            );
         });
     });
 
@@ -129,7 +137,7 @@ describe('Player Logic', () => {
                 questionText: 'Q1',
                 questionImage: 'img1.jpg',
                 answer: 'Ans1',
-                answerRevealed: true
+                answerRevealed: true,
             });
 
             expect(player.gameState.questionImage).toBe('img1.jpg');
@@ -139,7 +147,7 @@ describe('Player Logic', () => {
             player.handleStateChange({
                 type: 'question',
                 questionText: 'Q2',
-                answerRevealed: false
+                answerRevealed: false,
             });
 
             expect(player.gameState.questionText).toBe('Q2');

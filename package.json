@@ -1,31 +1,39 @@
 {
-  "name": "trivia-hosting",
-  "version": "0.5.6",
-  "description": "A real-time, browser-based trivia hosting application powered by Firebase Realtime Database. This system allows a host to control a trivia game while players join via their own devices to answer questions, earn points, and view the live scoreboard.",
-  "main": "player-alpine.js",
-  "type": "commonjs",
-  "scripts": {
-    "test": "vitest -c config/vitest.config.js --exclude '**/*.spec.js'",
-    "test:e2e": "playwright test -c config/playwright.config.js tests/simulation.spec.js",
-    "version": "node scripts/sync-version.js && git add shared/version.js CHANGELOG.md"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kibitzer/trivia-hosting.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/kibitzer/trivia-hosting/issues"
-  },
-  "homepage": "https://github.com/kibitzer/trivia-hosting#readme",
-  "devDependencies": {
-    "@playwright/test": "^1.58.0",
-    "jsdom": "^27.4.0",
-    "vitest": "^4.0.18"
-  },
-  "dependencies": {
-    "dotenv": "^17.2.3"
-  }
+    "name": "trivia-hosting",
+    "version": "0.5.6",
+    "description": "A real-time, browser-based trivia hosting application powered by Firebase Realtime Database. This system allows a host to control a trivia game while players join via their own devices to answer questions, earn points, and view the live scoreboard.",
+    "main": "player-alpine.js",
+    "type": "commonjs",
+    "scripts": {
+        "test": "vitest -c config/vitest.config.js --exclude '**/*.spec.js'",
+        "test:e2e": "playwright test -c config/playwright.config.js tests/simulation.spec.js",
+        "version": "node scripts/sync-version.js && git add shared/version.js CHANGELOG.md",
+        "lint": "eslint .",
+        "format": "prettier --check .",
+        "format:fix": "prettier --write ."
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/kibitzer/trivia-hosting.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/kibitzer/trivia-hosting/issues"
+    },
+    "homepage": "https://github.com/kibitzer/trivia-hosting#readme",
+    "devDependencies": {
+        "@eslint/js": "^9.39.2",
+        "@playwright/test": "^1.58.0",
+        "eslint": "^9.39.2",
+        "eslint-config-prettier": "^10.1.8",
+        "globals": "^17.3.0",
+        "jsdom": "^27.4.0",
+        "prettier": "^3.8.1",
+        "vitest": "^4.0.18"
+    },
+    "dependencies": {
+        "dotenv": "^17.2.3"
+    }
 }

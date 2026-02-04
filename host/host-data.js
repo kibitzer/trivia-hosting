@@ -1,5 +1,5 @@
 // host/host-data.js
-window.createHostData = function(firebase, db, auth, analytics) {
+window.createHostData = function (firebase, db, auth, analytics) {
     return {
         // --- State ---
         isConnected: false,
@@ -36,10 +36,15 @@ window.createHostData = function(firebase, db, auth, analytics) {
                 .map(([id, data]) => ({ id, ...data, score: data.score || 0 }))
                 .sort((a, b) => b.score - a.score);
         },
-        get playerCount() { return Object.keys(this.players).length; },
-        get onlinePlayerCount() { return Object.values(this.players).filter(p => p.online).length; },
+        get playerCount() {
+            return Object.keys(this.players).length;
+        },
+        get onlinePlayerCount() {
+            return Object.values(this.players).filter((p) => p.online).length;
+        },
         get currentItem() {
-            if (this.currentIndex >= 0 && this.currentIndex < this.quizData.length) return this.quizData[this.currentIndex];
+            if (this.currentIndex >= 0 && this.currentIndex < this.quizData.length)
+                return this.quizData[this.currentIndex];
             return null;
         },
         get progressPercent() {
@@ -51,93 +56,130 @@ window.createHostData = function(firebase, db, auth, analytics) {
             const qNum = this.currentItem.questionNumber;
             const answers = this.currentAnswers[qNum] || {};
             return Object.entries(answers).map(([playerId, data]) => ({
-                playerId, playerName: this.players[playerId]?.name || 'Unknown',
-                answer: data.answer, timestamp: data.timestamp, isCorrect: this.checkCorrectness(data.answer)
+                playerId,
+                playerName: this.players[playerId]?.name || 'Unknown',
+                answer: data.answer,
+                timestamp: data.timestamp,
+                isCorrect: this.checkCorrectness(data.answer),
             }));
         },
 
         // --- Methods ---
         init() {
-            if (auth) auth.onAuthStateChanged(user => { 
-                this.isAuthenticated = !!user; 
-                if (!user) {
-                    this.currentView = 'setup'; 
-                } else {
-                    // Only attach listeners when authenticated
-                    db.ref('players').on('value', snap => { this.players = snap.val() || {}; this.checkAutoReveal(); });
-                    db.ref('answers').on('value', snap => { this.currentAnswers = snap.val() || {}; this.checkAutoReveal(); });
-                    db.ref('quizzes').on('value', snap => { this.availableQuizzes = snap.val() || {}; });
-                    
-                    // Initialize gameState if empty
-                    db.ref('gameState').on('value', snap => {
-                        if (!snap.exists()) {
-                            db.ref('gameState').set({ status: 'waiting' });
-                        }
-                        this.gameState = snap.val() || {};
-                    });
-                }
+            if (auth)
+                auth.onAuthStateChanged((user) => {
+                    this.isAuthenticated = !!user;
+                    if (!user) {
+                        this.currentView = 'setup';
+                    } else {
+                        // Only attach listeners when authenticated
+                        db.ref('players').on('value', (snap) => {
+                            this.players = snap.val() || {};
+                            this.checkAutoReveal();
+                        });
+                        db.ref('answers').on('value', (snap) => {
+                            this.currentAnswers = snap.val() || {};
+                            this.checkAutoReveal();
+                        });
+                        db.ref('quizzes').on('value', (snap) => {
+                            this.availableQuizzes = snap.val() || {};
+                        });
+
+                        // Initialize gameState if empty
+                        db.ref('gameState').on('value', (snap) => {
+                            if (!snap.exists()) {
+                                db.ref('gameState').set({ status: 'waiting' });
+                            }
+                            this.gameState = snap.val() || {};
+                        });
+                    }
+                });
+            db.ref('.info/connected').on('value', (snap) => {
+                this.isConnected = snap.val() === true;
             });
-            db.ref('.info/connected').on('value', snap => { this.isConnected = snap.val() === true; });
         },
         async login() {
-            if (!auth) { this.loginError = "Auth not configured"; return; }
+            if (!auth) {
+                this.loginError = 'Auth not configured';
+                return;
+            }
             this.loginError = '';
-            try { await auth.signInWithEmailAndPassword(this.email, this.password); this.password = ''; }
-            catch (e) { this.loginError = e.message; }
-        },
-        logout() { if (auth) auth.signOut(); },
-        async loadQuiz() {
-            this.loading = true; this.errorMsg = ''; this.successMsg = '';
             try {
-                if (!this.selectedQuizId) throw new Error("Please select a quiz");
+                await auth.signInWithEmailAndPassword(this.email, this.password);
+                this.password = '';
+            } catch (e) {
+                this.loginError = e.message;
+            }
+        },
+        logout() {
+            if (auth) auth.signOut();
+        },
+        async loadQuiz() {
+            this.loading = true;
+            this.errorMsg = '';
+            this.successMsg = '';
+            try {
+                if (!this.selectedQuizId) throw new Error('Please select a quiz');
                 const data = this.availableQuizzes[this.selectedQuizId];
-                if (!data) throw new Error("Quiz data not found");
-                
+                if (!data) throw new Error('Quiz data not found');
+
                 this.quizData = QuizParser.toFlatSlides(data);
                 this.successMsg = `✓ Loaded ${this.quizData.length} items`;
-            } catch (e) { this.errorMsg = `Error: ${e.message}`; }
-            finally { this.loading = false; }
+            } catch (e) {
+                this.errorMsg = `Error: ${e.message}`;
+            } finally {
+                this.loading = false;
+            }
         },
-        startGame() { 
-            this.currentView = 'game'; 
-            this.currentIndex = 0; 
-            this.syncGameState(); 
-            
+        startGame() {
+            this.currentView = 'game';
+            this.currentIndex = 0;
+            this.syncGameState();
+
             if (analytics) {
                 analytics.logEvent('game_start', {
-                    quiz_title: this.quizData.find(i => i.type === 'round-title')?.title || 'Unknown Quiz',
+                    quiz_title:
+                        this.quizData.find((i) => i.type === 'round-title')?.title ||
+                        'Unknown Quiz',
                     item_count: this.quizData.length,
-                    player_count: this.playerCount
+                    player_count: this.playerCount,
                 });
             }
         },
         async resetGame() {
             const result = await Swal.fire({
                 title: 'Reset Quiz?',
-                text: "This will stop the game and clear all scores.",
+                text: 'This will stop the game and clear all scores.',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#f44336',
                 cancelButtonColor: '#78909c',
-                confirmButtonText: 'Yes, reset everything'
+                confirmButtonText: 'Yes, reset everything',
             });
             if (!result.isConfirmed) return;
 
-            this.stopAllTimers(); this.currentIndex = -1; this.currentView = 'setup';
-            db.ref('gameState').set({ status: 'waiting' }); db.ref('answers').remove();
-            Object.keys(this.players).forEach(p => db.ref(`players/${p}/score`).set(0));
+            this.stopAllTimers();
+            this.currentIndex = -1;
+            this.currentView = 'setup';
+            db.ref('gameState').set({ status: 'waiting' });
+            db.ref('answers').remove();
+            Object.keys(this.players).forEach((p) => db.ref(`players/${p}/score`).set(0));
         },
         nextItem() {
             if (this.currentIndex >= this.quizData.length - 1) {
                 if (analytics) {
                     analytics.logEvent('game_complete', {
-                        quiz_title: this.quizData.find(i => i.type === 'round-title')?.title || 'Unknown Quiz',
-                        player_count: this.playerCount
+                        quiz_title:
+                            this.quizData.find((i) => i.type === 'round-title')?.title ||
+                            'Unknown Quiz',
+                        player_count: this.playerCount,
                     });
                 }
                 return;
             }
-            this.currentIndex++; this.answerRevealed = false; this.stopAllTimers();
+            this.currentIndex++;
+            this.answerRevealed = false;
+            this.stopAllTimers();
             this.timerValue = this.currentItem.timer || this.defaultTimer;
             if (this.currentItem.type === 'question') {
                 this.startCountdown();
@@ -147,30 +189,68 @@ window.createHostData = function(firebase, db, auth, analytics) {
             // Sync game state after updating index and resetting timers
             this.syncGameState();
         },
-        prevItem() { if (this.currentIndex > 0) { this.currentIndex--; this.answerRevealed = false; this.syncGameState(); } },
+        prevItem() {
+            if (this.currentIndex > 0) {
+                this.currentIndex--;
+                this.answerRevealed = false;
+                this.syncGameState();
+            }
+        },
         startCountdown() {
-            this.stopAllTimers(); let c = 3; this.timerStatus = 'countdown';
+            this.stopAllTimers();
+            let c = 3;
+            this.timerStatus = 'countdown';
             this.countdownInterval = setInterval(() => {
-                this.timerValue = c--; db.ref('gameState').update({ timerValue: this.timerValue, timerStatus: 'countdown' });
-                if (c < 0) { clearInterval(this.countdownInterval); this.startMainTimer(); }
+                this.timerValue = c--;
+                db.ref('gameState').update({
+                    timerValue: this.timerValue,
+                    timerStatus: 'countdown',
+                });
+                if (c < 0) {
+                    clearInterval(this.countdownInterval);
+                    this.startMainTimer();
+                }
             }, 1000);
         },
         startMainTimer() {
-            this.stopAllTimers(); this.timerStatus = 'running'; this.timerValue = this.currentItem.timer || this.defaultTimer;
+            this.stopAllTimers();
+            this.timerStatus = 'running';
+            this.timerValue = this.currentItem.timer || this.defaultTimer;
             this.timerInterval = setInterval(() => {
-                this.timerValue--; db.ref('gameState').update({ timerValue: this.timerValue, timerStatus: 'running' });
-                if (this.timerValue <= 0) { this.stopAllTimers(); this.timerStatus = 'ended'; }
+                this.timerValue--;
+                db.ref('gameState').update({ timerValue: this.timerValue, timerStatus: 'running' });
+                if (this.timerValue <= 0) {
+                    this.stopAllTimers();
+                    this.timerStatus = 'ended';
+                }
             }, 1000);
         },
-        stopAllTimers() { 
-            if (this.timerInterval) { clearInterval(this.timerInterval); this.timerInterval = null; }
-            if (this.countdownInterval) { clearInterval(this.countdownInterval); this.countdownInterval = null; }
-            if (this.autoRevealTimeout) { clearTimeout(this.autoRevealTimeout); this.autoRevealTimeout = null; }
+        stopAllTimers() {
+            if (this.timerInterval) {
+                clearInterval(this.timerInterval);
+                this.timerInterval = null;
+            }
+            if (this.countdownInterval) {
+                clearInterval(this.countdownInterval);
+                this.countdownInterval = null;
+            }
+            if (this.autoRevealTimeout) {
+                clearTimeout(this.autoRevealTimeout);
+                this.autoRevealTimeout = null;
+            }
         },
         checkAutoReveal() {
-            if (!this.autoReveal || this.answerRevealed || !this.currentItem || this.currentItem.type !== 'question') return;
-            const online = Object.values(this.players).filter(p => p.online).length;
-            const ansCount = Object.keys(this.currentAnswers[this.currentItem.questionNumber] || {}).length;
+            if (
+                !this.autoReveal ||
+                this.answerRevealed ||
+                !this.currentItem ||
+                this.currentItem.type !== 'question'
+            )
+                return;
+            const online = Object.values(this.players).filter((p) => p.online).length;
+            const ansCount = Object.keys(
+                this.currentAnswers[this.currentItem.questionNumber] || {}
+            ).length;
             if (online > 0 && ansCount >= online && !this.autoRevealTimeout) {
                 this.autoRevealTimeout = setTimeout(() => {
                     this.autoRevealTimeout = null; // Clear before calling reveal
@@ -180,10 +260,10 @@ window.createHostData = function(firebase, db, auth, analytics) {
             }
         },
         revealAnswer() {
-            this.stopAllTimers(); 
-            this.answerRevealed = true; 
+            this.stopAllTimers();
+            this.answerRevealed = true;
             this.timerStatus = 'revealed';
-            
+
             const answers = this.currentAnswers[this.currentItem.questionNumber] || {};
             const questionStartTime = this.gameState.timestamp; // When the question was synced to Firebase
             const totalTimeLimit = (this.currentItem.timer || this.defaultTimer) * 1000; // ms
@@ -198,14 +278,21 @@ window.createHostData = function(firebase, db, auth, analytics) {
                     correctCount++;
                     let totalPoints = 1000; // Default flat score
 
-                    if (this.speedScoringEnabled && typeof questionStartTime === 'number' && typeof data.timestamp === 'number') {
+                    if (
+                        this.speedScoringEnabled &&
+                        typeof questionStartTime === 'number' &&
+                        typeof data.timestamp === 'number'
+                    ) {
                         // Calculate Bonus: Faster answers get more points
                         // Points = 500 (base) + (percentage of time remaining * 500)
                         const timeTaken = data.timestamp - questionStartTime;
-                        const timeLeftRatio = Math.max(0, (totalTimeLimit - timeTaken) / totalTimeLimit);
+                        const timeLeftRatio = Math.max(
+                            0,
+                            (totalTimeLimit - timeTaken) / totalTimeLimit
+                        );
                         const speedBonus = Math.floor(timeLeftRatio * 500);
                         totalPoints = 500 + speedBonus;
-                        
+
                         totalResponseTime += timeTaken;
                         responseCount++;
                     }
@@ -213,8 +300,11 @@ window.createHostData = function(firebase, db, auth, analytics) {
                     const currentScore = this.players[pid]?.score || 0;
                     db.ref(`players/${pid}/score`).set(currentScore + totalPoints);
                 } else {
-                    if (typeof questionStartTime === 'number' && typeof data.timestamp === 'number') {
-                        totalResponseTime += (data.timestamp - questionStartTime);
+                    if (
+                        typeof questionStartTime === 'number' &&
+                        typeof data.timestamp === 'number'
+                    ) {
+                        totalResponseTime += data.timestamp - questionStartTime;
                         responseCount++;
                     }
                 }
@@ -226,7 +316,8 @@ window.createHostData = function(firebase, db, auth, analytics) {
                     question_text: this.currentItem.text.substring(0, 100),
                     correct_count: correctCount,
                     total_answers: Object.keys(answers).length,
-                    avg_response_time_ms: responseCount > 0 ? Math.floor(totalResponseTime / responseCount) : 0
+                    avg_response_time_ms:
+                        responseCount > 0 ? Math.floor(totalResponseTime / responseCount) : 0,
                 });
             }
 
@@ -237,59 +328,67 @@ window.createHostData = function(firebase, db, auth, analytics) {
             const correct = this.currentItem.answer;
             if (this.currentItem.questionType === 'MC') return ans === correct;
             const a = (ans || '').toLowerCase().trim();
-            return (this.currentItem.acceptedAnswers || []).includes(a) || a === (correct || '').toLowerCase().trim();
+            return (
+                (this.currentItem.acceptedAnswers || []).includes(a) ||
+                a === (correct || '').toLowerCase().trim()
+            );
         },
         syncGameState() {
-            const base = { 
-                currentIndex: this.currentIndex, 
-                status: 'active', 
-                answerRevealed: !!this.answerRevealed, 
-                timerValue: this.timerValue, 
+            const base = {
+                currentIndex: this.currentIndex,
+                status: 'active',
+                answerRevealed: !!this.answerRevealed,
+                timerValue: this.timerValue,
                 timerStatus: this.timerStatus,
                 theme: this.theme,
-                timestamp: firebase.database.ServerValue.TIMESTAMP 
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
             };
             // Apply theme to host body too
             document.body.className = this.theme === 'classic' ? '' : 'theme-' + this.theme;
-            
-            if (this.currentItem.type === 'round-title') Object.assign(base, { 
-                type: 'round-title', 
-                roundNumber: this.currentItem.roundNumber, 
-                roundTitle: this.currentItem.title,
-                image: this.currentItem.image || null
-            });
-            else Object.assign(base, { 
-                type: 'question', 
-                questionNumber: this.currentItem.questionNumber, 
-                questionType: this.currentItem.questionType, 
-                questionText: this.currentItem.text, 
-                questionImage: this.currentItem.image || null, 
-                options: this.currentItem.options || null, 
-                answer: this.answerRevealed ? this.currentItem.answer : null 
-            });
+
+            if (this.currentItem.type === 'round-title')
+                Object.assign(base, {
+                    type: 'round-title',
+                    roundNumber: this.currentItem.roundNumber,
+                    roundTitle: this.currentItem.title,
+                    image: this.currentItem.image || null,
+                });
+            else
+                Object.assign(base, {
+                    type: 'question',
+                    questionNumber: this.currentItem.questionNumber,
+                    questionType: this.currentItem.questionType,
+                    questionText: this.currentItem.text,
+                    questionImage: this.currentItem.image || null,
+                    options: this.currentItem.options || null,
+                    answer: this.answerRevealed ? this.currentItem.answer : null,
+                });
             db.ref('gameState').set(base);
         },
-        async removePlayer(pid) { 
+        async removePlayer(pid) {
             const result = await Swal.fire({
                 title: 'Kick Player?',
                 text: `Are you sure you want to remove ${this.players[pid]?.name}?`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#f44336',
-                confirmButtonText: 'Yes, kick them'
+                confirmButtonText: 'Yes, kick them',
             });
-            if (result.isConfirmed) db.ref(`players/${pid}`).remove(); 
+            if (result.isConfirmed) db.ref(`players/${pid}`).remove();
         },
-        async clearPlayers() { 
+        async clearPlayers() {
             const result = await Swal.fire({
                 title: 'Kick All Players?',
-                text: "This will remove every player and clear all answers.",
+                text: 'This will remove every player and clear all answers.',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#f44336',
-                confirmButtonText: 'Yes, clear all'
+                confirmButtonText: 'Yes, clear all',
             });
-            if (result.isConfirmed) { db.ref('players').remove(); db.ref('answers').remove(); } 
+            if (result.isConfirmed) {
+                db.ref('players').remove();
+                db.ref('answers').remove();
+            }
         },
         openSettings() {
             this.previousView = this.currentView;
@@ -298,6 +397,6 @@ window.createHostData = function(firebase, db, auth, analytics) {
         closeSettings() {
             this.currentView = this.previousView || 'setup';
             this.previousView = null;
-        }
+        },
     };
 };

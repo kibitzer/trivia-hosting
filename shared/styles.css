@@ -19,7 +19,9 @@
     --text-color: #0ff;
     --accent-color: #f0f;
 }
-.theme-neon .card, .theme-neon .main-panel, .theme-neon .sidebar > div {
+.theme-neon .card,
+.theme-neon .main-panel,
+.theme-neon .sidebar > div {
     border: 1px solid #f0f;
     box-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
 }
@@ -55,13 +57,16 @@ body {
     background: var(--bg-gradient);
     color: var(--text-color);
     min-height: 100vh;
-    transition: background 0.5s ease, color 0.5s ease;
+    transition:
+        background 0.5s ease,
+        color 0.5s ease;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
     color: var(--primary-color);
 }
-
 
 /* Common Utility Classes */
 .hidden {
@@ -98,6 +103,7 @@ button {
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
-

@@ -6,7 +6,7 @@ import '../host/editor-data.js';
 
 // Mock Swal
 global.Swal = {
-    fire: vi.fn(() => Promise.resolve({ isConfirmed: true }))
+    fire: vi.fn(() => Promise.resolve({ isConfirmed: true })),
 };
 
 const mockDb = {
@@ -15,22 +15,22 @@ const mockDb = {
         set: vi.fn(),
         push: vi.fn(() => ({
             key: 'new-quiz-id',
-            set: vi.fn()
+            set: vi.fn(),
         })),
-        remove: vi.fn()
-    }))
+        remove: vi.fn(),
+    })),
 };
 
 const mockFirebase = {
     database: {
         ServerValue: {
-            TIMESTAMP: 123456789
-        }
-    }
+            TIMESTAMP: 123456789,
+        },
+    },
 };
 
 const mockAuth = {
-    onAuthStateChanged: vi.fn()
+    onAuthStateChanged: vi.fn(),
 };
 
 describe('Editor Logic', () => {
@@ -40,14 +40,14 @@ describe('Editor Logic', () => {
         editor = window.createEditorData(mockFirebase, mockDb, mockAuth);
         // Pre-fill with a sample quiz for many tests
         editor.quizzes = {
-            'q1': {
+            q1: {
                 title: 'Test Quiz',
                 questions: [
                     { type: 'round-title', title: 'Round 1', roundNumber: 1 },
                     { type: 'multiple', question: 'Q1', options: ['A', 'B'], correctAnswer: 'A' },
-                    { type: 'short', question: 'Q2', correctAnswer: 'A2' }
-                ]
-            }
+                    { type: 'short', question: 'Q2', correctAnswer: 'A2' },
+                ],
+            },
         };
     });
 
@@ -68,7 +68,7 @@ describe('Editor Logic', () => {
             expect(editor.getRoundNumber(0)).toBe(1); // First round title
             expect(editor.getRoundNumber(1)).toBe(1); // Still in first round
             expect(editor.getRoundNumber(2)).toBe(1); // Still in first round
-            
+
             // Add another round
             editor.addRound();
             expect(editor.getRoundNumber(3)).toBe(2); // Second round title
@@ -117,12 +117,12 @@ describe('Editor Logic', () => {
             // Mess up the numbers manually
             editor.currentQuiz.questions[0].roundNumber = 99;
             editor.currentQuiz.questions[1].questionNumber = 99;
-            
+
             // Add a round in the middle
             editor.currentQuiz.questions.splice(1, 0, { type: 'round-title', title: 'Round 2' });
-            
+
             await editor.saveQuiz();
-            
+
             const qs = editor.currentQuiz.questions;
             expect(qs[0].roundNumber).toBe(1);
             expect(qs[1].roundNumber).toBe(2);
@@ -135,9 +135,9 @@ describe('Editor Logic', () => {
             // Add some "garbage" fields that shouldn't be on a round-title
             editor.currentQuiz.questions[0].options = ['should be deleted'];
             editor.currentQuiz.questions[0].correctAnswer = 'should be deleted';
-            
+
             await editor.saveQuiz();
-            
+
             const roundTitle = editor.currentQuiz.questions[0];
             expect(roundTitle.options).toBeUndefined();
             expect(roundTitle.correctAnswer).toBeUndefined();
@@ -148,23 +148,25 @@ describe('Editor Logic', () => {
             editor.editQuiz('q1');
             // Remove correct answer from a question
             editor.currentQuiz.questions[1].correctAnswer = '';
-            
+
             const alertSpy = vi.spyOn(global, 'alert').mockImplementation(() => {});
-            
+
             await editor.saveQuiz();
-            
-            expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('missing a correct answer'));
+
+            expect(alertSpy).toHaveBeenCalledWith(
+                expect.stringContaining('missing a correct answer')
+            );
             expect(mockDb.ref().set).not.toHaveBeenCalled();
-            
+
             alertSpy.mockRestore();
         });
 
         it('should update local quizzes cache after successful save', async () => {
             editor.editQuiz('q1');
             editor.currentQuiz.title = 'Updated Title';
-            
+
             await editor.saveQuiz();
-            
+
             expect(editor.quizzes['q1'].title).toBe('Updated Title');
         });
     });
@@ -173,7 +175,7 @@ describe('Editor Logic', () => {
         it('should load settings from localStorage on init', () => {
             const settings = { autosaveDelay: 5000, showQuestionNumbers: false };
             localStorage.setItem('triviaEditorSettings', JSON.stringify(settings));
-            
+
             editor.init();
             expect(editor.settings.autosaveDelay).toBe(5000);
             expect(editor.settings.showQuestionNumbers).toBe(false);
@@ -182,7 +184,7 @@ describe('Editor Logic', () => {
         it('should save settings to localStorage', () => {
             editor.settings.autosaveDelay = 1000;
             editor.saveSettings();
-            
+
             const saved = JSON.parse(localStorage.getItem('triviaEditorSettings'));
             expect(saved.autosaveDelay).toBe(1000);
         });

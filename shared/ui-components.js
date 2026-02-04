@@ -53,7 +53,5 @@ window.TriviaUI = {
                      border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
             </div>
         `;
-    }
+    },
 };
-
-

@@ -1,227 +1,490 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trivia Night - Play!</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1565c0">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3407/3407024.png">
-    
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
-    
-    <!-- Alpine.js -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Trivia Night - Play!</title>
 
-    <link rel="stylesheet" href="shared/styles.css?v=1.3">
-    <style>
-        .container { max-width: 600px; margin: 0 auto; }
-        .card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 40px rgba(66, 165, 245, 0.2); margin-bottom: 15px; }
-        
-        /* Join */
-        .join-section { text-align: center; padding: 40px 20px; }
-        .join-section input { width: 100%; padding: 15px; font-size: 1.1rem; border: 2px solid #90caf9; border-radius: 10px; margin-bottom: 15px; }
-        .join-section button { width: 100%; padding: 18px; font-size: 1.2rem; background: #1565c0; color: white; border-radius: 12px; font-weight: bold; }
-        
-        /* Header */
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .player-badge { background: linear-gradient(135deg, #1565c0, #42a5f5); color: white; padding: 12px 20px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; }
-        
-        /* Waiting */
-        .waiting-screen { text-align: center; padding: 50px 20px; color: #546e7a; }
-        .spinner { font-size: 3rem; animation: bounce 1s infinite; display: inline-block; margin-bottom: 20px; }
-        
-        /* Round */
-        .round-display { 
-            background: linear-gradient(135deg, #1565c0 0%, #42a5f5 100%); 
-            border-radius: 15px; padding: 50px 30px; text-align: center; color: white;
-            position: relative; overflow: hidden;
-            z-index: 0;
-        }
-        .round-display-bg {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-size: cover; background-position: center;
-            background-repeat: no-repeat;
-            opacity: 0.2; z-index: 1;
-        }
-        .round-display-content { position: relative; z-index: 2; }
-        .round-number { font-weight: bold; color: rgba(255, 255, 255, 0.9); font-size: 1.1rem; margin-bottom: 5px; }
-        .round-display h2 { font-size: 2rem; color: white; margin-top: 10px; }
-        
-        /* Question */
-        .question-display { text-align: center; }
-        .question-number { background: #1565c0; color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
-        .timer-display { font-size: 3rem; font-weight: bold; color: #1565c0; margin: 15px 0; }
-        .timer-display.countdown { color: #ff9800; }
-        .timer-display.danger { color: #d32f2f; animation: pulse 0.5s infinite; }
-        
-        .question-text { font-size: 1.4rem; color: #1565c0; margin-bottom: 20px; line-height: 1.4; }
-        .question-image { width: 100%; max-height: 250px; object-fit: contain; border-radius: 12px; margin-bottom: 20px; background: #f5f5f5; }
-        
-        /* Options */
-        .options-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-        .option-btn { background: #e3f2fd; padding: 15px 20px; border-radius: 12px; font-size: 1.1rem; color: #1565c0; text-align: left; border: 2px solid transparent; width: 100%; }
-        .option-btn.selected { background: #1565c0; color: white; }
-        .option-btn.correct { background: #4caf50; color: white; border-color: #2e7d32; }
-        .option-btn.incorrect { background: #f44336; color: white; border-color: #c62828; }
-        
-        /* Short Answer */
-        .answer-input-group { display: flex; gap: 10px; margin-bottom: 15px; }
-        .answer-input-group input { flex: 1; padding: 15px; border-radius: 10px; border: 2px solid #90caf9; font-size: 1.1rem; }
-        .answer-input-group button { padding: 0 25px; background: #1565c0; color: white; border-radius: 10px; font-weight: bold; }
-        
-        /* Feedback */
-        .submitted-message { background: #e3f2fd; border-radius: 12px; padding: 20px; text-align: center; color: #1565c0; margin-top: 15px; }
-        .answer-reveal { background: #e8f5e9; border: 3px solid #4caf50; border-radius: 15px; padding: 20px; text-align: center; margin-top: 15px; }
-        .answer-reveal h3 { color: #2e7d32; margin-bottom: 8px; }
-        .answer-reveal .answer-text { font-size: 1.5rem; color: #1b5e20; font-weight: bold; }
+        <link rel="manifest" href="manifest.json" />
+        <meta name="theme-color" content="#1565c0" />
+        <link
+            rel="apple-touch-icon"
+            href="https://cdn-icons-png.flaticon.com/512/3407/3407024.png"
+        />
 
-        /* Scoreboard */
-        .score-list { max-height: 250px; overflow-y: auto; }
-        .score-row { display: flex; justify-content: space-between; padding: 10px 15px; margin-bottom: 8px; background: #f5f9ff; border-radius: 10px; border-left: 4px solid #1565c0; }
-        .score-row.leader { background: #fff8e1; border-left-color: #ffc107; }
-        .score-row.me { background: #e8f5e9; border-left-color: #4caf50; }
-        .score-row .name { font-weight: bold; color: #1565c0; }
-        .score-row .score { font-weight: bold; color: #2e7d32; }
+        <!-- Firebase -->
+        <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
 
-        /* Feedback Flash Overlay */
-        .feedback-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1000;
-            pointer-events: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        .feedback-overlay.active { opacity: 1; }
-        .feedback-overlay.correct { background: rgba(76, 175, 80, 0.9); }
-        .feedback-overlay.incorrect { background: rgba(244, 67, 54, 0.9); }
-        .feedback-content { color: white; text-align: center; transform: scale(0.5); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .feedback-overlay.active .feedback-content { transform: scale(1); }
-        .feedback-content h1 { color: white; font-size: 4rem; text-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        <!-- Alpine.js -->
+        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-        /* Streak Badge */
-        .streak-badge {
-            background: linear-gradient(135deg, #ff9800, #f44336);
-            color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            margin-left: 10px;
-            box-shadow: 0 4px 10px rgba(244, 67, 54, 0.4);
-            animation: glow 1.5s infinite alternate;
-        }
+        <link rel="stylesheet" href="shared/styles.css?v=1.3" />
+        <style>
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+            }
+            .card {
+                background: white;
+                border-radius: 20px;
+                padding: 25px;
+                box-shadow: 0 10px 40px rgba(66, 165, 245, 0.2);
+                margin-bottom: 15px;
+            }
 
-        @keyframes glow { 
-            from { box-shadow: 0 0 5px #ff9800; }
-            to { box-shadow: 0 0 20px #f44336; }
-        }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-    </style>
-</head>
-<body x-data="triviaPlayer">
-    <!-- Connectivity Overlay -->
-    <div x-html="TriviaUI.connectivityOverlay()"></div>
+            /* Join */
+            .join-section {
+                text-align: center;
+                padding: 40px 20px;
+            }
+            .join-section input {
+                width: 100%;
+                padding: 15px;
+                font-size: 1.1rem;
+                border: 2px solid #90caf9;
+                border-radius: 10px;
+                margin-bottom: 15px;
+            }
+            .join-section button {
+                width: 100%;
+                padding: 18px;
+                font-size: 1.2rem;
+                background: #1565c0;
+                color: white;
+                border-radius: 12px;
+                font-weight: bold;
+            }
 
-    <!-- Feedback Flash -->
-    <div class="feedback-overlay" :class="{'active': showFeedback, 'correct': isCorrect, 'incorrect': !isCorrect}" x-show="showFeedback" x-cloak>
-        <div class="feedback-content">
-            <h1 x-text="isCorrect ? '✅ CORRECT!' : '❌ WRONG'"></h1>
-            <div style="font-size: 5rem;" x-text="isCorrect ? '🎉' : '😢'"></div>
-            <template x-if="isCorrect && streak >= 3">
-                <div style="font-size: 2rem; font-weight: bold; margin-top: 10px;">
-                    🔥 <span x-text="streak"></span> STREAK!
-                </div>
-            </template>
-        </div>
-    </div>
+            /* Header */
+            .header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+            }
+            .player-badge {
+                background: linear-gradient(135deg, #1565c0, #42a5f5);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 15px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
 
-    <div class="container">
-        
-        <!-- Join Section -->
-        <div class="card" x-show="screen === 'join'">
-            <div class="join-section">
-                <div style="font-size: 4rem; margin-bottom: 20px;">🎯</div>
-                <h1>Trivia Night</h1>
-                <p style="color: #546e7a; margin-bottom: 30px;">Enter your name to join!</p>
-                
-                <div x-show="errorMsg" style="color: red; background: #ffebee; padding: 10px; border-radius: 8px; margin-bottom: 20px;" x-text="errorMsg"></div>
+            /* Waiting */
+            .waiting-screen {
+                text-align: center;
+                padding: 50px 20px;
+                color: #546e7a;
+            }
+            .spinner {
+                font-size: 3rem;
+                animation: bounce 1s infinite;
+                display: inline-block;
+                margin-bottom: 20px;
+            }
 
-                <input type="text" x-model="playerName" placeholder="Enter your name..." maxlength="20" @keyup.enter="joinGame()" :disabled="!!errorMsg">
-                <button @click="joinGame()" :disabled="!!errorMsg">Join Game 🎉</button>
+            /* Round */
+            .round-display {
+                background: linear-gradient(135deg, #1565c0 0%, #42a5f5 100%);
+                border-radius: 15px;
+                padding: 50px 30px;
+                text-align: center;
+                color: white;
+                position: relative;
+                overflow: hidden;
+                z-index: 0;
+            }
+            .round-display-bg {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                opacity: 0.2;
+                z-index: 1;
+            }
+            .round-display-content {
+                position: relative;
+                z-index: 2;
+            }
+            .round-number {
+                font-weight: bold;
+                color: rgba(255, 255, 255, 0.9);
+                font-size: 1.1rem;
+                margin-bottom: 5px;
+            }
+            .round-display h2 {
+                font-size: 2rem;
+                color: white;
+                margin-top: 10px;
+            }
+
+            /* Question */
+            .question-display {
+                text-align: center;
+            }
+            .question-number {
+                background: #1565c0;
+                color: white;
+                padding: 5px 15px;
+                border-radius: 20px;
+                font-weight: bold;
+                display: inline-block;
+                margin-bottom: 15px;
+            }
+            .timer-display {
+                font-size: 3rem;
+                font-weight: bold;
+                color: #1565c0;
+                margin: 15px 0;
+            }
+            .timer-display.countdown {
+                color: #ff9800;
+            }
+            .timer-display.danger {
+                color: #d32f2f;
+                animation: pulse 0.5s infinite;
+            }
+
+            .question-text {
+                font-size: 1.4rem;
+                color: #1565c0;
+                margin-bottom: 20px;
+                line-height: 1.4;
+            }
+            .question-image {
+                width: 100%;
+                max-height: 250px;
+                object-fit: contain;
+                border-radius: 12px;
+                margin-bottom: 20px;
+                background: #f5f5f5;
+            }
+
+            /* Options */
+            .options-list {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+            .option-btn {
+                background: #e3f2fd;
+                padding: 15px 20px;
+                border-radius: 12px;
+                font-size: 1.1rem;
+                color: #1565c0;
+                text-align: left;
+                border: 2px solid transparent;
+                width: 100%;
+            }
+            .option-btn.selected {
+                background: #1565c0;
+                color: white;
+            }
+            .option-btn.correct {
+                background: #4caf50;
+                color: white;
+                border-color: #2e7d32;
+            }
+            .option-btn.incorrect {
+                background: #f44336;
+                color: white;
+                border-color: #c62828;
+            }
+
+            /* Short Answer */
+            .answer-input-group {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+            .answer-input-group input {
+                flex: 1;
+                padding: 15px;
+                border-radius: 10px;
+                border: 2px solid #90caf9;
+                font-size: 1.1rem;
+            }
+            .answer-input-group button {
+                padding: 0 25px;
+                background: #1565c0;
+                color: white;
+                border-radius: 10px;
+                font-weight: bold;
+            }
+
+            /* Feedback */
+            .submitted-message {
+                background: #e3f2fd;
+                border-radius: 12px;
+                padding: 20px;
+                text-align: center;
+                color: #1565c0;
+                margin-top: 15px;
+            }
+            .answer-reveal {
+                background: #e8f5e9;
+                border: 3px solid #4caf50;
+                border-radius: 15px;
+                padding: 20px;
+                text-align: center;
+                margin-top: 15px;
+            }
+            .answer-reveal h3 {
+                color: #2e7d32;
+                margin-bottom: 8px;
+            }
+            .answer-reveal .answer-text {
+                font-size: 1.5rem;
+                color: #1b5e20;
+                font-weight: bold;
+            }
+
+            /* Scoreboard */
+            .score-list {
+                max-height: 250px;
+                overflow-y: auto;
+            }
+            .score-row {
+                display: flex;
+                justify-content: space-between;
+                padding: 10px 15px;
+                margin-bottom: 8px;
+                background: #f5f9ff;
+                border-radius: 10px;
+                border-left: 4px solid #1565c0;
+            }
+            .score-row.leader {
+                background: #fff8e1;
+                border-left-color: #ffc107;
+            }
+            .score-row.me {
+                background: #e8f5e9;
+                border-left-color: #4caf50;
+            }
+            .score-row .name {
+                font-weight: bold;
+                color: #1565c0;
+            }
+            .score-row .score {
+                font-weight: bold;
+                color: #2e7d32;
+            }
+
+            /* Feedback Flash Overlay */
+            .feedback-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 1000;
+                pointer-events: none;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+            .feedback-overlay.active {
+                opacity: 1;
+            }
+            .feedback-overlay.correct {
+                background: rgba(76, 175, 80, 0.9);
+            }
+            .feedback-overlay.incorrect {
+                background: rgba(244, 67, 54, 0.9);
+            }
+            .feedback-content {
+                color: white;
+                text-align: center;
+                transform: scale(0.5);
+                transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+            .feedback-overlay.active .feedback-content {
+                transform: scale(1);
+            }
+            .feedback-content h1 {
+                color: white;
+                font-size: 4rem;
+                text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            }
+
+            /* Streak Badge */
+            .streak-badge {
+                background: linear-gradient(135deg, #ff9800, #f44336);
+                color: white;
+                padding: 5px 12px;
+                border-radius: 20px;
+                font-size: 0.9rem;
+                font-weight: bold;
+                margin-left: 10px;
+                box-shadow: 0 4px 10px rgba(244, 67, 54, 0.4);
+                animation: glow 1.5s infinite alternate;
+            }
+
+            @keyframes glow {
+                from {
+                    box-shadow: 0 0 5px #ff9800;
+                }
+                to {
+                    box-shadow: 0 0 20px #f44336;
+                }
+            }
+            @keyframes bounce {
+                0%,
+                100% {
+                    transform: translateY(0);
+                }
+                50% {
+                    transform: translateY(-10px);
+                }
+            }
+            @keyframes pulse {
+                0%,
+                100% {
+                    transform: scale(1);
+                }
+                50% {
+                    transform: scale(1.1);
+                }
+            }
+        </style>
+    </head>
+    <body x-data="triviaPlayer">
+        <!-- Connectivity Overlay -->
+        <div x-html="TriviaUI.connectivityOverlay()"></div>
+
+        <!-- Feedback Flash -->
+        <div
+            class="feedback-overlay"
+            :class="{'active': showFeedback, 'correct': isCorrect, 'incorrect': !isCorrect}"
+            x-show="showFeedback"
+            x-cloak
+        >
+            <div class="feedback-content">
+                <h1 x-text="isCorrect ? '✅ CORRECT!' : '❌ WRONG'"></h1>
+                <div style="font-size: 5rem" x-text="isCorrect ? '🎉' : '😢'"></div>
+                <template x-if="isCorrect && streak >= 3">
+                    <div style="font-size: 2rem; font-weight: bold; margin-top: 10px">
+                        🔥 <span x-text="streak"></span> STREAK!
+                    </div>
+                </template>
             </div>
         </div>
 
-        <!-- Game Section -->
-        <div x-show="screen === 'game'">
-            <div class="card">
-                <div class="header">
-                    <h1>🎯 Trivia Night</h1>
-                    <div x-html="TriviaUI.connectionStatus()"></div>
-                </div>
+        <div class="container">
+            <!-- Join Section -->
+            <div class="card" x-show="screen === 'join'">
+                <div class="join-section">
+                    <div style="font-size: 4rem; margin-bottom: 20px">🎯</div>
+                    <h1>Trivia Night</h1>
+                    <p style="color: #546e7a; margin-bottom: 30px">Enter your name to join!</p>
 
-                <div class="player-badge">
-                    <div style="display: flex; align-items: center;">
-                        <span class="name" x-text="playerName"></span>
-                        <template x-if="streak >= 3">
-                            <span class="streak-badge" x-text="'🔥 ' + streak"></span>
-                        </template>
+                    <div
+                        x-show="errorMsg"
+                        style="
+                            color: red;
+                            background: #ffebee;
+                            padding: 10px;
+                            border-radius: 8px;
+                            margin-bottom: 20px;
+                        "
+                        x-text="errorMsg"
+                    ></div>
+
+                    <input
+                        type="text"
+                        x-model="playerName"
+                        placeholder="Enter your name..."
+                        maxlength="20"
+                        @keyup.enter="joinGame()"
+                        :disabled="!!errorMsg"
+                    />
+                    <button @click="joinGame()" :disabled="!!errorMsg">Join Game 🎉</button>
+                </div>
+            </div>
+
+            <!-- Game Section -->
+            <div x-show="screen === 'game'">
+                <div class="card">
+                    <div class="header">
+                        <h1>🎯 Trivia Night</h1>
+                        <div x-html="TriviaUI.connectionStatus()"></div>
                     </div>
-                    <span class="score" x-text="score + ' pts'"></span>
-                </div>
 
-                <!-- WAITING SCREEN -->
-                <div class="waiting-screen" x-show="isWaiting">
-                    <div class="spinner">⏳</div>
-                    <h2>Waiting for host...</h2>
-                    <p>The quiz will begin shortly!</p>
-                </div>
-
-                <!-- ROUND TITLE -->
-                <template x-if="currentItem.type === 'round-title'">
-                    <div class="round-display">
-                        <template x-if="currentItem.image">
-                            <div class="round-display-bg" :style="`background-image: url('${currentItem.image}')`"></div>
-                        </template>
-                        <div class="round-display-content">
-                            <div class="round-number" x-text="'ROUND ' + currentItem.roundNumber"></div>
-                            <h2 x-text="currentItem.roundTitle"></h2>
+                    <div class="player-badge">
+                        <div style="display: flex; align-items: center">
+                            <span class="name" x-text="playerName"></span>
+                            <template x-if="streak >= 3">
+                                <span class="streak-badge" x-text="'🔥 ' + streak"></span>
+                            </template>
                         </div>
+                        <span class="score" x-text="score + ' pts'"></span>
                     </div>
-                </template>
 
-                <!-- QUESTION DISPLAY -->
-                <template x-if="currentItem.type === 'question'">
-                    <div class="question-display">
-                        <span class="question-number" x-text="'Question ' + currentItem.questionNumber"></span>
-                        
-                        <!-- Timer -->
-                        <div x-html="TriviaUI.timer()"></div>
+                    <!-- WAITING SCREEN -->
+                    <div class="waiting-screen" x-show="isWaiting">
+                        <div class="spinner">⏳</div>
+                        <h2>Waiting for host...</h2>
+                        <p>The quiz will begin shortly!</p>
+                    </div>
 
-                        <!-- Content -->
-                        <p class="question-text" x-text="currentItem.questionText"></p>
-                        
-                        <template x-if="currentItem.questionImage">
-                            <img :src="currentItem.questionImage" class="question-image" onerror="this.style.display='none'">
-                        </template>
-                        
-                        <!-- VIEW: Multiple Choice -->
-                        <div class="options-list" x-show="currentItem.questionType === 'MC'">
-                            <template x-for="opt in currentItem.options">
-                                <button class="option-btn"
+                    <!-- ROUND TITLE -->
+                    <template x-if="currentItem.type === 'round-title'">
+                        <div class="round-display">
+                            <template x-if="currentItem.image">
+                                <div
+                                    class="round-display-bg"
+                                    :style="`background-image: url('${currentItem.image}')`"
+                                ></div>
+                            </template>
+                            <div class="round-display-content">
+                                <div
+                                    class="round-number"
+                                    x-text="'ROUND ' + currentItem.roundNumber"
+                                ></div>
+                                <h2 x-text="currentItem.roundTitle"></h2>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- QUESTION DISPLAY -->
+                    <template x-if="currentItem.type === 'question'">
+                        <div class="question-display">
+                            <span
+                                class="question-number"
+                                x-text="'Question ' + currentItem.questionNumber"
+                            ></span>
+
+                            <!-- Timer -->
+                            <div x-html="TriviaUI.timer()"></div>
+
+                            <!-- Content -->
+                            <p class="question-text" x-text="currentItem.questionText"></p>
+
+                            <template x-if="currentItem.questionImage">
+                                <img
+                                    :src="currentItem.questionImage"
+                                    class="question-image"
+                                    onerror="this.style.display = 'none'"
+                                />
+                            </template>
+
+                            <!-- VIEW: Multiple Choice -->
+                            <div class="options-list" x-show="currentItem.questionType === 'MC'">
+                                <template x-for="opt in currentItem.options">
+                                    <button
+                                        class="option-btn"
                                         x-text="opt"
                                         :class="{
                                             'selected': currentAnswer === opt,
@@ -229,86 +492,117 @@
                                             'incorrect': isMyWrongOption(opt)
                                         }"
                                         :disabled="hasSubmitted || timerStatus === 'revealed'"
-                                        @click="selectOption(opt)">
-                                </button>
+                                        @click="selectOption(opt)"
+                                    ></button>
+                                </template>
+                            </div>
+
+                            <!-- VIEW: Short Answer -->
+                            <div
+                                x-show="currentItem.questionType === 'SHORT' && !hasSubmitted && !gameState.answerRevealed"
+                            >
+                                <div class="answer-input-group">
+                                    <input
+                                        type="text"
+                                        x-model="currentAnswer"
+                                        placeholder="Type your answer..."
+                                        @keyup.enter="submitShortAnswer()"
+                                    />
+                                    <button @click="submitShortAnswer()">Submit</button>
+                                </div>
+                            </div>
+
+                            <!-- Submitted Feedback (Hidden if answer is revealed) -->
+                            <div
+                                class="submitted-message"
+                                x-show="hasSubmitted && !gameState.answerRevealed"
+                            >
+                                <div class="check">✅</div>
+                                <p><strong>Answer submitted!</strong></p>
+                                <p x-text="'Your answer: ' + currentAnswer"></p>
+                            </div>
+
+                            <!-- Answer Reveal -->
+                            <div class="answer-reveal" x-show="gameState.answerRevealed">
+                                <h3>✅ Correct Answer</h3>
+                                <div class="answer-text" x-text="gameState.answer || '---'"></div>
+
+                                <!-- Show user answer if Short Answer mode -->
+                                <div
+                                    x-show="currentItem.questionType === 'SHORT' && currentAnswer"
+                                    style="margin-top: 10px; font-size: 0.9rem"
+                                >
+                                    Your answer:
+                                    <span x-text="currentAnswer" style="font-weight: bold"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Scoreboard -->
+                <div class="card">
+                    <div class="scoreboard-section">
+                        <h3>🏆 Scoreboard</h3>
+                        <div class="score-list">
+                            <template x-for="(player, index) in scoreboard" :key="player.id">
+                                <div
+                                    class="score-row"
+                                    :class="{'leader': index === 0 && player.score > 0, 'me': player.isMe}"
+                                >
+                                    <span class="name">
+                                        <span x-show="index === 0 && player.score > 0">👑 </span>
+                                        <span
+                                            x-text="player.name + (player.isMe ? ' (You)' : '')"
+                                        ></span>
+                                    </span>
+                                    <span class="score" x-text="player.score"></span>
+                                </div>
                             </template>
+                            <p
+                                x-show="scoreboard.length === 0"
+                                style="text-align: center; color: #90a4ae"
+                            >
+                                No scores yet
+                            </p>
                         </div>
-
-                        <!-- VIEW: Short Answer -->
-                        <div x-show="currentItem.questionType === 'SHORT' && !hasSubmitted && !gameState.answerRevealed">
-                            <div class="answer-input-group">
-                                <input type="text" x-model="currentAnswer" placeholder="Type your answer..." @keyup.enter="submitShortAnswer()">
-                                <button @click="submitShortAnswer()">Submit</button>
-                            </div>
-                        </div>
-
-                        <!-- Submitted Feedback (Hidden if answer is revealed) -->
-                        <div class="submitted-message" x-show="hasSubmitted && !gameState.answerRevealed">
-                            <div class="check">✅</div>
-                            <p><strong>Answer submitted!</strong></p>
-                            <p x-text="'Your answer: ' + currentAnswer"></p>
-                        </div>
-
-                        <!-- Answer Reveal -->
-                        <div class="answer-reveal" x-show="gameState.answerRevealed">
-                            <h3>✅ Correct Answer</h3>
-                            <div class="answer-text" x-text="gameState.answer || '---'"></div>
-                            
-                            <!-- Show user answer if Short Answer mode -->
-                            <div x-show="currentItem.questionType === 'SHORT' && currentAnswer" style="margin-top: 10px; font-size: 0.9rem;">
-                                Your answer: <span x-text="currentAnswer" style="font-weight: bold;"></span>
-                            </div>
-                        </div>
-
-                    </div>
-                </template>
-            </div>
-
-            <!-- Scoreboard -->
-            <div class="card">
-                <div class="scoreboard-section">
-                    <h3>🏆 Scoreboard</h3>
-                    <div class="score-list">
-                        <template x-for="(player, index) in scoreboard" :key="player.id">
-                            <div class="score-row" :class="{'leader': index === 0 && player.score > 0, 'me': player.isMe}">
-                                <span class="name">
-                                    <span x-show="index === 0 && player.score > 0">👑 </span>
-                                    <span x-text="player.name + (player.isMe ? ' (You)' : '')"></span>
-                                </span>
-                                <span class="score" x-text="player.score"></span>
-                            </div>
-                        </template>
-                        <p x-show="scoreboard.length === 0" style="text-align: center; color: #90a4ae;">No scores yet</p>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <div style="text-align: center; margin-top: 20px; color: #90caf9; font-size: 0.8rem; opacity: 0.8;">
-            Trivia Player <span id="player-version"></span>
-        </div>
-    </div>
-    
-    <!-- Shared Logic -->
-    <script src="shared/version.js"></script>
-    <script src="shared/ui-components.js"></script>
-    <script src="config/firebase-config.js?v=cachebust-fix"></script>
-    <script src="shared/firebase-helper.js"></script>
-    <!-- Application Logic -->
-    <script src="player-alpine.js?v=1.3"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-             if (typeof displayVersion === 'function') displayVersion('player-version');
-        });
 
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('SW registered'))
-                    .catch(err => console.log('SW registration failed', err));
+            <div
+                style="
+                    text-align: center;
+                    margin-top: 20px;
+                    color: #90caf9;
+                    font-size: 0.8rem;
+                    opacity: 0.8;
+                "
+            >
+                Trivia Player <span id="player-version"></span>
+            </div>
+        </div>
+
+        <!-- Shared Logic -->
+        <script src="shared/version.js"></script>
+        <script src="shared/ui-components.js"></script>
+        <script src="config/firebase-config.js?v=cachebust-fix"></script>
+        <script src="shared/firebase-helper.js"></script>
+        <!-- Application Logic -->
+        <script src="player-alpine.js?v=1.3"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                if (typeof displayVersion === 'function') displayVersion('player-version');
             });
-        }
-    </script>
-</body>
-</html>
+
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker
+                        .register('./sw.js')
+                        .then((reg) => console.log('SW registered'))
+                        .catch((err) => console.log('SW registration failed', err));
+                });
+            }
+        </script>
+    </body>
 </html>

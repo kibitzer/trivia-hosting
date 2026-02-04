@@ -5,22 +5,25 @@ A real-time, browser-based trivia hosting application powered by Firebase Realti
 ## ✨ Features
 
 ### For the Host (`/host`)
-*   **Game Control**: Start/stop timers, reveal answers, and advance questions.
-*   **Quiz Management**: Manage quizzes via the built-in **Quiz Editor**.
-*   **Live Dashboard**: View connected players, live answer status, and incoming answers.
-*   **Scoring**: Automatic scoring for multiple-choice and short-answer questions.
-*   **Themes**: Toggle between preset visual styles (Neon, Dark Mode, etc.).
+
+- **Game Control**: Start/stop timers, reveal answers, and advance questions.
+- **Quiz Management**: Manage quizzes via the built-in **Quiz Editor**.
+- **Live Dashboard**: View connected players, live answer status, and incoming answers.
+- **Scoring**: Automatic scoring for multiple-choice and short-answer questions.
+- **Themes**: Toggle between preset visual styles (Neon, Dark Mode, etc.).
 
 ### For Players (`player.html`)
-*   **Easy Join**: Simple name entry to join the session.
-*   **Real-time Interface**: Questions, images, and timers sync instantly with the host.
-*   **Interactive**:
-    *   *Multiple Choice*: Click to select options.
-    *   *Short Answer*: Type and submit text answers.
-*   **Instant Feedback**: See correct answers and points awarded immediately.
-*   **Scoreboard**: Live leaderboard showing rankings and points.
+
+- **Easy Join**: Simple name entry to join the session.
+- **Real-time Interface**: Questions, images, and timers sync instantly with the host.
+- **Interactive**:
+    - _Multiple Choice_: Click to select options.
+    - _Short Answer_: Type and submit text answers.
+- **Instant Feedback**: See correct answers and points awarded immediately.
+- **Scoreboard**: Live leaderboard showing rankings and points.
 
 ## 🚀 Setup & Installation
+
 ... (Setup sections) ...
 
 ## 🎮 How to Play
@@ -31,11 +34,11 @@ A real-time, browser-based trivia hosting application powered by Firebase Realti
 4.  **Players**: Open the Player URL, enter a name, and click **Join Game**.
 5.  **Host**: Once players appear, click **Start Game**.
 6.  **Gameplay**:
-    *   Host clicks **Next** to show a question.
-    *   Timer starts automatically.
-    *   Players submit answers.
-    *   Host clicks **Reveal Answer** to show results and award points.
-    *   Repeat!
+    - Host clicks **Next** to show a question.
+    - Timer starts automatically.
+    - Players submit answers.
+    - Host clicks **Reveal Answer** to show results and award points.
+    - Repeat!
 
 ## 📂 Project Structure
 
@@ -58,6 +61,7 @@ trivia-hosting/
 ## 📝 Creating Custom Quizzes
 
 Quizzes are created and managed directly within the app:
+
 1.  Log in to the **Host Panel**.
 2.  Click the **⚙️ Manage Quizzes** button.
 3.  Create new questions, set timers, and upload images.
@@ -65,26 +69,12 @@ Quizzes are created and managed directly within the app:
 
 ## 📚 Documentation
 
-
-
 For more detailed information, please refer to the documentation in the `docs/` folder:
 
+- **[Testing Strategy](docs/TESTING.md)**: Details on Unit and E2E testing commands and logic.
 
+- **[CI/CD Pipeline](docs/CICD.md)**: Information about the GitHub Actions workflow and required secrets.
 
-*   **[Testing Strategy](docs/TESTING.md)**: Details on Unit and E2E testing commands and logic.
+- **[Versioning Strategy](docs/VERSIONING.md)**: How the application versioning and automation works.
 
-
-
-*   **[CI/CD Pipeline](docs/CICD.md)**: Information about the GitHub Actions workflow and required secrets.
-
-
-
-*   **[Versioning Strategy](docs/VERSIONING.md)**: How the application versioning and automation works.
-
-
-
-*   **[Code Structure](docs/CODE_STRUCTURE.md)**: Architecture overview and data model.
-
-
-
-
+- **[Code Structure](docs/CODE_STRUCTURE.md)**: Architecture overview and data model.

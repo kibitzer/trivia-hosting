@@ -7,13 +7,13 @@ window.QuizParser = {
      * Converts any quiz input into the Standard Structured Format (for Editor).
      * @returns {Object} { title, questions: [ ...mixed types... ] }
      */
-    toStructured(rawData, defaultTitle = "Untitled Quiz") {
+    toStructured(rawData, defaultTitle = 'Untitled Quiz') {
         if (Array.isArray(rawData)) {
             return this._parseFlatArrayToStructure(rawData, defaultTitle);
         } else if (rawData && rawData.questions) {
             return rawData; // Already in standard format
         } else {
-            throw new Error("Unrecognized quiz format");
+            throw new Error('Unrecognized quiz format');
         }
     },
 
@@ -24,17 +24,17 @@ window.QuizParser = {
     toFlatSlides(rawData) {
         // First ensure we have a structure
         const structured = this.toStructured(rawData);
-        
+
         const slides = [];
         const qs = structured.questions || [];
 
         // 1. Inject Round Title if missing at start
         if (structured.title && (qs.length === 0 || qs[0].type !== 'round-title')) {
-            slides.push({ 
-                type: "round-title", 
-                roundNumber: 1, 
-                title: structured.title, 
-                timer: 20 
+            slides.push({
+                type: 'round-title',
+                roundNumber: 1,
+                title: structured.title,
+                timer: 20,
             });
         }
 
@@ -42,47 +42,52 @@ window.QuizParser = {
         let qCounter = 1;
         let rCounter = 1;
 
-        qs.forEach(item => {
+        qs.forEach((item) => {
             if (item.type === 'round-title') {
                 slides.push({
-                    type: "round-title",
+                    type: 'round-title',
                     title: item.title,
                     roundNumber: item.roundNumber || rCounter++,
                     timer: item.timer || 20,
-                    image: item.image || null
+                    image: item.image || null,
                 });
             } else {
                 // It's a question (type='multiple', 'short', 'true-false', 'identify', etc)
-                const isMC = ['multiple', 'MC', 'true-false'].includes(item.type) || item.questionType === "MC";
-                
+                const isMC =
+                    ['multiple', 'MC', 'true-false'].includes(item.type) ||
+                    item.questionType === 'MC';
+
                 const newQ = {
-                    type: "question", // Host expects this exact string
-                    questionType: isMC ? "MC" : "SHORT",
+                    type: 'question', // Host expects this exact string
+                    questionType: isMC ? 'MC' : 'SHORT',
                     questionNumber: item.questionNumber || qCounter++,
                     text: item.question || item.text,
                     timer: item.timer || 20,
                     image: item.image || null,
                     notes: item.notes || null,
-                    category: item.category || ''
+                    category: item.category || '',
                 };
 
-                if (newQ.questionType === "MC") {
+                if (newQ.questionType === 'MC') {
                     const rawOptions = item.options || [];
-                    newQ.options = rawOptions.map(o => o.replace(/^[A-D]\)\s*/, ''));
-                    
+                    newQ.options = rawOptions.map((o) => o.replace(/^[A-D]\)\s*/, ''));
+
                     let correct = item.correctAnswer || item.answer;
-                    if (correct && typeof correct === 'string') correct = correct.replace(/^[A-D]\)\s*/, '');
+                    if (correct && typeof correct === 'string')
+                        correct = correct.replace(/^[A-D]\)\s*/, '');
                     newQ.answer = correct;
                 } else {
-                    newQ.answer = Array.isArray(item.correctAnswer) ? item.correctAnswer[0] : item.correctAnswer;
-                    newQ.acceptedAnswers = Array.isArray(item.correctAnswer) ? 
-                        item.correctAnswer.map(a => a.toLowerCase()) : 
-                        [String(item.correctAnswer || '').toLowerCase()];
+                    newQ.answer = Array.isArray(item.correctAnswer)
+                        ? item.correctAnswer[0]
+                        : item.correctAnswer;
+                    newQ.acceptedAnswers = Array.isArray(item.correctAnswer)
+                        ? item.correctAnswer.map((a) => a.toLowerCase())
+                        : [String(item.correctAnswer || '').toLowerCase()];
                 }
                 slides.push(newQ);
             }
         });
-        
+
         return slides;
     },
 
@@ -91,83 +96,91 @@ window.QuizParser = {
      */
     _parseFlatArrayToStructure(data, defaultTitle) {
         // Try to find a title in the array
-        const titleItem = data.find(i => i.type === 'round-title');
+        const titleItem = data.find((i) => i.type === 'round-title');
         const title = titleItem ? titleItem.title : defaultTitle;
 
         // If the first item isn't a round title, insert one (if we are being strict, but let's be flexible)
         const questions = [];
-        
+
         // We want to preserve the order exactly as it is in the file for the Editor too.
-        
+
         let qCounter = 1;
         let rCounter = 1;
 
         // Process items to ensure they match Standard Schema
-        data.forEach(item => {
+        data.forEach((item) => {
             if (item.type === 'round-title') {
                 questions.push({
-                    type: "round-title",
+                    type: 'round-title',
                     title: item.title,
                     roundNumber: item.roundNumber || rCounter++,
                     timer: item.timer || 20,
-                    image: item.image || null
+                    image: item.image || null,
                 });
             } else {
                 const newQ = {
-                    type: "question", // Standardize generic type to 'question' for Host logic, but Editor discriminates by 'type' field being 'multiple'/'short' inside
+                    // Standardize generic type to 'question' for Host logic, but Editor discriminates by 'type' field being 'multiple'/'short' inside
                     // Actually, Host expects 'type' to be 'question' or 'round-title'.
                     // Editor uses 'type' to distinguish 'multiple' vs 'short' vs 'round-title'.
                     // This is a schema conflict.
-                    
+
                     // Let's Standardize on:
                     // type: 'round-title' | 'multiple' | 'short'
                     // Host needs to treat 'multiple' and 'short' as gameplay questions.
-                    
+
                     // WAIT: Host-data.js logic:
                     // if (this.currentItem.type === 'question') ...
-                    
+
                     // So Host expects 'question'. Editor expects 'multiple'/'short'.
                     // I must adapt the Host to handle specific types OR normalize here.
-                    
+
                     // Let's normalize for the TARGET consumer.
                     // But this is a SHARED parser.
-                    
+
                     // Compromise: Use a "kind" or "hostType" derived property?
                     // Or better: Update Host to check `['multiple', 'short'].includes(type)` instead of `type === 'question'`.
                     // BUT I am avoiding massive logic changes.
-                    
+
                     // Let's stick to the Host's expected schema for `toFlatSlides`.
-                    
+
                     // RE-READING host-data.js convertSampleQuizFormat:
                     // It sets `type: "question"` and `questionType: "MC"` or "SHORT".
-                    
-                    type: "question", 
-                    questionType: (item.type === "multiple" || item.type === "true-false" || item.questionType === "MC") ? "MC" : "SHORT",
+
+                    type: 'question',
+                    questionType:
+                        item.type === 'multiple' ||
+                        item.type === 'true-false' ||
+                        item.questionType === 'MC'
+                            ? 'MC'
+                            : 'SHORT',
                     questionNumber: item.questionNumber || qCounter++,
                     text: item.question || item.text,
                     timer: item.timer || 20,
                     image: item.image || null,
                     notes: item.notes || null,
-                    category: item.category || ''
+                    category: item.category || '',
                 };
 
-                if (newQ.questionType === "MC") {
+                if (newQ.questionType === 'MC') {
                     const rawOptions = item.options || [];
-                    newQ.options = rawOptions.map(o => o.replace(/^[A-D]\)\s*/, ''));
+                    newQ.options = rawOptions.map((o) => o.replace(/^[A-D]\)\s*/, ''));
                     let correct = item.correctAnswer || item.answer;
                     // If answer is index (0-3) or string?
-                    if (correct && typeof correct === 'string') correct = correct.replace(/^[A-D]\)\s*/, '');
+                    if (correct && typeof correct === 'string')
+                        correct = correct.replace(/^[A-D]\)\s*/, '');
                     newQ.answer = correct;
                 } else {
-                    newQ.answer = Array.isArray(item.correctAnswer) ? item.correctAnswer[0] : item.correctAnswer;
-                    newQ.acceptedAnswers = Array.isArray(item.correctAnswer) ? 
-                        item.correctAnswer.map(a => a.toLowerCase()) : 
-                        [String(item.correctAnswer || '').toLowerCase()];
+                    newQ.answer = Array.isArray(item.correctAnswer)
+                        ? item.correctAnswer[0]
+                        : item.correctAnswer;
+                    newQ.acceptedAnswers = Array.isArray(item.correctAnswer)
+                        ? item.correctAnswer.map((a) => a.toLowerCase())
+                        : [String(item.correctAnswer || '').toLowerCase()];
                 }
                 questions.push(newQ);
             }
         });
 
         return { title, questions };
-    }
+    },
 };
