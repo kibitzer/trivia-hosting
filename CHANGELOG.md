@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.10] - 2026-02-05
+
+### Fixed
+
+- **Quiz Editor**: Corrected a bug where slide numbers in the editor pane mismatched the sidebar after reordering.
+- **Quiz Editor**: Stabilised slide reordering by destroying stale SortableJS instances and tracking selections by unique ID.
+
 ## [0.5.9] - 2026-02-05
 
 ### Added
