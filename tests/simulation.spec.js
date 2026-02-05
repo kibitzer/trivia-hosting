@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const PORT = process.env.TEST_PORT || 8080;
+const LOGIN_URL = `http://localhost:${PORT}/host/login.html`;
 const HOST_URL = `http://localhost:${PORT}/host/host.html`;
 const PLAYER_URL = `http://localhost:${PORT}/player.html`;
 
@@ -27,7 +28,7 @@ test('Trivia Full Simulation', async ({ browser }) => {
     // 1. Setup Host
     const hostContext = await browser.newContext();
     const hostPage = await setupPage(hostContext, 'HOST');
-    await hostPage.goto(HOST_URL);
+    await hostPage.goto(LOGIN_URL);
 
     // Verify PWA Manifest
     const manifestResponse = await hostPage.request.get(`http://localhost:${PORT}/manifest.json`);
@@ -44,47 +45,13 @@ test('Trivia Full Simulation', async ({ browser }) => {
 
     await hostPage.click('button[type="submit"]');
 
-    // Wait for authentication and setup view
-    await expect(hostPage.locator('button:has-text("Load Quiz")')).toBeVisible({ timeout: 10000 });
-
-    // Reset Game State to ensure we are starting fresh
-    // We only do this if we are not in a game, but the button is only in game view?
-    // Actually, let's just Load the quiz first.
-
-    // 2. Setup 3 Players
-    const players = [];
-    const playerNames = ['Alice', 'Bob', 'Charlie'];
-
-    for (const name of playerNames) {
-        const context = await browser.newContext();
-        const page = await setupPage(context, `PLAYER:${name}`);
-        await page.goto(PLAYER_URL);
-
-        await page.fill('input[x-model="playerName"]', name);
-        await page.click('button:has-text("Join Game")');
-
-        // Wait for join section to disappear (indicates screen change)
-        await expect(page.locator('.join-section')).toBeHidden({ timeout: 15000 });
-
-        // Wait for game screen to be active
-
-        await expect(page.locator('.header h1:has-text("Trivia Night")')).toBeVisible({
-            timeout: 15000,
-        });
-
-        // Either we are waiting or we see a question/round (allow both for robustness)
-
-        const gameScreens = page.locator('.waiting-screen, .question-display, .round-display');
-
-        await expect(gameScreens.filter({ visible: true }).first()).toBeVisible({ timeout: 15000 });
-
-        players.push({ name, page });
-    }
+    // Wait for Dashboard
+    await expect(hostPage.locator('h1:has-text("Dashboard")')).toBeVisible({ timeout: 10000 });
 
     let testQuizId = null;
 
     try {
-        // 3. Host: Seed a quiz into Firebase for testing and Load it
+        // 2. Host: Seed a quiz into Firebase for testing
         testQuizId = await hostPage.evaluate(() => {
             const db = firebase.database();
             const quizRef = db.ref('quizzes').push();
@@ -115,14 +82,46 @@ test('Trivia Full Simulation', async ({ browser }) => {
             return quizRef.set(sampleQuiz).then(() => quizRef.key);
         });
 
-        // Wait for the select to populate and select the quiz
-        await expect(
-            hostPage.locator(`select[x-model="selectedQuizId"] option[value="${testQuizId}"]`)
-        ).toBeAttached({ timeout: 10000 });
-        await hostPage.selectOption('select[x-model="selectedQuizId"]', testQuizId);
-        await hostPage.click('button:has-text("Load Quiz")');
+        // Click Launch for the new quiz
+        const launchBtn = hostPage.locator(`tr:has-text("Test Simulation Quiz") button:has-text("Launch")`);
+        await expect(launchBtn).toBeVisible({ timeout: 10000 });
+        await launchBtn.click();
 
-        // Setup Analytics spy
+        // Should now be on host.html
+        await expect(hostPage).toHaveURL(/host\.html\?quizId=/);
+        await expect(hostPage.locator('h2:has-text("Ready to Start!")')).toBeVisible({ timeout: 10000 });
+
+        // 3. Setup 3 Players
+        const players = [];
+        const playerNames = ['Alice', 'Bob', 'Charlie'];
+
+        for (const name of playerNames) {
+            const context = await browser.newContext();
+            const page = await setupPage(context, `PLAYER:${name}`);
+            await page.goto(PLAYER_URL);
+
+            await page.fill('input[x-model="playerName"]', name);
+            await page.click('button:has-text("Join Game")');
+
+            // Wait for join section to disappear (indicates screen change)
+            await expect(page.locator('.join-section')).toBeHidden({ timeout: 15000 });
+
+            // Wait for game screen to be active
+
+            await expect(page.locator('.header h1:has-text("Trivia Night")')).toBeVisible({
+                timeout: 15000,
+            });
+
+            // Either we are waiting or we see a question/round (allow both for robustness)
+
+            const gameScreens = page.locator('.waiting-screen, .question-display, .round-display');
+
+            await expect(gameScreens.filter({ visible: true }).first()).toBeVisible({ timeout: 15000 });
+
+            players.push({ name, page });
+        }
+
+        // Host: Setup Analytics spy
         await hostPage.evaluate(() => {
             window.analyticsEvents = [];
             if (window.firebase && window.firebase.analytics) {
@@ -189,6 +188,7 @@ test('Trivia Full Simulation', async ({ browser }) => {
         // --- Cleanup Step ---
         // Use the host's existing access to wipe the nodes we used during simulation
         console.log('[TEST] Cleaning up Firebase data...');
+        // We use the hostPage even if it's on host.html now
         await hostPage.evaluate((quizId) => {
             const db = firebase.database();
             return Promise.all([

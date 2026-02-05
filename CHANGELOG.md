@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-02-05
+
+### Added
+
+- **Architecture**: Modularised the Host and Editor interfaces by separating Login, Dashboard, Host, and Editor into distinct screens.
+- **Login**: Created a dedicated `login.html` for host authentication.
+- **Dashboard**: Introduced `dashboard.html` as the central hub for managing quizzes and launching game sessions.
+- **Host**: Refactored `host.html` to focus exclusively on gameplay control, with automatic quiz loading via URL parameters.
+- **Editor**: Streamlined `editor.html` to focus on content editing for a specific quiz.
+- **UX**: Implemented automatic redirection to the dashboard or login page based on authentication status and context.
+- **Testing**: Updated E2E simulation tests to follow the new modular screen flow.
+
+## [0.5.24] - 2026-02-05
+
+### Fixed
+
+- **Quiz Editor**: Improved Multiple Choice synchronization by ensuring unique slide IDs are used for input names and implementing more robust radio button binding.
+- **UI**: Added the application version string to the quiz editing screen for better visibility.
+
 ## [0.5.23] - 2026-02-05
 
 ### Added

@@ -68,9 +68,13 @@ window.createHostData = function (firebase, db, auth, analytics) {
             if (auth)
                 auth.onAuthStateChanged((user) => {
                     this.isAuthenticated = !!user;
-                    if (!user) {
-                        this.currentView = 'setup';
+                    if (!user || user.isAnonymous) {
+                        window.location.href = 'login.html?redirect=host.html' + window.location.search;
                     } else {
+                        // Check for quizId in URL
+                        const urlParams = new URLSearchParams(window.location.search);
+                        this.selectedQuizId = urlParams.get('quizId');
+
                         // Only attach listeners when authenticated
                         db.ref('players').on('value', (snap) => {
                             this.players = snap.val() || {};
@@ -80,9 +84,6 @@ window.createHostData = function (firebase, db, auth, analytics) {
                             this.currentAnswers = snap.val() || {};
                             this.checkAutoReveal();
                         });
-                        db.ref('quizzes').on('value', (snap) => {
-                            this.availableQuizzes = snap.val() || {};
-                        });
 
                         // Initialize gameState if empty
                         db.ref('gameState').on('value', (snap) => {
@@ -91,44 +92,32 @@ window.createHostData = function (firebase, db, auth, analytics) {
                             }
                             this.gameState = snap.val() || {};
                         });
+
+                        // Load the specific quiz if ID is provided
+                        if (this.selectedQuizId) {
+                            db.ref(`quizzes/${this.selectedQuizId}`).once('value', (snap) => {
+                                const data = snap.val();
+                                if (data) {
+                                    this.quizData = QuizParser.toFlatSlides(data);
+                                    this.currentView = 'setup'; // Default to lobby/setup
+                                    this.successMsg = `✓ Loaded ${this.quizData.length} items`;
+                                } else {
+                                    this.errorMsg = 'Quiz not found';
+                                    setTimeout(() => window.location.href = 'dashboard.html', 3000);
+                                }
+                            });
+                        } else {
+                            // If no quizId, go to dashboard
+                            window.location.href = 'dashboard.html';
+                        }
                     }
                 });
             db.ref('.info/connected').on('value', (snap) => {
                 this.isConnected = snap.val() === true;
             });
         },
-        async login() {
-            if (!auth) {
-                this.loginError = 'Auth not configured';
-                return;
-            }
-            this.loginError = '';
-            try {
-                await auth.signInWithEmailAndPassword(this.email, this.password);
-                this.password = '';
-            } catch (e) {
-                this.loginError = e.message;
-            }
-        },
         logout() {
             if (auth) auth.signOut();
-        },
-        async loadQuiz() {
-            this.loading = true;
-            this.errorMsg = '';
-            this.successMsg = '';
-            try {
-                if (!this.selectedQuizId) throw new Error('Please select a quiz');
-                const data = this.availableQuizzes[this.selectedQuizId];
-                if (!data) throw new Error('Quiz data not found');
-
-                this.quizData = QuizParser.toFlatSlides(data);
-                this.successMsg = `✓ Loaded ${this.quizData.length} items`;
-            } catch (e) {
-                this.errorMsg = `Error: ${e.message}`;
-            } finally {
-                this.loading = false;
-            }
         },
         startGame() {
             this.currentView = 'game';
@@ -163,6 +152,7 @@ window.createHostData = function (firebase, db, auth, analytics) {
             db.ref('gameState').set({ status: 'waiting' });
             db.ref('answers').remove();
             Object.keys(this.players).forEach((p) => db.ref(`players/${p}/score`).set(0));
+            this.syncGameState();
         },
         nextItem() {
             if (this.currentIndex >= this.quizData.length - 1) {

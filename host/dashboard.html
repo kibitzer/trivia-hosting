@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Trivia Night</title>
+    <link rel="stylesheet" href="../shared/styles.css?v=1.6">
+    <style>
+        body { background: var(--color-bg); padding-bottom: 4rem; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; }
+        
+        .quiz-table { width: 100%; border-collapse: collapse; background: var(--color-surface); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--color-border); box-shadow: var(--shadow-sm); }
+        .quiz-table th { text-align: left; padding: 1rem; background: #f8fafc; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 800; color: var(--color-text-muted); border-bottom: 2px solid var(--color-border); cursor: pointer; }
+        .quiz-table td { padding: 1rem; border-bottom: 1px solid var(--color-border); vertical-align: middle; }
+        .quiz-table tr:last-child td { border-bottom: none; }
+        .quiz-table tr:hover { background: #f8fafc; }
+        
+        .active-session-card { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; }
+    </style>
+</head>
+<body x-data="dashboard">
+    <div class="container" x-cloak>
+        <div class="header">
+            <div>
+                <h1>Dashboard</h1>
+                <p class="text-muted">Welcome back, <span x-text="userEmail" class="font-weight-bold"></span></p>
+                <span id="app-version" class="text-muted" style="font-size: 0.75rem; font-weight: 700;"></span>
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+                <button @click="logout" class="btn btn-secondary">Logout</button>
+                <button @click="createNewQuiz" class="btn btn-success">+ Create Quiz</button>
+            </div>
+        </div>
+
+        <!-- Active Session Detection -->
+        <template x-if="activeGame && activeGame.status !== 'waiting'">
+            <div class="active-session-card">
+                <div>
+                    <h3 style="color: #1e40af; margin-bottom: 0.25rem;">Active Session Detected</h3>
+                    <p style="color: #1e40af; opacity: 0.8; font-size: 0.875rem;">
+                        There is a game currently in progress (<span x-text="activeGame.roundTitle || 'Live Game'"></span>).
+                    </p>
+                </div>
+                <a href="host.html" class="btn btn-primary" style="background: #1e40af; border-color: #1e40af;">Resume Game</a>
+            </div>
+        </template>
+
+        <div class="card" style="padding: 0; overflow: hidden;">
+            <div style="padding: 1.5rem;">
+                <h3>Your Quizzes</h3>
+            </div>
+            
+            <div x-show="Object.keys(quizzes).length === 0 && !loading" class="text-muted" style="padding: 4rem; text-align: center; font-weight: 600">
+                No quizzes found. Click "Create Quiz" to get started.
+            </div>
+
+            <table class="quiz-table" x-show="Object.keys(quizzes).length > 0">
+                <thead>
+                    <tr>
+                        <th @click="setSort('title')">Quiz Name</th>
+                        <th style="width: 100px;">Items</th>
+                        <th @click="setSort('updatedAt')">Updated</th>
+                        <th style="width: 200px; text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template x-for="quiz in sortedQuizzes" :key="quiz.id">
+                        <tr>
+                            <td>
+                                <strong style="color: var(--color-primary)" x-text="quiz.title"></strong>
+                            </td>
+                            <td>
+                                <span class="text-sm font-weight-bold" x-text="quiz.questionCount"></span>
+                            </td>
+                            <td>
+                                <div class="text-sm" style="font-weight: 600" x-text="TriviaUI.formatDateTime(quiz.updatedAt)"></div>
+                            </td>
+                            <td style="text-align: right">
+                                <div style="display: flex; gap: 0.5rem; justify-content: flex-end">
+                                    <button @click="launchQuiz(quiz.id)" class="btn btn-primary" style="padding: 0.4rem 0.8rem">Launch</button>
+                                    <button @click="editQuiz(quiz.id)" class="btn btn-secondary" style="padding: 0.4rem 0.8rem">Edit</button>
+                                    <button @click="deleteQuiz(quiz.id)" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; color: var(--color-danger)">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../shared/version.js"></script>
+    <script src="../shared/ui-components.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="../config/firebase-config.js"></script>
+    <script src="../shared/firebase-helper.js"></script>
+    
+    <script>
+        document.addEventListener('alpine:init', () => {
+            const fb = TriviaFirebase.init();
+            
+            Alpine.data('dashboard', () => ({
+                userEmail: '',
+                quizzes: {},
+                activeGame: null,
+                loading: true,
+                sortConfig: { column: 'updatedAt', direction: 'desc' },
+
+                init() {
+                    fb.auth.onAuthStateChanged(user => {
+                        if (!user || user.isAnonymous) {
+                            window.location.href = 'login.html?redirect=dashboard.html';
+                        } else {
+                            this.userEmail = user.email;
+                            this.loading = true;
+                            
+                            // Listen for quizzes
+                            fb.db.ref('quizzes').on('value', snap => {
+                                this.quizzes = snap.val() || {};
+                                this.loading = false;
+                            });
+
+                            // Listen for active game
+                            fb.db.ref('gameState').on('value', snap => {
+                                this.activeGame = snap.val();
+                            });
+                        }
+                    });
+                    if (typeof displayVersion === 'function') displayVersion('app-version');
+                },
+
+                get sortedQuizzes() {
+                    const list = Object.entries(this.quizzes).map(([id, data]) => ({
+                        id, ...data,
+                        questionCount: data.questions ? data.questions.length : 0
+                    }));
+                    const { column, direction } = this.sortConfig;
+                    return list.sort((a, b) => {
+                        let valA = a[column];
+                        let valB = b[column];
+                        if (typeof valA === 'string') {
+                            valA = valA.toLowerCase();
+                            valB = (valB || '').toLowerCase();
+                        }
+                        if (valA < valB) return direction === 'asc' ? -1 : 1;
+                        if (valA > valB) return direction === 'asc' ? 1 : -1;
+                        return 0;
+                    });
+                },
+
+                setSort(col) {
+                    if (this.sortConfig.column === col) {
+                        this.sortConfig.direction = this.sortConfig.direction === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        this.sortConfig.column = col;
+                        this.sortConfig.direction = 'asc';
+                    }
+                },
+
+                launchQuiz(id) { window.location.href = `host.html?quizId=${id}`; },
+                editQuiz(id) { window.location.href = `editor.html?quizId=${id}`; },
+
+                async createNewQuiz() {
+                    const newQuiz = {
+                        title: 'New Quiz',
+                        questions: [{
+                            id: Date.now() + '-' + Math.random().toString(36).substring(2, 9),
+                            question: 'Sample Question?',
+                            type: 'multiple',
+                            options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
+                            correctAnswer: 'Option 1',
+                            timer: 30,
+                            tags: []
+                        }],
+                        createdAt: firebase.database.ServerValue.TIMESTAMP,
+                        updatedAt: firebase.database.ServerValue.TIMESTAMP
+                    };
+                    const ref = fb.db.ref('quizzes').push();
+                    await ref.set(newQuiz);
+                    this.editQuiz(ref.key);
+                },
+
+                async deleteQuiz(id) {
+                    const result = await Swal.fire({
+                        title: 'Delete Quiz?',
+                        text: 'This cannot be undone.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#dc2626',
+                        confirmButtonText: 'Yes, delete it'
+                    });
+                    if (result.isConfirmed) {
+                        fb.db.ref(`quizzes/${id}`).remove();
+                    }
+                },
+
+                logout() { fb.auth.signOut(); }
+            }));
+        });
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</body>
+</html>

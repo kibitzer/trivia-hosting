@@ -176,92 +176,6 @@
     </head>
     <body x-data="quizEditor">
         <div class="container" x-cloak>
-            <div class="header" x-show="!editingQuizId">
-                <div>
-                    <h1>📝 Quiz Editor</h1>
-                    <span
-                        id="app-version"
-                        class="text-muted"
-                        style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em"
-                    ></span>
-                </div>
-                <div style="display: flex; gap: 0.75rem">
-                    <button
-                        x-show="isAuthenticated"
-                        @click="showSettings = true"
-                        class="btn btn-secondary"
-                    >
-                        ⚙️ Settings
-                    </button>
-                    <a href="host.html" class="btn btn-secondary" style="text-decoration: none">← Back to Host</a>
-                    <button
-                        x-show="isAuthenticated"
-                        @click="createNewQuiz()"
-                        class="btn btn-success"
-                    >
-                        + Create New Quiz
-                    </button>
-                </div>
-            </div>
-
-            <div x-show="!isAuthenticated" class="card" style="text-align: center; max-width: 500px; margin: 4rem auto">
-                <h2 style="margin-bottom: 0.5rem">Authentication Required</h2>
-                <p class="text-muted" style="margin-bottom: 2rem">You must be logged in as a Host to access the editor.</p>
-                <a href="host.html" class="btn btn-primary">Go to Host Panel</a>
-            </div>
-
-            <div x-show="isAuthenticated && !editingQuizId" class="card" style="padding: 0; overflow: hidden;">
-                <div style="padding: 1.5rem 1.5rem 0 1.5rem">
-                    <h3 style="margin-bottom: 0.5rem">Your Quizzes</h3>
-                </div>
-                
-                <div x-show="Object.keys(quizzes).length === 0" class="text-muted" style="padding: 4rem; text-align: center; font-weight: 600">
-                    No quizzes found in your collection.
-                </div>
-
-                <table class="quiz-table" x-show="Object.keys(quizzes).length > 0">
-                    <thead>
-                        <tr>
-                            <th @click="setSort('title')" :class="{'active-sort': sortConfig.column === 'title'}">
-                                Quiz Name <span x-show="sortConfig.column === 'title'" x-text="sortConfig.direction === 'asc' ? '↑' : '↓'"></span>
-                            </th>
-                            <th style="width: 120px">Questions</th>
-                            <th @click="setSort('updatedAt')" :class="{'active-sort': sortConfig.column === 'updatedAt'}">
-                                Last Updated <span x-show="sortConfig.column === 'updatedAt'" x-text="sortConfig.direction === 'asc' ? '↑' : '↓'"></span>
-                            </th>
-                            <th @click="setSort('createdAt')" :class="{'active-sort': sortConfig.column === 'createdAt'}">
-                                Created <span x-show="sortConfig.column === 'createdAt'" x-text="sortConfig.direction === 'asc' ? '↑' : '↓'"></span>
-                            </th>
-                            <th style="width: 180px; text-align: right; cursor: default;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <template x-for="quiz in sortedQuizzes" :key="quiz.id">
-                            <tr>
-                                <td>
-                                    <strong style="font-size: 1rem; color: var(--color-primary)" x-text="quiz.title"></strong>
-                                </td>
-                                <td>
-                                    <span class="text-sm font-weight-bold" x-text="quiz.questionCount"></span>
-                                </td>
-                                <td>
-                                    <div class="text-sm" style="font-weight: 600" x-text="TriviaUI.formatDateTime(quiz.updatedAt)"></div>
-                                </td>
-                                <td>
-                                    <div class="text-sm text-muted" x-text="TriviaUI.formatDate(quiz.createdAt)"></div>
-                                </td>
-                                <td style="text-align: right">
-                                    <div style="display: flex; gap: 0.5rem; justify-content: flex-end">
-                                        <button @click="editQuiz(quiz.id)" class="btn btn-primary" style="padding: 0.4rem 0.8rem">Edit</button>
-                                        <button @click="deleteQuiz(quiz.id)" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; color: var(--color-danger)">Delete</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </template>
-                    </tbody>
-                </table>
-            </div>
-
             <div x-show="editingQuizId" style="display: flex; flex-direction: column; height: 92vh">
                 <div class="header" style="margin-bottom: 1rem">
                     <div style="display: flex; align-items: center; gap: 1rem; flex: 1">
@@ -270,7 +184,7 @@
                             class="btn btn-secondary"
                             style="padding: 0.5rem 0.75rem"
                         >
-                            ← Back
+                            ← Dashboard
                         </button>
                         <div style="display: flex; flex-direction: column; flex: 1; max-width: 600px">
                             <input
@@ -717,7 +631,6 @@
 
             document.addEventListener('DOMContentLoaded', () => {
                 if (typeof displayVersion === 'function') {
-                    displayVersion('app-version');
                     displayVersion('app-version-editor');
                 }
             });

@@ -76,10 +76,26 @@ window.createEditorData = function (firebase, db, auth, storage) {
 
             auth.onAuthStateChanged((user) => {
                 this.isAuthenticated = !!user;
-                if (user) {
-                    db.ref('quizzes').on('value', (snap) => {
-                        this.quizzes = snap.val() || {};
-                    });
+                if (!user || user.isAnonymous) {
+                    window.location.href = 'login.html?redirect=editor.html' + window.location.search;
+                } else {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const quizId = urlParams.get('quizId');
+                    
+                    if (quizId) {
+                        db.ref(`quizzes/${quizId}`).on('value', (snap) => {
+                            const data = snap.val();
+                            if (data && !this.editingQuizId) {
+                                // First load
+                                this.quizzes[quizId] = data;
+                                this.editQuiz(quizId);
+                            } else if (!data) {
+                                window.location.href = 'dashboard.html';
+                            }
+                        });
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
                 }
             });
 
@@ -444,12 +460,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
         },
 
         closeEditor() {
-            this.editingQuizId = null;
-            this.currentQuiz = null;
-            if (this.sortableInstance) {
-                this.sortableInstance.destroy();
-                this.sortableInstance = null;
-            }
+            window.location.href = 'dashboard.html';
         },
 
         sortableInstance: null,

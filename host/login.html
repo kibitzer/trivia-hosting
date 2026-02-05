@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Trivia Night</title>
+    <link rel="stylesheet" href="../shared/styles.css?v=1.6">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: var(--color-bg);
+            margin: 0;
+        }
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            padding: 2.5rem;
+        }
+    </style>
+</head>
+<body x-data="loginHandler">
+    <div class="card login-card" x-cloak>
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <h1 style="margin-bottom: 0.5rem;">Host Login</h1>
+            <p class="text-muted">Enter your credentials to manage quizzes.</p>
+        </div>
+
+        <form @submit.prevent="login">
+            <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" x-model="email" required placeholder="host@example.com">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" x-model="password" required placeholder="••••••••">
+            </div>
+
+            <div x-show="errorMsg" class="text-sm" style="color: var(--color-danger); background: #fef2f2; padding: 0.75rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; font-weight: 600;" x-text="errorMsg"></div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;" :disabled="loading">
+                <span x-show="!loading">Login to Dashboard</span>
+                <span x-show="loading">Authenticating...</span>
+            </button>
+        </form>
+
+        <div style="margin-top: 2rem; text-align: center; border-top: 1px solid var(--color-border); padding-top: 1.5rem;">
+            <a href="host.html" class="text-sm font-weight-bold" style="color: var(--color-primary); text-decoration: none;">← Back to Player View</a>
+        </div>
+        
+        <div style="text-align: center; margin-top: 1rem;">
+            <span id="app-version" class="text-muted" style="font-size: 0.75rem; font-weight: 700;"></span>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../shared/version.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="../config/firebase-config.js"></script>
+    <script src="../shared/firebase-helper.js"></script>
+    
+    <script>
+        document.addEventListener('alpine:init', () => {
+            const fb = TriviaFirebase.init();
+            if (!fb) return;
+            
+            Alpine.data('loginHandler', () => ({
+                email: '',
+                password: '',
+                loading: false,
+                errorMsg: '',
+
+                init() {
+                    fb.auth.onAuthStateChanged(user => {
+                        if (user && !user.isAnonymous) {
+                            const urlParams = new URLSearchParams(window.location.search);
+                            const redirect = urlParams.get('redirect') || 'dashboard.html';
+                            window.location.href = redirect;
+                        }
+                    });
+                    if (typeof displayVersion === 'function') displayVersion('app-version');
+                },
+
+                async login() {
+                    this.loading = true;
+                    this.errorMsg = '';
+                    try {
+                        await fb.auth.signInWithEmailAndPassword(this.email, this.password);
+                    } catch (e) {
+                        this.errorMsg = e.message;
+                        this.loading = false;
+                    }
+                }
+            }));
+        });
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</body>
+</html>
