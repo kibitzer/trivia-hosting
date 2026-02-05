@@ -278,13 +278,17 @@ window.createEditorData = function (firebase, db, auth, storage) {
                 return;
             }
 
+            const now = Date.now();
             this.currentQuiz.updatedAt = firebase.database.ServerValue.TIMESTAMP;
             try {
                 await db.ref(`quizzes/${this.editingQuizId}`).set(this.currentQuiz);
 
                 // CRITICAL: Update the local cache so that slide switching doesn't revert to old data
                 // before the Firebase listener catches up.
-                this.quizzes[this.editingQuizId] = JSON.parse(JSON.stringify(this.currentQuiz));
+                // We use a numerical timestamp for the local cache to avoid "Invalid Date" in UI
+                const localCopy = JSON.parse(JSON.stringify(this.currentQuiz));
+                localCopy.updatedAt = now;
+                this.quizzes[this.editingQuizId] = localCopy;
 
                 this.statusMsg = isAutosave ? '✓ Autosaved' : '✓ Saved successfully!';
                 if (!isAutosave) setTimeout(() => (this.statusMsg = ''), 3000);

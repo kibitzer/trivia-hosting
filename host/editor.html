@@ -192,7 +192,7 @@
                             <div
                                 class="text-muted text-sm"
                                 style="font-weight: 600; margin-top: 0.25rem"
-                                x-text="(quiz.questions ? quiz.questions.length : 0) + ' items &bull; Updated ' + (quiz.updatedAt ? new Date(quiz.updatedAt).toLocaleDateString() : 'N/A')"
+                                x-text="(quiz.questions ? quiz.questions.length : 0) + ' items &bull; Updated ' + (quiz.updatedAt && typeof quiz.updatedAt === 'number' ? new Date(quiz.updatedAt).toLocaleDateString() : 'Just now')"
                             ></div>
                         </div>
                         <div style="display: flex; gap: 0.5rem">
