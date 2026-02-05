@@ -13,11 +13,9 @@ When I enter **Plan Mode** (`/plan`), adhere to the following rules:
 4. **Token Conservation:** Do not provide full code blocks during the Planning phase. Use pseudocode or function signatures only to keep the context window light.
 5. **Validation:** End every plan with a single question: "Would you like me to proceed to Implement Mode for these steps?"
 
-## [IMPLEMENTATION_RULES]
-
 - **CRITICAL**: NEVER bump the version number (via `npm version` or manual edits) without explicitly asking the user for confirmation and the update level (major, minor, or patch).
 
-- **CRITICAL**: Always run the linter (`npm run lint`) before committing any code changes. Ensure all errors are resolved.
+- **CRITICAL**: Always run the linter (`npm run lint`) before committing any code changes. Ensure all errors AND warnings are resolved (use automated fixes and manual cleanup).
 
 - Use **British spelling** in all comments and documentation (e.g., 'optimise', 'colour', 'initialise').
 

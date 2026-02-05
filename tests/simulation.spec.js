@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-import path from 'path';
 import dotenv from 'dotenv';
 
 // Load environment variables from .env file
@@ -128,10 +127,8 @@ test('Trivia Full Simulation', async ({ browser }) => {
             window.analyticsEvents = [];
             if (window.firebase && window.firebase.analytics) {
                 // Hijack logEvent to track calls
-                const originalLog = window.firebase.analytics().logEvent;
                 window.firebase.analytics().logEvent = (name, params) => {
                     window.analyticsEvents.push({ name, params });
-                    // originalLog.apply(window.firebase.analytics(), [name, params]);
                 };
             }
         });

@@ -2,9 +2,9 @@
 const TRIVIA_VERSION = '0.5.11';
 
 // Helper to display it
-function displayVersion(elementId) {
+window.displayVersion = function (elementId) {
     const el = document.getElementById(elementId);
     if (el) {
         el.innerText = 'v' + TRIVIA_VERSION;
     }
-}
+};

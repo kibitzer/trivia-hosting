@@ -15,7 +15,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
         },
 
         // Placeholder for Alpine magic properties
-        $watch: (name, cb) => {},
+        $watch: () => {},
         $nextTick: (cb) => cb(),
 
         init() {
@@ -243,7 +243,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
             let rNum = 1;
             let validationError = null;
 
-            this.currentQuiz.questions.forEach((q, index) => {
+            this.currentQuiz.questions.forEach((q) => {
                 if (q.type === 'round-title') {
                     q.roundNumber = rNum++;
                     delete q.question;
