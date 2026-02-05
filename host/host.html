@@ -438,90 +438,92 @@
 
                 <!-- VIEW: Game -->
                 <div x-show="isAuthenticated && currentView === 'game'">
-                    <div class="text-muted text-sm" style="text-align: center; font-weight: 600">
-                        ITEM <span x-text="currentIndex + 1"></span> OF
-                        <span x-text="quizData.length"></span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" :style="`width: ${progressPercent}%`"></div>
-                    </div>
-                    <br />
-                    <template x-if="currentItem && currentItem.type === 'round-title'">
-                        <div class="round-title-slide">
-                            <template x-if="currentItem.image">
-                                <div
-                                    class="round-title-bg"
-                                    :style="`background-image: url('${currentItem.image}')`"
-                                ></div>
-                            </template>
-                            <div class="round-title-content">
-                                <div style="opacity: 0.8; font-size: 1.1rem; font-weight: 800; letter-spacing: 0.1em">
-                                    ROUND <span x-text="currentItem.roundNumber"></span>
-                                </div>
-                                <h2 x-text="currentItem.title" style="margin-top: 0.5rem"></h2>
-                            </div>
+                    <div :key="currentIndex" x-transition:enter="fade-enter-active" x-transition:enter-start="fade-enter" x-transition:enter-end="fade-enter-to">
+                        <div class="text-muted text-sm" style="text-align: center; font-weight: 600">
+                            ITEM <span x-text="currentIndex + 1"></span> OF
+                            <span x-text="quizData.length"></span>
                         </div>
-                    </template>
-                    <template x-if="currentItem && currentItem.type === 'question'">
-                        <div>
-                            <div class="question-header">
-                                <span class="question-number"
-                                    >QUESTION <span x-text="currentItem.questionNumber"></span
-                                ></span>
-                                <span
-                                    class="text-muted text-sm"
-                                    style="font-weight: 700"
-                                    x-text="currentItem.questionType === 'MC' ? 'MULTIPLE CHOICE' : 'SHORT ANSWER'"
-                                ></span>
-                            </div>
-                            <div x-html="TriviaUI.timer()"></div>
-                            <h2 class="question-text" x-text="currentItem.text"></h2>
-                            <template x-if="currentItem.image">
-                                <img
-                                    :src="currentItem.image"
-                                    class="question-image"
-                                    onerror="this.style.display = 'none'"
-                                />
-                            </template>
-                            <template x-if="currentItem.questionType === 'MC'">
-                                <div class="options-grid">
-                                    <template x-for="opt in currentItem.options">
-                                        <div
-                                            class="option"
-                                            x-text="opt"
-                                            :class="{ 'correct': answerRevealed && currentItem.answer.includes(opt) }"
-                                        ></div>
-                                    </template>
-                                </div>
-                            </template>
-                            <template x-if="currentItem.questionType === 'SHORT'">
-                                <div
-                                    class="text-muted"
-                                    style="
-                                        text-align: center;
-                                        padding: 1.5rem;
-                                        background: var(--color-bg);
-                                        border-radius: var(--radius-md);
-                                        margin-bottom: 1.5rem;
-                                        font-weight: 600;
-                                    "
-                                >
-                                    📝 Short Answer Question
-                                </div>
-                            </template>
-                            <div class="answer-box" x-show="answerRevealed">
-                                <h3 style="color: var(--color-success); font-size: 1rem; margin-bottom: 0.5rem">✅ CORRECT ANSWER</h3>
-                                <div
-                                    style="font-size: 2.25rem; font-weight: 800; color: var(--color-success)"
-                                    x-text="currentItem.answer"
-                                ></div>
-                            </div>
-                            <div class="host-notes" x-show="currentItem.notes && answerRevealed">
-                                <h4 style="font-size: 0.875rem; margin-bottom: 0.25rem">🔒 HOST NOTES</h4>
-                                <p class="text-sm" x-text="currentItem.notes"></p>
-                            </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" :style="`width: ${progressPercent}%`"></div>
                         </div>
-                    </template>
+                        <br />
+                        <template x-if="currentItem && currentItem.type === 'round-title'">
+                            <div class="round-title-slide" x-transition:enter="fade-enter-active" x-transition:enter-start="fade-enter" x-transition:enter-end="fade-enter-to">
+                                <template x-if="currentItem.image">
+                                    <div
+                                        class="round-title-bg"
+                                        :style="`background-image: url('${currentItem.image}')`"
+                                    ></div>
+                                </template>
+                                <div class="round-title-content">
+                                    <div style="opacity: 0.8; font-size: 1.1rem; font-weight: 800; letter-spacing: 0.1em">
+                                        ROUND <span x-text="currentItem.roundNumber"></span>
+                                    </div>
+                                    <h2 x-text="currentItem.title" style="margin-top: 0.5rem"></h2>
+                                </div>
+                            </div>
+                        </template>
+                        <template x-if="currentItem && currentItem.type === 'question'">
+                            <div x-transition:enter="fade-enter-active" x-transition:enter-start="fade-enter" x-transition:enter-end="fade-enter-to">
+                                <div class="question-header">
+                                    <span class="question-number"
+                                        >QUESTION <span x-text="currentItem.questionNumber"></span
+                                    ></span>
+                                    <span
+                                        class="text-muted text-sm"
+                                        style="font-weight: 700"
+                                        x-text="currentItem.questionType === 'MC' ? 'MULTIPLE CHOICE' : 'SHORT ANSWER'"
+                                    ></span>
+                                </div>
+                                <div x-html="TriviaUI.timer()"></div>
+                                <h2 class="question-text" x-text="currentItem.text"></h2>
+                                <template x-if="currentItem.image">
+                                    <img
+                                        :src="currentItem.image"
+                                        class="question-image"
+                                        onerror="this.style.display = 'none'"
+                                    />
+                                </template>
+                                <template x-if="currentItem.questionType === 'MC'">
+                                    <div class="options-grid">
+                                        <template x-for="opt in currentItem.options">
+                                            <div
+                                                class="option"
+                                                x-text="opt"
+                                                :class="{ 'correct': answerRevealed && currentItem.answer.includes(opt) }"
+                                            ></div>
+                                        </template>
+                                    </div>
+                                </template>
+                                <template x-if="currentItem.questionType === 'SHORT'">
+                                    <div
+                                        class="text-muted"
+                                        style="
+                                            text-align: center;
+                                            padding: 1.5rem;
+                                            background: var(--color-bg);
+                                            border-radius: var(--radius-md);
+                                            margin-bottom: 1.5rem;
+                                            font-weight: 600;
+                                        "
+                                    >
+                                        📝 Short Answer Question
+                                    </div>
+                                </template>
+                                <div class="answer-box" x-show="answerRevealed">
+                                    <h3 style="color: var(--color-success); font-size: 1rem; margin-bottom: 0.5rem">✅ CORRECT ANSWER</h3>
+                                    <div
+                                        style="font-size: 2.25rem; font-weight: 800; color: var(--color-success)"
+                                        x-text="currentItem.answer"
+                                    ></div>
+                                </div>
+                                <div class="host-notes" x-show="currentItem.notes && answerRevealed">
+                                    <h4 style="font-size: 0.875rem; margin-bottom: 0.25rem">🔒 HOST NOTES</h4>
+                                    <p class="text-sm" x-text="currentItem.notes"></p>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
                     <div
                         style="
                             margin-top: 2rem;

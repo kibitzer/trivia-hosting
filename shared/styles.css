@@ -187,6 +187,21 @@ textarea:focus {
     display: none !important;
 }
 
+/* --- TRANSITIONS --- */
+.fade-enter {
+    opacity: 0;
+    transform: translateY(10px);
+}
+.fade-enter-active {
+    transition:
+        opacity 0.4s ease-out,
+        transform 0.4s ease-out;
+}
+.fade-enter-to {
+    opacity: 1;
+    transform: translateY(0);
+}
+
 @keyframes spin {
     to {
         transform: rotate(360deg);

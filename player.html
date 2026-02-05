@@ -363,8 +363,9 @@
 
             <!-- Game Section -->
             <div x-show="screen === 'game'">
-                <div class="card">
-                    <div class="header">
+                <div :key="currentItem.currentIndex" x-transition:enter="fade-enter-active" x-transition:enter-start="fade-enter" x-transition:enter-end="fade-enter-to">
+                    <div class="card">
+                        <div class="header">
                         <h1 style="font-size: 1.25rem">🎯 Trivia Night</h1>
                         <div x-html="TriviaUI.connectionStatus()"></div>
                     </div>
@@ -388,7 +389,7 @@
 
                     <!-- ROUND TITLE -->
                     <template x-if="currentItem.type === 'round-title'">
-                        <div class="round-display">
+                        <div class="round-display" x-transition:enter="fade-enter-active" x-transition:enter-start="fade-enter" x-transition:enter-end="fade-enter-to">
                             <template x-if="currentItem.image">
                                 <div
                                     class="round-display-bg"
@@ -407,7 +408,7 @@
 
                     <!-- QUESTION DISPLAY -->
                     <template x-if="currentItem.type === 'question'">
-                        <div class="question-display">
+                        <div class="question-display" x-transition:enter="fade-enter-active" x-transition:enter-start="fade-enter" x-transition:enter-end="fade-enter-to">
                             <span
                                 class="question-number"
                                 x-text="'QUESTION ' + currentItem.questionNumber"
@@ -486,9 +487,10 @@
                         </div>
                     </template>
                 </div>
+            </div>
 
-                <!-- Scoreboard -->
-                <div class="card">
+            <!-- Scoreboard -->
+            <div class="card">
                     <div class="scoreboard-section">
                         <h3 style="font-size: 1rem; margin-bottom: 1rem">🏆 Scoreboard</h3>
                         <div class="score-list">
