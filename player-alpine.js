@@ -164,11 +164,13 @@
                     !this.gameState.type;
 
                 // Detect new question to reset inputs
+                // Use newState to avoid intermediate undefined values during the delete/assign loop
                 if (
-                    this.gameState.type === 'question' &&
-                    this.gameState.questionNumber !== this.lastQuestionNumber
+                    newState.type === 'question' &&
+                    newState.questionNumber &&
+                    newState.questionNumber !== this.lastQuestionNumber
                 ) {
-                    this.lastQuestionNumber = this.gameState.questionNumber;
+                    this.lastQuestionNumber = newState.questionNumber;
                     this.currentAnswer = null;
                     this.hasSubmitted = false;
                     this.showFeedback = false;
