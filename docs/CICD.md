@@ -8,8 +8,9 @@ The `.github/workflows/test.yml` pipeline performs the following steps on every 
 
 1.  Installs Node.js dependencies.
 2.  Installs Playwright browsers.
-3.  Runs Unit Tests (Vitest).
-4.  Runs End-to-End Tests (Playwright).
+3.  Lints code (ESLint).
+4.  Runs Unit Tests (Vitest).
+5.  Runs End-to-End Tests (Playwright).
 
 ## Setup for CI
 

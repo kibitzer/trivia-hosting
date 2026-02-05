@@ -24,7 +24,10 @@ The application version is managed centrally to avoid manual updates in multiple
 
 ### 2. Updating the Version
 
-Before bumping the version, ensure all changes are documented in the `[Unreleased]` section of `CHANGELOG.md`.
+Before bumping the version, ensure:
+- All changes are documented in the `[Unreleased]` section of `CHANGELOG.md`.
+- Code quality checks pass (`npm run lint` and `npm run format`).
+- All tests pass (`npm test` and `npm run test:e2e`).
 
 To update the version, use the built-in `npm version` command. This will bump the version in `package.json`, trigger the sync script for `shared/version.js`, and create a Git commit and tag.
 

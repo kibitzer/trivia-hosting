@@ -1,6 +1,24 @@
-# Testing Strategy
+# Testing & Quality Strategy
 
-This project employs a two-tiered testing strategy to ensure reliability of both the core game logic and the end-to-end user experience.
+This project employs a three-tiered quality strategy to ensure reliability of both the core game logic and the end-to-end user experience.
+
+## 0. Code Quality (Linting & Formatting)
+
+Before running functional tests, the codebase is checked for syntax errors, anti-patterns, and stylistic consistency.
+
+- **Linting (ESLint):** Checks for logical errors and adherence to JavaScript best practices.
+- **Formatting (Prettier):** Ensures a consistent code style (indentation, quotes, etc.) across all files.
+
+### Commands
+
+```bash
+# Check for linting errors and formatting issues
+npm run lint
+npm run format
+
+# Automatically fix formatting and some linting issues
+npm run format:fix
+```
 
 ## 1. Unit Testing
 

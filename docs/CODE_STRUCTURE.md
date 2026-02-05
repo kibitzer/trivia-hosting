@@ -9,6 +9,13 @@ This is a real-time trivia application built with a **Serverless** architecture.
 
 ## Directory Breakdown
 
+### Root Files
+
+- **`eslint.config.mjs`**: ESLint configuration for code quality and global variable definitions.
+- **`.prettierrc`**: Prettier configuration for consistent code formatting.
+- **`package.json`**: Project dependencies, scripts, and versioning.
+- **`sw.js`**: Service Worker for PWA functionality.
+
 ### `config/`
 
 Contains configuration files for the project's tools and services.
