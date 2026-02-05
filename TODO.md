@@ -4,7 +4,7 @@ This file tracks planned features, UI improvements, and technical debt.
 
 ## Tech Debt
 
-- [ ] **Update Docs**: With the addition of linting, we should update the current documentation in the appropriate files. Review docs in docs/
+- [x] **Update Docs**: With the addition of linting, we should update the current documentation in the appropriate files. Review docs in docs/
 
 ## 🎨 Visual Polish & UX
 
