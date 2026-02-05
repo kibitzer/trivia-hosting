@@ -30,8 +30,10 @@ window.createEditorData = function (firebase, db, auth, storage) {
 
         _normalizeString(s) {
             if (typeof s !== 'string') return s;
-            // Trim and strip legacy prefixes like 'A) '
-            return s.trim().replace(/^[A-D]\)\s*/, '');
+            // Trim and strip legacy prefixes like 'A) ', 'a) ', '1. ', etc.
+            return s.trim()
+                .replace(/^[A-Fa-f0-9][).]\s*/, '')
+                .trim();
         },
 
         // --- Computed ---
@@ -233,6 +235,20 @@ window.createEditorData = function (firebase, db, auth, storage) {
                     if (q.correctAnswer && typeof q.correctAnswer === 'string') {
                         q.correctAnswer = this._normalizeString(q.correctAnswer);
                     }
+
+                    // Fix: If MC correct answer is not in options, try to find a case-insensitive match or default to first option
+                    if (q.type === 'multiple' && q.options && q.options.length > 0) {
+                        if (!q.options.includes(q.correctAnswer)) {
+                            const match = q.options.find(o => o.toLowerCase() === (q.correctAnswer || '').toLowerCase());
+                            if (match) {
+                                q.correctAnswer = match;
+                            } else {
+                                console.warn(`MC Question ${q.id} has invalid correctAnswer: ${q.correctAnswer}`);
+                                // We don't auto-fix it here to avoid accidental changes, 
+                                // but the UI will now show it as unselected, and saveQuiz will block it.
+                            }
+                        }
+                    }
                 }
             });
 
@@ -380,6 +396,9 @@ window.createEditorData = function (firebase, db, auth, storage) {
 
                     if (!hasAnswer) {
                         validationError = `Question ${q.questionNumber} ("${(q.question || '').substring(0, 30)}...") is missing a correct answer.`;
+                    } else if (q.type === 'multiple' && q.options && !q.options.includes(q.correctAnswer)) {
+                        // For MC, the correct answer MUST be one of the options
+                        validationError = `Question ${q.questionNumber}: The correct answer ("${q.correctAnswer}") is not listed in the options.`;
                     }
                 }
             });
