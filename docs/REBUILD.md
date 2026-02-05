@@ -11,10 +11,30 @@ To trigger a complete architectural overhaul (the "Dream Rebuild") of this proje
 The goal of this rebuild is to transition from a "no-build" vanilla JavaScript architecture to a production-grade system with:
 
 - **TypeScript:** For strict type safety and better developer ergonomics.
-- **Component-Driven UI:** Using React or Vue for a modular, maintainable frontend.
+- **Component-Driven UI:** Using **React** for a modular, maintainable frontend.
+- **Modern Build Stack:** Using **Vite** for blistering fast development and optimized production builds.
 - **Server-Authoritative Game Loop:** Moving game logic (timers, scoring) to Firebase Cloud Functions or a Node.js backend to prevent "Host dependency" and increase security.
 - **XState/State Machines:** To manage complex game states (waiting, countdown, active, revealed) deterministically.
 - **Monorepo Structure:** To share TypeScript interfaces between the Host and Player clients.
+
+## Frontend & Build Stack
+
+The rebuild will utilise a modern, type-safe stack designed for performance and developer productivity.
+
+### 1. Vite (Build Tool)
+Vite is chosen for its lightning-fast Hot Module Replacement (HMR) and native ES Module support during development.
+- **Template:** `react-ts` (React + TypeScript).
+- **Path Aliases:** Use `@/` mapped to the `src` directory for clean imports (configured via `vite-tsconfig-paths`).
+- **Environment Variables:** All Firebase secrets must be prefixed with `VITE_` and accessed via `import.meta.env`.
+
+### 2. React (UI Library)
+Moving away from Alpine.js to React allows for a truly component-driven architecture.
+- **Hooks:** Custom hooks for Firebase synchronisation and game state management.
+- **Styling:** CSS Modules or Tailwind CSS for scoped, maintainable styles.
+
+### 3. PWA & Assets
+- **Vite Plugin PWA:** Automates the generation of service workers and manifest files, ensuring a robust offline-capable experience.
+- **Asset Optimization:** Vite handles automatic image compression and bundling.
 
 ## Data Storage Strategy
 
