@@ -24,8 +24,8 @@ This file tracks planned features, UI improvements, and technical debt.
 - [ ] **New Question Types**:
     - [ ] **Ordering**: Drag and drop items into the correct sequence.
     - [ ] **Matching**: Match pairs of related items.
-    - [ ] **True/False**
-    - [ ] **Identify**: Identify something e.g. a picture
+    - [x] **True/False**
+    - [x] **Identify**: Identify something e.g. a picture
     - [ ] **Music Clip**: Use a music clip to pose a question
     - [ ] **Estimation**: A number question whereby players provide an estimate, which is scored on proximity to correct answer
     - [ ] **Rebus**: a series of pictures that lead to an answer (e.g. answer is Burning Down The House, question is a pic of a fire, a pic of a down arrow, a pic of a house)
