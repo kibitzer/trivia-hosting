@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.23] - 2026-02-05
+
+### Added
+
+- **Quiz Editor**: Implemented option management for Multiple Choice questions. Users can now add up to 6 options and remove individual options with a minimum of 2 enforced.
+- **Data Integrity**: Enforced automatic 'correctAnswer' resetting if the previously selected option is deleted.
+
 ## [0.5.22] - 2026-02-05
 
 ### Fixed
