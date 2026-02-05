@@ -66,13 +66,20 @@ window.createEditorData = function (firebase, db, auth, storage) {
                 },
                 { deep: true }
             );
+
+            // Warn before leaving if changes are unsaved
+            window.onbeforeunload = () => {
+                if (this.statusMsg && (this.statusMsg.includes('Unsaved') || this.statusMsg.includes('Saving'))) {
+                    return 'You have unsaved changes. Are you sure you want to leave?';
+                }
+            };
         },
 
         triggerAutosave() {
             if (this.autosaveTimeout) clearTimeout(this.autosaveTimeout);
-            this.statusMsg = 'Typing...';
+            this.statusMsg = 'Unsaved Changes';
             this.autosaveTimeout = setTimeout(() => {
-                this.saveQuiz(true); // true indicates it's an autosave
+                this.saveQuiz();
             }, this.settings.autosaveDelay);
         },
 
@@ -97,7 +104,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
             }
 
             this.loading = true;
-            this.statusMsg = 'Uploading...';
+            this.statusMsg = 'Saving...';
 
             try {
                 // Create a unique filename
@@ -110,12 +117,11 @@ window.createEditorData = function (firebase, db, auth, storage) {
 
                 // Update the field in the current question
                 this.currentQuiz.questions[this.selectedQuestionIndex][targetField] = downloadURL;
-                this.statusMsg = 'Upload successful!';
-                setTimeout(() => (this.statusMsg = ''), 3000);
+                this.statusMsg = '✓ Saved';
+                setTimeout(() => (this.statusMsg = '✓ Saved'), 3000);
             } catch (e) {
                 console.error('Upload failed', e);
-                alert('Upload failed: ' + e.message);
-                this.statusMsg = 'Upload failed.';
+                this.statusMsg = '❌ Save failed';
             } finally {
                 this.loading = false;
                 // Reset file input so same file can be re-selected if needed
@@ -153,6 +159,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
             });
 
             this.selectedQuestionIndex = 0;
+            this.statusMsg = '✓ Saved';
 
             // Initialize Sortable after Alpine has rendered the list
             this.$nextTick(() => {
@@ -233,10 +240,9 @@ window.createEditorData = function (firebase, db, auth, storage) {
             }
         },
 
-        async saveQuiz(isAutosave = false) {
+        async saveQuiz() {
             if (!this.editingQuizId) return;
-            if (!isAutosave) this.loading = true;
-            this.statusMsg = isAutosave ? 'Saving...' : 'Saving...';
+            this.statusMsg = 'Saving...';
 
             // Before saving, ensure questionNumber and roundNumber are synced based on order
             let qNum = 1;
@@ -269,12 +275,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
             });
 
             if (validationError) {
-                if (!isAutosave) {
-                    alert(validationError);
-                } else {
-                    this.statusMsg = '⚠️ Missing answers - not saved';
-                }
-                this.loading = false;
+                this.statusMsg = '⚠️ Unsaved - Missing answers';
                 return;
             }
 
@@ -290,13 +291,9 @@ window.createEditorData = function (firebase, db, auth, storage) {
                 localCopy.updatedAt = now;
                 this.quizzes[this.editingQuizId] = localCopy;
 
-                this.statusMsg = isAutosave ? '✓ Autosaved' : '✓ Saved successfully!';
-                if (!isAutosave) setTimeout(() => (this.statusMsg = ''), 3000);
-            } catch (e) {
-                if (!isAutosave) alert('Save failed: ' + e.message);
+                this.statusMsg = '✓ Saved';
+            } catch {
                 this.statusMsg = '❌ Save failed';
-            } finally {
-                this.loading = false;
             }
         },
 

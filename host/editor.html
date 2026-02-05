@@ -243,10 +243,6 @@
                             :style="statusMsg.includes('⚠️') ? 'background: #fff7ed; color: var(--color-warning);' : (statusMsg.includes('❌') ? 'background: #fef2f2; color: var(--color-danger);' : 'background: #f0fdf4; color: var(--color-success);')"
                             x-text="statusMsg"
                         ></div>
-                        <button @click="saveQuiz()" class="btn btn-success" :disabled="loading">
-                            <span x-show="!loading">💾 Save Changes</span>
-                            <span x-show="loading">Saving...</span>
-                        </button>
                     </div>
                 </div>
 
