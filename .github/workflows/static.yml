@@ -3,6 +3,16 @@ name: Deploy Static Content to Pages
 on:
     push:
         branches: ['main']
+        paths:
+            - 'host/**'
+            - 'shared/**'
+            - 'config/**'
+            - 'player.html'
+            - 'player-alpine.js'
+            - 'manifest.json'
+            - 'sw.js'
+            - 'package.json'
+            - 'package-lock.json'
     workflow_dispatch:
 
 permissions:
