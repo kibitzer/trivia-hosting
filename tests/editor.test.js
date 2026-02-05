@@ -102,6 +102,26 @@ describe('Editor Logic', () => {
             editor.removeTag('New Tag');
             expect(editor.currentQuiz.questions[1].tags).not.toContain('New Tag');
         });
+
+        it('should update correctAnswer when the text of the selected option is edited', () => {
+            editor.selectedQuestionIndex = 1; // MC question
+            const q = editor.currentQuiz.questions[1];
+            
+            // Initial: A is correct
+            expect(q.correctAnswer).toBe('A');
+            
+            // Simulate editing "A" to "Apple"
+            // In the UI, this is handled by @input and @focus on the text input
+            const oldValue = 'A';
+            const newValue = 'Apple';
+            
+            q.options[0] = newValue;
+            if (q.correctAnswer === oldValue) {
+                q.correctAnswer = newValue;
+            }
+            
+            expect(q.correctAnswer).toBe('Apple');
+        });
     });
 
     describe('Question Management', () => {

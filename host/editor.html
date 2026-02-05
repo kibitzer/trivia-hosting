@@ -561,7 +561,7 @@
                                                 >
                                                     <input
                                                         type="radio"
-                                                        :name="'correct-' + selectedQuestionIndex"
+                                                        :name="'correct-' + currentQuiz.questions[selectedQuestionIndex].id"
                                                         :value="currentQuiz.questions[selectedQuestionIndex].options[oIdx]"
                                                         x-model="currentQuiz.questions[selectedQuestionIndex].correctAnswer"
                                                         style="width: 1rem; height: 1rem"
@@ -569,6 +569,8 @@
                                                     <input
                                                         type="text"
                                                         x-model="currentQuiz.questions[selectedQuestionIndex].options[oIdx]"
+                                                        @input="if (currentQuiz.questions[selectedQuestionIndex].correctAnswer === $el._oldValue) currentQuiz.questions[selectedQuestionIndex].correctAnswer = $el.value"
+                                                        @focus="$el._oldValue = $el.value"
                                                         placeholder="Option Text"
                                                         style="
                                                             border: none;
