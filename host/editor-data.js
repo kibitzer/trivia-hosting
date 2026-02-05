@@ -10,6 +10,10 @@ window.createEditorData = function (firebase, db, auth, storage) {
         newTagInput: '',
         autosaveTimeout: null,
         showSettings: false,
+        sortConfig: {
+            column: 'updatedAt',
+            direction: 'desc',
+        },
         settings: {
             autosaveDelay: 2000,
             showQuestionNumbers: true,
@@ -18,6 +22,33 @@ window.createEditorData = function (firebase, db, auth, storage) {
         // Placeholder for Alpine magic properties
         $watch: () => {},
         $nextTick: (cb) => cb(),
+
+        // --- Computed ---
+        get sortedQuizzes() {
+            const list = Object.entries(this.quizzes).map(([id, data]) => ({
+                id,
+                ...data,
+                title: data.title || 'Untitled Quiz',
+                questionCount: data.questions ? data.questions.length : 0,
+            }));
+
+            const { column, direction } = this.sortConfig;
+            return list.sort((a, b) => {
+                let valA = a[column];
+                let valB = b[column];
+
+                // Handle strings (titles)
+                if (typeof valA === 'string') {
+                    valA = valA.toLowerCase();
+                    valB = (valB || '').toLowerCase();
+                }
+
+                // Handle numbers/timestamps
+                if (valA < valB) return direction === 'asc' ? -1 : 1;
+                if (valA > valB) return direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+        },
 
         init() {
             // Load settings
@@ -95,6 +126,15 @@ window.createEditorData = function (firebase, db, auth, storage) {
             });
         },
 
+        setSort(column) {
+            if (this.sortConfig.column === column) {
+                this.sortConfig.direction = this.sortConfig.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                this.sortConfig.column = column;
+                this.sortConfig.direction = 'asc';
+            }
+        },
+
         async uploadImage(event, targetField) {
             const file = event.target.files[0];
             if (!file || !storage) return;
@@ -131,6 +171,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
         },
 
         createNewQuiz() {
+            const now = Date.now();
             const newQuiz = {
                 title: 'New Quiz',
                 questions: [
@@ -141,12 +182,21 @@ window.createEditorData = function (firebase, db, auth, storage) {
                         options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
                         correctAnswer: 'Option 1',
                         timer: 30,
+                        tags: [],
                     },
                 ],
+                createdAt: firebase.database.ServerValue.TIMESTAMP,
                 updatedAt: firebase.database.ServerValue.TIMESTAMP,
             };
             const ref = db.ref('quizzes').push();
             ref.set(newQuiz);
+
+            // Seed local cache with numeric timestamps for sorting/display
+            const localCopy = JSON.parse(JSON.stringify(newQuiz));
+            localCopy.createdAt = now;
+            localCopy.updatedAt = now;
+            this.quizzes[ref.key] = localCopy;
+
             this.editQuiz(ref.key);
         },
 
@@ -165,6 +215,11 @@ window.createEditorData = function (firebase, db, auth, storage) {
                     if (!q.tags) q.tags = [];
                 }
             });
+
+            // Ensure createdAt exists locally for sorting if it was missing
+            if (!this.currentQuiz.createdAt && this.currentQuiz.updatedAt) {
+                this.currentQuiz.createdAt = this.currentQuiz.updatedAt;
+            }
 
             this.renumberSlides();
             this.selectedQuestionIndex = 0;

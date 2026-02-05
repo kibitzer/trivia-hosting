@@ -26,6 +26,43 @@
                 border-bottom: none;
             }
 
+            /* Quiz Table Styling */
+            .quiz-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 1rem;
+            }
+            .quiz-table th {
+                text-align: left;
+                padding: 1rem;
+                background: var(--color-bg);
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                font-weight: 800;
+                color: var(--color-text-muted);
+                border-bottom: 2px solid var(--color-border);
+                cursor: pointer;
+                user-select: none;
+            }
+            .quiz-table th:hover {
+                color: var(--color-primary);
+            }
+            .quiz-table th.active-sort {
+                color: var(--color-primary);
+            }
+            .quiz-table td {
+                padding: 1rem;
+                border-bottom: 1px solid var(--color-border);
+                vertical-align: middle;
+            }
+            .quiz-table tr:last-child td {
+                border-bottom: none;
+            }
+            .quiz-table tr:hover {
+                background: #f8fafc;
+            }
+
             .header {
                 display: flex;
                 justify-content: space-between;
@@ -173,34 +210,56 @@
                 <a href="host.html" class="btn btn-primary">Go to Host Panel</a>
             </div>
 
-            <div x-show="isAuthenticated && !editingQuizId" class="card">
-                <h3 style="margin-bottom: 1.5rem">Your Quizzes</h3>
-                <div
-                    x-show="Object.keys(quizzes).length === 0"
-                    class="text-muted"
-                    style="padding: 3rem; text-align: center; font-weight: 600"
-                >
+            <div x-show="isAuthenticated && !editingQuizId" class="card" style="padding: 0; overflow: hidden;">
+                <div style="padding: 1.5rem 1.5rem 0 1.5rem">
+                    <h3 style="margin-bottom: 0.5rem">Your Quizzes</h3>
+                </div>
+                
+                <div x-show="Object.keys(quizzes).length === 0" class="text-muted" style="padding: 4rem; text-align: center; font-weight: 600">
                     No quizzes found in your collection.
                 </div>
-                <template x-for="(quiz, id) in quizzes" :key="id">
-                    <div class="quiz-item">
-                        <div>
-                            <strong
-                                style="font-size: 1.125rem"
-                                x-text="quiz.title || (quiz.questions && quiz.questions[0] ? quiz.questions[0].title : 'Untitled Quiz')"
-                            ></strong>
-                            <div
-                                class="text-muted text-sm"
-                                style="font-weight: 600; margin-top: 0.25rem"
-                                x-text="(quiz.questions ? quiz.questions.length : 0) + ' items &bull; Updated ' + (quiz.updatedAt && typeof quiz.updatedAt === 'number' ? TriviaUI.formatDate(quiz.updatedAt) : 'Just now')"
-                            ></div>
-                        </div>
-                        <div style="display: flex; gap: 0.5rem">
-                            <button @click="editQuiz(id)" class="btn btn-primary">Edit</button>
-                            <button @click="deleteQuiz(id)" class="btn btn-secondary" style="color: var(--color-danger)">Delete</button>
-                        </div>
-                    </div>
-                </template>
+
+                <table class="quiz-table" x-show="Object.keys(quizzes).length > 0">
+                    <thead>
+                        <tr>
+                            <th @click="setSort('title')" :class="{'active-sort': sortConfig.column === 'title'}">
+                                Quiz Name <span x-show="sortConfig.column === 'title'" x-text="sortConfig.direction === 'asc' ? '↑' : '↓'"></span>
+                            </th>
+                            <th style="width: 120px">Questions</th>
+                            <th @click="setSort('updatedAt')" :class="{'active-sort': sortConfig.column === 'updatedAt'}">
+                                Last Updated <span x-show="sortConfig.column === 'updatedAt'" x-text="sortConfig.direction === 'asc' ? '↑' : '↓'"></span>
+                            </th>
+                            <th @click="setSort('createdAt')" :class="{'active-sort': sortConfig.column === 'createdAt'}">
+                                Created <span x-show="sortConfig.column === 'createdAt'" x-text="sortConfig.direction === 'asc' ? '↑' : '↓'"></span>
+                            </th>
+                            <th style="width: 180px; text-align: right; cursor: default;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template x-for="quiz in sortedQuizzes" :key="quiz.id">
+                            <tr>
+                                <td>
+                                    <strong style="font-size: 1rem; color: var(--color-primary)" x-text="quiz.title"></strong>
+                                </td>
+                                <td>
+                                    <span class="text-sm font-weight-bold" x-text="quiz.questionCount"></span>
+                                </td>
+                                <td>
+                                    <div class="text-sm" style="font-weight: 600" x-text="TriviaUI.formatDateTime(quiz.updatedAt)"></div>
+                                </td>
+                                <td>
+                                    <div class="text-sm text-muted" x-text="TriviaUI.formatDate(quiz.createdAt)"></div>
+                                </td>
+                                <td style="text-align: right">
+                                    <div style="display: flex; gap: 0.5rem; justify-content: flex-end">
+                                        <button @click="editQuiz(quiz.id)" class="btn btn-primary" style="padding: 0.4rem 0.8rem">Edit</button>
+                                        <button @click="deleteQuiz(quiz.id)" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; color: var(--color-danger)">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
             </div>
 
             <div x-show="editingQuizId" style="display: flex; flex-direction: column; height: 92vh">

@@ -67,4 +67,18 @@ window.TriviaUI = {
             day: 'numeric',
         });
     },
+
+    /**
+     * Utility: Format Date and Time using system locale
+     */
+    formatDateTime(timestamp) {
+        if (!timestamp || typeof timestamp !== 'number') return 'N/A';
+        return new Date(timestamp).toLocaleString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    },
 };
