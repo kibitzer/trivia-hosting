@@ -17,6 +17,8 @@ When I enter **Plan Mode** (`/plan`), adhere to the following rules:
 
 - **CRITICAL**: Always run the linter (`npm run lint`) before committing any code changes. Ensure all errors AND warnings are resolved (use automated fixes and manual cleanup).
 
+- **CRITICAL**: When displaying dates in the UI, always use the system locale (e.g. `toLocaleDateString()`) to ensure consistent and localized formatting.
+
 - Use **British spelling** in all comments and documentation (e.g., 'optimise', 'colour', 'initialise').
 
 - Ensure every script includes a proper **shebang line** (e.g., `#!/usr/bin/env python3`).

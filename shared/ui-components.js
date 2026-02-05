@@ -55,4 +55,16 @@ window.TriviaUI = {
             </div>
         `;
     },
+
+    /**
+     * Utility: Format Date using system locale
+     */
+    formatDate(timestamp) {
+        if (!timestamp || typeof timestamp !== 'number') return 'N/A';
+        return new Date(timestamp).toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+        });
+    },
 };
