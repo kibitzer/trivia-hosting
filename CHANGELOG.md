@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.15] - 2026-02-05
+
+### Added
+
+- **Quiz Editor**: Replaced the single "Category" field with a flexible, multi-level Tagging system.
+- **UI**: Added a modern Tag Manager interface with pill-based display and easy addition/removal of multiple tags per slide.
+
+### Fixed
+
+- **Shared Parser**: Updated to support both new 'tags' arrays and legacy 'category' strings for backward compatibility.
+- **Quiz Editor**: Ensured slide numbering is recalculated immediately upon loading a quiz.
+
 ## [0.5.14] - 2026-02-05
 
 ### Added
