@@ -8,7 +8,7 @@ This file tracks planned features, UI improvements, and technical debt.
 
 ## 🎨 Visual Polish & UX
 
-- [ ] **Slide Transitions**: Add CSS animations (fade/slide) when changing questions or rounds in Host and Player views.
+- [x] **Slide Transitions**: Add CSS animations (fade/slide) when changing questions or rounds in Host and Player views.
 - [ ] **Sound Effects**:
     - [ ] Timer tick-tock sounds.
     - [ ] Correct answer "ding" / Incorrect answer buzzer.
