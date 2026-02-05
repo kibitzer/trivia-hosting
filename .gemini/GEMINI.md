@@ -15,8 +15,14 @@ When I enter **Plan Mode** (`/plan`), adhere to the following rules:
 
 ## [IMPLEMENTATION_RULES]
 
+- **CRITICAL**: NEVER bump the version number (via `npm version` or manual edits) without explicitly asking the user for confirmation and the update level (major, minor, or patch).
+
+- **CRITICAL**: Always run the linter (`npm run lint`) before committing any code changes. Ensure all errors are resolved.
+
 - Use **British spelling** in all comments and documentation (e.g., 'optimise', 'colour', 'initialise').
+
 - Ensure every script includes a proper **shebang line** (e.g., `#!/usr/bin/env python3`).
+
 - If a task is complex, implement it in chunks and ask for feedback after each logical milestone.
 
 # Trivia Hosting Project Memories
