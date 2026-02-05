@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.14] - 2026-02-05
+
+### Added
+
+- **Quiz Editor**: Implemented dynamic slide renumbering. Question and Round numbers now update instantly in the sidebar and editor header during drag-and-drop, adding, or removing slides.
+
 ## [0.5.13] - 2026-02-05
 
 ### Added
