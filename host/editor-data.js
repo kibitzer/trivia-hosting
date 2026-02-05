@@ -316,13 +316,23 @@ window.createEditorData = function (firebase, db, auth, storage) {
         closeEditor() {
             this.editingQuizId = null;
             this.currentQuiz = null;
+            if (this.sortableInstance) {
+                this.sortableInstance.destroy();
+                this.sortableInstance = null;
+            }
         },
 
+        sortableInstance: null,
         initSortable() {
             const el = document.getElementById('slide-list-container');
             if (!el || typeof Sortable === 'undefined') return;
 
-            Sortable.create(el, {
+            // Destroy existing instance to prevent multiple listeners
+            if (this.sortableInstance) {
+                this.sortableInstance.destroy();
+            }
+
+            this.sortableInstance = Sortable.create(el, {
                 animation: 150,
                 draggable: '.slide-thumb',
                 onEnd: (evt) => {
@@ -330,6 +340,9 @@ window.createEditorData = function (firebase, db, auth, storage) {
                     const newIndex = evt.newIndex;
 
                     if (oldIndex === newIndex) return;
+
+                    // Track which slide was selected by its ID
+                    const selectedId = this.currentQuiz.questions[this.selectedQuestionIndex]?.id;
 
                     // Reorder data based on the DOM order to ensure consistency
                     const newOrderIds = Array.from(el.querySelectorAll('.slide-thumb')).map(
@@ -340,13 +353,19 @@ window.createEditorData = function (firebase, db, auth, storage) {
                     const questionMap = new Map(this.currentQuiz.questions.map((q) => [q.id, q]));
 
                     // Rebuild the array in the new order
-                    // Filter ensures we only keep items that actually exist (handling potential ghost elements)
                     const newQuestions = newOrderIds
                         .map((id) => questionMap.get(id))
                         .filter((q) => q !== undefined);
 
                     this.currentQuiz.questions = newQuestions;
-                    this.selectedQuestionIndex = newIndex; // Approximate logic, or find index of moved item
+
+                    // Update selected index to follow the previously selected slide
+                    if (selectedId) {
+                        const newIdx = newQuestions.findIndex((q) => q.id === selectedId);
+                        if (newIdx !== -1) {
+                            this.selectedQuestionIndex = newIdx;
+                        }
+                    }
 
                     this.triggerAutosave();
                 },

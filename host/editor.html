@@ -313,7 +313,7 @@
                                     >
                                         <h2
                                             style="margin: 0; color: var(--color-primary); font-size: 1.25rem"
-                                            x-text="(currentQuiz.questions[selectedQuestionIndex].type === 'round-title' ? 'Round Intro' : 'Question ') + (selectedQuestionIndex + 1)"
+                                            x-text="(currentQuiz.questions[selectedQuestionIndex].type === 'round-title' ? 'Round Intro ' + getRoundNumber(selectedQuestionIndex) : 'Question ' + getQuestionNumber(selectedQuestionIndex))"
                                         ></h2>
                                         <button
                                             @click="removeQuestion(selectedQuestionIndex)"
