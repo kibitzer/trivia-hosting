@@ -34,7 +34,39 @@ Moving away from Alpine.js to React allows for a truly component-driven architec
 
 ### 3. PWA & Assets
 - **Vite Plugin PWA:** Automates the generation of service workers and manifest files, ensuring a robust offline-capable experience.
-- **Asset Optimization:** Vite handles automatic image compression and bundling.
+- **Asset Optimisation:** Vite handles automatic image compression and bundling.
+
+## Comprehensive Tech Stack
+
+The following libraries are selected to maintain a professional, minimal, and performant application.
+
+| Library | Purpose | The "Why" |
+| :--- | :--- | :--- |
+| **Tailwind CSS** | Styling | Enforces design consistency via utility classes; eliminates large, messy CSS files. |
+| **Zod** | Validation | Bridges the gap between raw Firebase data and TypeScript; ensures runtime type safety. |
+| **React Router** | Navigation | Manages clean URLs (e.g., `/host`, `/player`) and handles protected route logic. |
+| **React Firebase Hooks** | Data Sync | Provides declarative hooks for Firebase services, reducing boilerplate and `useEffect` mess. |
+| **Zustand** | State Management | Lightweight and performant global state for UI logic (e.g., active tabs, modals). |
+| **React Hook Form** | Form Handling | Keeps the Quiz Editor snappy by using uncontrolled inputs to minimize re-renders. |
+| **date-fns** | Date Utilities | Small, modular library for complex date arithmetic and relative time strings. |
+| **Lucide React** | Icons | Provides a consistent library of lightweight, modern SVG icons for a minimal UI. |
+
+### Project Initialisation
+
+To set up the foundation for `trivia-v2`, run:
+
+```bash
+# 1. Create project
+npm create vite@latest trivia-v2 -- --template react-ts
+
+# 2. Install core dependencies
+cd trivia-v2
+npm install firebase react-firebase-hooks react-router-dom zustand zod react-hook-form date-fns lucide-react
+
+# 3. Install dev dependencies (Tailwind + PWA)
+npm install -D tailwindcss postcss autoprefixer vite-plugin-pwa vite-tsconfig-paths
+npx tailwindcss init -p
+```
 
 ## Data Storage Strategy
 
