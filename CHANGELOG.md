@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.8] - 2026-02-05
 
+### Changed
+
+- **Documentation**: Updated all core documentation (`CICD.md`, `TESTING.md`, `CODE_STRUCTURE.md`, `VERSIONING.md`) to reflect the new linting and formatting standards.
+- **Roadmap**: Marked "True/False" and "Identify" question types as completed in `TODO.md`.
+
 ### Removed
 
 - **Themes**: Completely removed the visual theme feature (Neon, Dark, Classroom) to simplify the codebase and maintain a consistent "Classic" look.
