@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.20] - 2026-02-05
+
+### Fixed
+
+- **Quiz Editor**: Resolved an issue where date columns in the quiz list appeared blank due to a missing script import for `ui-components.js`.
+
+### Changed
+
+- **CI/CD**: Optimized the "Deploy Static Content to Pages" workflow to trigger only when relevant code files are modified, ignoring documentation and metadata changes.
+
 ## [0.5.19] - 2026-02-05
 
 ### Added
