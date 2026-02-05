@@ -15,12 +15,12 @@ const content = `// Single source of truth for the app version
 const TRIVIA_VERSION = '${newVersion}';
 
 // Helper to display it
-function displayVersion(elementId) {
+window.displayVersion = function (elementId) {
     const el = document.getElementById(elementId);
     if (el) {
         el.innerText = 'v' + TRIVIA_VERSION;
     }
-}
+};
 `;
 
 // Write the file
