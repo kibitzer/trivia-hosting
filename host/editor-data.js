@@ -545,5 +545,34 @@ window.createEditorData = function (firebase, db, auth, storage) {
                 this.loading = false;
             }
         },
+
+        addOption() {
+            const q = this.currentQuiz.questions[this.selectedQuestionIndex];
+            if (!q || q.type !== 'multiple') return;
+            if (!q.options) q.options = [];
+            if (q.options.length >= 6) {
+                return Swal.fire('Limit Reached', 'Maximum 6 options allowed.', 'info');
+            }
+            q.options.push('New Option');
+            this.triggerAutosave();
+        },
+
+        removeOption(index) {
+            const q = this.currentQuiz.questions[this.selectedQuestionIndex];
+            if (!q || q.type !== 'multiple' || !q.options) return;
+            if (q.options.length <= 2) {
+                return Swal.fire('Minimum Required', 'Multiple choice questions must have at least 2 options.', 'warning');
+            }
+            
+            const removedVal = q.options[index];
+            q.options.splice(index, 1);
+            
+            // If the correct answer was removed, reset it
+            if (q.correctAnswer === removedVal) {
+                q.correctAnswer = q.options[0];
+            }
+            
+            this.triggerAutosave();
+        },
     };
 };

@@ -122,6 +122,40 @@ describe('Editor Logic', () => {
             
             expect(q.correctAnswer).toBe('Apple');
         });
+
+        it('should add and remove options correctly in MC questions', () => {
+            editor.selectedQuestionIndex = 1; // MC question
+            const q = editor.currentQuiz.questions[1];
+            
+            // Initial: 2 options
+            expect(q.options).toHaveLength(2);
+            
+            // Add options up to limit
+            editor.addOption(); // 3
+            editor.addOption(); // 4
+            editor.addOption(); // 5
+            editor.addOption(); // 6
+            expect(q.options).toHaveLength(6);
+            
+            // Try to exceed limit
+            editor.addOption();
+            expect(q.options).toHaveLength(6);
+            
+            // Remove options
+            const firstVal = q.options[0];
+            q.correctAnswer = firstVal;
+            
+            editor.removeOption(0);
+            expect(q.options).toHaveLength(5);
+            expect(q.correctAnswer).not.toBe(firstVal); // Should have reset since correct answer was removed
+            
+            // Try to go below minimum
+            editor.removeOption(0); // 4
+            editor.removeOption(0); // 3
+            editor.removeOption(0); // 2
+            editor.removeOption(0); // Should fail
+            expect(q.options).toHaveLength(2);
+        });
     });
 
     describe('Question Management', () => {
