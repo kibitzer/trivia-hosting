@@ -6,7 +6,6 @@ dotenv.config();
 
 const PORT = process.env.TEST_PORT || 8080;
 const LOGIN_URL = `http://localhost:${PORT}/host/login.html`;
-const HOST_URL = `http://localhost:${PORT}/host/host.html`;
 const PLAYER_URL = `http://localhost:${PORT}/player.html`;
 
 test('Trivia Full Simulation', async ({ browser }) => {
