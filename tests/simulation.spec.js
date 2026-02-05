@@ -149,7 +149,7 @@ test('Trivia Full Simulation', async ({ browser }) => {
 
         // 4. Run through first few questions
         // Question 1: Multiple Choice (Capital of France?)
-        await expect(hostPage.locator('text=Q1')).toBeVisible();
+        await expect(hostPage.locator('text=QUESTION 1')).toBeVisible();
 
         // Players answer
         for (const p of players) {
@@ -169,7 +169,7 @@ test('Trivia Full Simulation', async ({ browser }) => {
 
         // 5. Host: Move to Question 2 (Short Answer: Gold Symbol)
         await hostPage.click('button:has-text("Next")');
-        await expect(hostPage.locator('text=Q2')).toBeVisible();
+        await expect(hostPage.locator('text=QUESTION 2')).toBeVisible();
 
         // Players answer short answer
         for (const p of players) {

@@ -21,41 +21,26 @@
         <!-- Alpine.js -->
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-        <link rel="stylesheet" href="shared/styles.css?v=1.3" />
+        <link rel="stylesheet" href="shared/styles.css?v=1.6" />
         <style>
             .container {
-                max-width: 600px;
-                margin: 0 auto;
-            }
-            .card {
-                background: white;
-                border-radius: 20px;
-                padding: 25px;
-                box-shadow: 0 10px 40px rgba(66, 165, 245, 0.2);
-                margin-bottom: 15px;
+                max-width: 500px;
+                margin: 2rem auto;
+                padding: 0 1rem;
             }
 
             /* Join */
             .join-section {
                 text-align: center;
-                padding: 40px 20px;
+                padding: 2rem 0;
             }
             .join-section input {
-                width: 100%;
-                padding: 15px;
-                font-size: 1.1rem;
-                border: 2px solid #90caf9;
-                border-radius: 10px;
-                margin-bottom: 15px;
+                margin-bottom: 1rem;
             }
             .join-section button {
                 width: 100%;
-                padding: 18px;
-                font-size: 1.2rem;
-                background: #1565c0;
-                color: white;
-                border-radius: 12px;
-                font-weight: bold;
+                padding: 1rem;
+                font-size: 1.125rem;
             }
 
             /* Header */
@@ -63,41 +48,40 @@
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                margin-bottom: 15px;
+                margin-bottom: 1.5rem;
             }
             .player-badge {
-                background: linear-gradient(135deg, #1565c0, #42a5f5);
+                background: var(--color-primary);
                 color: white;
-                padding: 12px 20px;
-                border-radius: 15px;
+                padding: 1rem;
+                border-radius: var(--radius-md);
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
+                margin-bottom: 1.5rem;
             }
 
             /* Waiting */
             .waiting-screen {
                 text-align: center;
-                padding: 50px 20px;
-                color: #546e7a;
+                padding: 3rem 1rem;
             }
             .spinner {
                 font-size: 3rem;
                 animation: bounce 1s infinite;
                 display: inline-block;
-                margin-bottom: 20px;
+                margin-bottom: 1.5rem;
             }
 
             /* Round */
             .round-display {
-                background: linear-gradient(135deg, #1565c0 0%, #42a5f5 100%);
-                border-radius: 15px;
-                padding: 50px 30px;
+                background: var(--color-primary);
+                border-radius: var(--radius-lg);
+                padding: 3rem 1.5rem;
                 text-align: center;
                 color: white;
                 position: relative;
                 overflow: hidden;
-                z-index: 0;
             }
             .round-display-bg {
                 position: absolute;
@@ -107,24 +91,22 @@
                 height: 100%;
                 background-size: cover;
                 background-position: center;
-                background-repeat: no-repeat;
-                opacity: 0.2;
-                z-index: 1;
+                opacity: 0.15;
             }
             .round-display-content {
                 position: relative;
                 z-index: 2;
             }
             .round-number {
-                font-weight: bold;
-                color: rgba(255, 255, 255, 0.9);
-                font-size: 1.1rem;
-                margin-bottom: 5px;
+                font-weight: 800;
+                color: rgba(255, 255, 255, 0.8);
+                font-size: 0.875rem;
+                letter-spacing: 0.1em;
+                margin-bottom: 0.5rem;
             }
             .round-display h2 {
-                font-size: 2rem;
+                font-size: 1.75rem;
                 color: white;
-                margin-top: 10px;
             }
 
             /* Question */
@@ -132,152 +114,147 @@
                 text-align: center;
             }
             .question-number {
-                background: #1565c0;
+                background: var(--color-primary);
                 color: white;
-                padding: 5px 15px;
-                border-radius: 20px;
-                font-weight: bold;
+                padding: 0.25rem 1rem;
+                border-radius: var(--radius-full);
+                font-weight: 700;
+                font-size: 0.75rem;
                 display: inline-block;
-                margin-bottom: 15px;
+                margin-bottom: 1rem;
             }
             .timer-display {
-                font-size: 3rem;
-                font-weight: bold;
-                color: #1565c0;
-                margin: 15px 0;
+                font-size: 3.5rem;
+                font-weight: 800;
+                color: var(--color-primary);
+                margin: 1rem 0;
+                line-height: 1;
             }
             .timer-display.countdown {
-                color: #ff9800;
+                color: var(--color-warning);
             }
             .timer-display.danger {
-                color: #d32f2f;
+                color: var(--color-danger);
                 animation: pulse 0.5s infinite;
             }
 
             .question-text {
-                font-size: 1.4rem;
-                color: #1565c0;
-                margin-bottom: 20px;
-                line-height: 1.4;
+                font-size: 1.5rem;
+                font-weight: 700;
+                margin-bottom: 1.5rem;
+                line-height: 1.3;
             }
             .question-image {
                 width: 100%;
-                max-height: 250px;
+                max-height: 220px;
                 object-fit: contain;
-                border-radius: 12px;
-                margin-bottom: 20px;
-                background: #f5f5f5;
+                border-radius: var(--radius-md);
+                margin-bottom: 1.5rem;
+                background: var(--color-bg);
             }
 
             /* Options */
             .options-list {
                 display: flex;
                 flex-direction: column;
-                gap: 10px;
-                margin-bottom: 20px;
+                gap: 0.75rem;
+                margin-bottom: 1.5rem;
             }
             .option-btn {
-                background: #e3f2fd;
-                padding: 15px 20px;
-                border-radius: 12px;
-                font-size: 1.1rem;
-                color: #1565c0;
+                background: var(--color-bg);
+                padding: 1rem 1.25rem;
+                border-radius: var(--radius-md);
+                font-size: 1.0625rem;
+                font-weight: 600;
+                color: var(--color-text);
                 text-align: left;
-                border: 2px solid transparent;
+                border: 1px solid var(--color-border);
                 width: 100%;
+                transition: all 0.2s ease;
             }
             .option-btn.selected {
-                background: #1565c0;
+                background: var(--color-primary);
                 color: white;
+                border-color: var(--color-primary);
             }
             .option-btn.correct {
-                background: #4caf50;
-                color: white;
-                border-color: #2e7d32;
+                background: #f0fdf4;
+                color: var(--color-success);
+                border-color: var(--color-success);
             }
             .option-btn.incorrect {
-                background: #f44336;
-                color: white;
-                border-color: #c62828;
+                background: #fef2f2;
+                color: var(--color-danger);
+                border-color: var(--color-danger);
             }
 
             /* Short Answer */
             .answer-input-group {
                 display: flex;
-                gap: 10px;
-                margin-bottom: 15px;
+                gap: 0.75rem;
+                margin-bottom: 1.5rem;
             }
             .answer-input-group input {
                 flex: 1;
-                padding: 15px;
-                border-radius: 10px;
-                border: 2px solid #90caf9;
-                font-size: 1.1rem;
-            }
-            .answer-input-group button {
-                padding: 0 25px;
-                background: #1565c0;
-                color: white;
-                border-radius: 10px;
-                font-weight: bold;
             }
 
             /* Feedback */
             .submitted-message {
-                background: #e3f2fd;
-                border-radius: 12px;
-                padding: 20px;
+                background: #f0f9ff;
+                border: 1px solid #bae6fd;
+                border-radius: var(--radius-md);
+                padding: 1.5rem;
                 text-align: center;
-                color: #1565c0;
-                margin-top: 15px;
+                color: #0369a1;
+                margin-top: 1rem;
             }
             .answer-reveal {
-                background: #e8f5e9;
-                border: 3px solid #4caf50;
-                border-radius: 15px;
-                padding: 20px;
+                background: #f0fdf4;
+                border: 2px solid var(--color-success);
+                border-radius: var(--radius-lg);
+                padding: 1.5rem;
                 text-align: center;
-                margin-top: 15px;
+                margin-top: 1rem;
             }
             .answer-reveal h3 {
-                color: #2e7d32;
-                margin-bottom: 8px;
+                color: var(--color-success);
+                font-size: 0.875rem;
+                margin-bottom: 0.5rem;
             }
             .answer-reveal .answer-text {
-                font-size: 1.5rem;
-                color: #1b5e20;
-                font-weight: bold;
+                font-size: 1.75rem;
+                color: var(--color-success);
+                font-weight: 800;
             }
 
             /* Scoreboard */
             .score-list {
-                max-height: 250px;
+                max-height: 300px;
                 overflow-y: auto;
             }
             .score-row {
                 display: flex;
                 justify-content: space-between;
-                padding: 10px 15px;
-                margin-bottom: 8px;
-                background: #f5f9ff;
-                border-radius: 10px;
-                border-left: 4px solid #1565c0;
+                padding: 0.75rem 1rem;
+                margin-bottom: 0.5rem;
+                background: var(--color-bg);
+                border-radius: var(--radius-md);
+                border: 1px solid var(--color-border);
             }
             .score-row.leader {
-                background: #fff8e1;
-                border-left-color: #ffc107;
+                background: #fefce8;
+                border-color: #fde047;
             }
             .score-row.me {
-                background: #e8f5e9;
-                border-left-color: #4caf50;
+                border-left: 4px solid var(--color-primary);
             }
             .score-row .name {
-                font-weight: bold;
-                color: #1565c0;
+                font-weight: 700;
+                font-size: 0.9375rem;
             }
             .score-row .score {
-                font-weight: bold;
-                color: #2e7d32;
+                font-weight: 800;
+                color: var(--color-success);
             }
 
             /* Feedback Flash Overlay */
@@ -299,64 +276,33 @@
                 opacity: 1;
             }
             .feedback-overlay.correct {
-                background: rgba(76, 175, 80, 0.9);
+                background: rgba(22, 163, 74, 0.9);
             }
             .feedback-overlay.incorrect {
-                background: rgba(244, 67, 54, 0.9);
+                background: rgba(220, 38, 38, 0.9);
             }
             .feedback-content {
                 color: white;
                 text-align: center;
-                transform: scale(0.5);
-                transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                transform: scale(0.8);
+                transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             }
             .feedback-overlay.active .feedback-content {
                 transform: scale(1);
             }
             .feedback-content h1 {
                 color: white;
-                font-size: 4rem;
-                text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+                font-size: 3rem;
+                text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
             }
 
-            /* Streak Badge */
-            .streak-badge {
-                background: linear-gradient(135deg, #ff9800, #f44336);
-                color: white;
-                padding: 5px 12px;
-                border-radius: 20px;
-                font-size: 0.9rem;
-                font-weight: bold;
-                margin-left: 10px;
-                box-shadow: 0 4px 10px rgba(244, 67, 54, 0.4);
-                animation: glow 1.5s infinite alternate;
-            }
-
-            @keyframes glow {
-                from {
-                    box-shadow: 0 0 5px #ff9800;
-                }
-                to {
-                    box-shadow: 0 0 20px #f44336;
-                }
-            }
             @keyframes bounce {
-                0%,
-                100% {
-                    transform: translateY(0);
-                }
-                50% {
-                    transform: translateY(-10px);
-                }
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-10px); }
             }
             @keyframes pulse {
-                0%,
-                100% {
-                    transform: scale(1);
-                }
-                50% {
-                    transform: scale(1.1);
-                }
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.05); }
             }
         </style>
     </head>
@@ -386,18 +332,19 @@
             <!-- Join Section -->
             <div class="card" x-show="screen === 'join'">
                 <div class="join-section">
-                    <div style="font-size: 4rem; margin-bottom: 20px">🎯</div>
-                    <h1>Trivia Night</h1>
-                    <p style="color: #546e7a; margin-bottom: 30px">Enter your name to join!</p>
+                    <div style="font-size: 3rem; margin-bottom: 1.5rem">🎯</div>
+                    <h1 style="margin-bottom: 0.5rem">Trivia Night</h1>
+                    <p class="text-muted" style="margin-bottom: 2rem">Enter your name to join the game!</p>
 
                     <div
                         x-show="errorMsg"
                         style="
-                            color: red;
-                            background: #ffebee;
-                            padding: 10px;
-                            border-radius: 8px;
-                            margin-bottom: 20px;
+                            color: var(--color-danger);
+                            background: #fef2f2;
+                            padding: 0.75rem;
+                            border-radius: var(--radius-md);
+                            margin-bottom: 1.5rem;
+                            font-weight: 600;
                         "
                         x-text="errorMsg"
                     ></div>
@@ -405,12 +352,12 @@
                     <input
                         type="text"
                         x-model="playerName"
-                        placeholder="Enter your name..."
+                        placeholder="Your display name"
                         maxlength="20"
                         @keyup.enter="joinGame()"
                         :disabled="!!errorMsg"
                     />
-                    <button @click="joinGame()" :disabled="!!errorMsg">Join Game 🎉</button>
+                    <button class="btn btn-primary" @click="joinGame()" :disabled="!!errorMsg">Join Game 🎉</button>
                 </div>
             </div>
 
@@ -418,25 +365,25 @@
             <div x-show="screen === 'game'">
                 <div class="card">
                     <div class="header">
-                        <h1>🎯 Trivia Night</h1>
+                        <h1 style="font-size: 1.25rem">🎯 Trivia Night</h1>
                         <div x-html="TriviaUI.connectionStatus()"></div>
                     </div>
 
                     <div class="player-badge">
                         <div style="display: flex; align-items: center">
-                            <span class="name" x-text="playerName"></span>
+                            <span style="font-weight: 700; font-size: 1.125rem" x-text="playerName"></span>
                             <template x-if="streak >= 3">
                                 <span class="streak-badge" x-text="'🔥 ' + streak"></span>
                             </template>
                         </div>
-                        <span class="score" x-text="score + ' pts'"></span>
+                        <span style="font-weight: 800; font-size: 1.125rem" x-text="score + ' pts'"></span>
                     </div>
 
                     <!-- WAITING SCREEN -->
                     <div class="waiting-screen" x-show="isWaiting">
                         <div class="spinner">⏳</div>
-                        <h2>Waiting for host...</h2>
-                        <p>The quiz will begin shortly!</p>
+                        <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem">Waiting for Host</h2>
+                        <p class="text-muted">The quiz will begin shortly. Get ready!</p>
                     </div>
 
                     <!-- ROUND TITLE -->
@@ -463,14 +410,14 @@
                         <div class="question-display">
                             <span
                                 class="question-number"
-                                x-text="'Question ' + currentItem.questionNumber"
+                                x-text="'QUESTION ' + currentItem.questionNumber"
                             ></span>
 
                             <!-- Timer -->
                             <div x-html="TriviaUI.timer()"></div>
 
                             <!-- Content -->
-                            <p class="question-text" x-text="currentItem.questionText"></p>
+                            <h2 class="question-text" x-text="currentItem.questionText"></h2>
 
                             <template x-if="currentItem.questionImage">
                                 <img
@@ -508,7 +455,7 @@
                                         placeholder="Type your answer..."
                                         @keyup.enter="submitShortAnswer()"
                                     />
-                                    <button @click="submitShortAnswer()">Submit</button>
+                                    <button class="btn btn-primary" @click="submitShortAnswer()">Submit</button>
                                 </div>
                             </div>
 
@@ -517,23 +464,23 @@
                                 class="submitted-message"
                                 x-show="hasSubmitted && !gameState.answerRevealed"
                             >
-                                <div class="check">✅</div>
-                                <p><strong>Answer submitted!</strong></p>
-                                <p x-text="'Your answer: ' + currentAnswer"></p>
+                                <p style="font-weight: 700; margin-bottom: 0.25rem">✅ Answer submitted!</p>
+                                <p class="text-sm" x-text="'Your answer: ' + currentAnswer"></p>
                             </div>
 
                             <!-- Answer Reveal -->
                             <div class="answer-reveal" x-show="gameState.answerRevealed">
-                                <h3>✅ Correct Answer</h3>
+                                <h3>CORRECT ANSWER</h3>
                                 <div class="answer-text" x-text="gameState.answer || '---'"></div>
 
                                 <!-- Show user answer if Short Answer mode -->
                                 <div
                                     x-show="currentItem.questionType === 'SHORT' && currentAnswer"
-                                    style="margin-top: 10px; font-size: 0.9rem"
+                                    class="text-sm"
+                                    style="margin-top: 1rem; font-weight: 600; color: var(--color-text-muted)"
                                 >
                                     Your answer:
-                                    <span x-text="currentAnswer" style="font-weight: bold"></span>
+                                    <span x-text="currentAnswer" style="color: var(--color-text)"></span>
                                 </div>
                             </div>
                         </div>
@@ -543,7 +490,7 @@
                 <!-- Scoreboard -->
                 <div class="card">
                     <div class="scoreboard-section">
-                        <h3>🏆 Scoreboard</h3>
+                        <h3 style="font-size: 1rem; margin-bottom: 1rem">🏆 Scoreboard</h3>
                         <div class="score-list">
                             <template x-for="(player, index) in scoreboard" :key="player.id">
                                 <div
@@ -561,14 +508,29 @@
                             </template>
                             <p
                                 x-show="scoreboard.length === 0"
-                                style="text-align: center; color: #90a4ae"
+                                class="text-muted text-sm"
+                                style="text-align: center; padding: 1rem"
                             >
-                                No scores yet
+                                No scores yet.
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <div
+                class="text-muted"
+                style="
+                    text-align: center;
+                    margin-top: 2rem;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    letter-spacing: 0.05em;
+                "
+            >
+                TRIVIA PLAYER <span id="player-version"></span>
+            </div>
+        </div>
 
             <div
                 style="

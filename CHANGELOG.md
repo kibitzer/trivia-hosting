@@ -5,9 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.5.8] - 2026-02-05
+## [0.5.9] - 2026-02-05
+
+### Added
+
+- **Design System**: Established a formal visual language in `.gemini/GEMINI.md` with tokens for colors, spacing, and typography.
+- **Global Styles**: Completely overhauled `shared/styles.css` with a modern, minimal aesthetic based on the new tokens.
 
 ### Changed
+
+- **UI Overhaul**: Refactored Host, Player, and Editor interfaces for professional consistency and cleanliness.
+
+## [0.5.8] - 2026-02-05
 
 - **Documentation**: Updated all core documentation (`CICD.md`, `TESTING.md`, `CODE_STRUCTURE.md`, `VERSIONING.md`) to reflect the new linting and formatting standards.
 - **Roadmap**: Marked "True/False" and "Identify" question types as completed in `TODO.md`.

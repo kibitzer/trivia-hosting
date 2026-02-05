@@ -27,7 +27,8 @@ window.TriviaUI = {
                     'countdown': timerStatus === 'countdown', 
                     'danger': timerStatus === 'running' && timerValue <= 5,
                     'stopped': timerStatus === 'ended' || timerStatus === 'revealed'
-                 }">
+                 }"
+                 style="font-variant-numeric: tabular-nums; letter-spacing: -0.05em; font-weight: 800;">
             </div>
         `;
     },

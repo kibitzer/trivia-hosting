@@ -66,3 +66,23 @@ When I enter **Plan Mode** (`/plan`), adhere to the following rules:
 
 - Keep `README.md` simple and concise.
 - Future improvements list: UX/Visual Polish (PWA refinement), Advanced Mechanics (power-ups/teams), and Code Health.
+
+## Design System (Visual Language)
+
+### Core Principles
+- **Minimalism**: Use white space and subtle borders instead of heavy shadows and bright gradients.
+- **Hierarchy**: Use consistent font sizes and weights to guide the user's eye.
+- **Consistency**: All buttons, cards, and inputs must look the same across Host, Player, and Editor.
+
+### Visual Tokens
+- **Palette**: 
+    - Primary: `#1e40af` (Deep Blue)
+    - Secondary: `#64748b` (Slate Grey)
+    - Background: `#f8fafc` (Off-white / Slate 50)
+    - Surface: `#ffffff` (Pure White)
+    - Danger: `#dc2626` (Red 600)
+    - Success: `#16a34a` (Green 600)
+- **Borders**: `1px solid #e2e8f0` (Slate 200) for containers.
+- **Radius**: `0.75rem` (12px) for cards and buttons; `0.5rem` (8px) for inputs.
+- **Shadows**: Use `0 1px 3px 0 rgb(0 0 0 / 0.1)` for subtle depth.
+- **Typography**: System font stack (`Inter`, `ui-sans-serif`, `system-ui`). Standard text at `1rem`, secondary at `0.875rem`.
