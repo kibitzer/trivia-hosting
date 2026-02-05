@@ -261,11 +261,11 @@
                                         <div
                                             class="slide-number"
                                             x-show="settings.showQuestionNumbers"
-                                            x-text="currentQuiz.questions[index].type === 'round-title' ? 'ROUND ' + getRoundNumber(index) : 'QUESTION ' + getQuestionNumber(index)"
+                                            x-text="q.type === 'round-title' ? 'ROUND ' + q.roundNumber : 'QUESTION ' + q.questionNumber"
                                         ></div>
                                         <div
                                             class="slide-preview"
-                                            x-text="currentQuiz.questions[index].type === 'round-title' ? currentQuiz.questions[index].title : (currentQuiz.questions[index].question || '(New Question)')"
+                                            x-text="q.type === 'round-title' ? q.title : (q.question || '(New Question)')"
                                         ></div>
                                         <div
                                             class="text-muted"
@@ -309,7 +309,7 @@
                                     >
                                         <h2
                                             style="margin: 0; color: var(--color-primary); font-size: 1.25rem"
-                                            x-text="(currentQuiz.questions[selectedQuestionIndex].type === 'round-title' ? 'Round Intro ' + getRoundNumber(selectedQuestionIndex) : 'Question ' + getQuestionNumber(selectedQuestionIndex))"
+                                            x-text="(currentQuiz.questions[selectedQuestionIndex].type === 'round-title' ? 'Round Intro ' + currentQuiz.questions[selectedQuestionIndex].roundNumber : 'Question ' + currentQuiz.questions[selectedQuestionIndex].questionNumber)"
                                         ></h2>
                                         <button
                                             @click="removeQuestion(selectedQuestionIndex)"

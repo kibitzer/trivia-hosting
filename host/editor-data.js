@@ -171,24 +171,17 @@ window.createEditorData = function (firebase, db, auth, storage) {
             this.selectedQuestionIndex = index;
         },
 
-        getQuestionNumber(index) {
-            if (!this.currentQuiz || !this.currentQuiz.questions) return 0;
-            let count = 0;
-            const limit = Math.min(index, this.currentQuiz.questions.length - 1);
-            for (let i = 0; i <= limit; i++) {
-                if (this.currentQuiz.questions[i].type !== 'round-title') count++;
-            }
-            return count;
-        },
-
-        getRoundNumber(index) {
-            if (!this.currentQuiz || !this.currentQuiz.questions) return 0;
-            let count = 0;
-            const limit = Math.min(index, this.currentQuiz.questions.length - 1);
-            for (let i = 0; i <= limit; i++) {
-                if (this.currentQuiz.questions[i].type === 'round-title') count++;
-            }
-            return count;
+        renumberSlides() {
+            if (!this.currentQuiz || !this.currentQuiz.questions) return;
+            let qNum = 1;
+            let rNum = 1;
+            this.currentQuiz.questions.forEach((q) => {
+                if (q.type === 'round-title') {
+                    q.roundNumber = rNum++;
+                } else {
+                    q.questionNumber = qNum++;
+                }
+            });
         },
 
         addQuestion() {
@@ -202,20 +195,18 @@ window.createEditorData = function (firebase, db, auth, storage) {
                 notes: '',
                 category: '',
             });
+            this.renumberSlides();
             this.selectedQuestionIndex = this.currentQuiz.questions.length - 1;
         },
 
         addRound() {
-            const currentRoundCount = this.currentQuiz.questions.filter(
-                (q) => q.type === 'round-title'
-            ).length;
             this.currentQuiz.questions.push({
                 id: 'r-' + Date.now(),
                 type: 'round-title',
                 title: 'New Round',
-                roundNumber: currentRoundCount + 1,
                 image: '',
             });
+            this.renumberSlides();
             this.selectedQuestionIndex = this.currentQuiz.questions.length - 1;
         },
 
@@ -232,6 +223,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
 
             if (result.isConfirmed) {
                 this.currentQuiz.questions.splice(index, 1);
+                this.renumberSlides();
                 if (index < this.selectedQuestionIndex) {
                     this.selectedQuestionIndex--;
                 } else if (this.selectedQuestionIndex >= this.currentQuiz.questions.length) {
@@ -244,14 +236,11 @@ window.createEditorData = function (firebase, db, auth, storage) {
             if (!this.editingQuizId) return;
             this.statusMsg = 'Saving...';
 
-            // Before saving, ensure questionNumber and roundNumber are synced based on order
-            let qNum = 1;
-            let rNum = 1;
+            this.renumberSlides();
             let validationError = null;
 
             this.currentQuiz.questions.forEach((q) => {
                 if (q.type === 'round-title') {
-                    q.roundNumber = rNum++;
                     delete q.question;
                     delete q.options;
                     delete q.correctAnswer;
@@ -259,7 +248,6 @@ window.createEditorData = function (firebase, db, auth, storage) {
                     delete q.notes;
                     delete q.timer;
                 } else {
-                    q.questionNumber = qNum++;
                     // Validation: Must have a correct answer
                     const hasAnswer =
                         q.correctAnswer !== undefined &&
@@ -359,6 +347,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
                         .filter((q) => q !== undefined);
 
                     this.currentQuiz.questions = newQuestions;
+                    this.renumberSlides();
 
                     // Update selected index to follow the previously selected slide
                     if (selectedId) {
