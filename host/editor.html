@@ -355,7 +355,7 @@
                         <!-- Main Area: Current Question Editor -->
                         <div class="main-editor">
                             <template x-if="currentQuiz.questions[selectedQuestionIndex]">
-                                <div>
+                                <div :key="currentQuiz.questions[selectedQuestionIndex].id">
                                     <div
                                         style="
                                             display: flex;

@@ -23,6 +23,17 @@ window.createEditorData = function (firebase, db, auth, storage) {
         $watch: () => {},
         $nextTick: (cb) => cb(),
 
+        // --- Helpers ---
+        _generateId() {
+            return Date.now() + '-' + Math.random().toString(36).substring(2, 9);
+        },
+
+        _normalizeString(s) {
+            if (typeof s !== 'string') return s;
+            // Trim and strip legacy prefixes like 'A) '
+            return s.trim().replace(/^[A-D]\)\s*/, '');
+        },
+
         // --- Computed ---
         get sortedQuizzes() {
             const list = Object.entries(this.quizzes).map(([id, data]) => ({
@@ -176,7 +187,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
                 title: 'New Quiz',
                 questions: [
                     {
-                        id: 'q-' + Date.now(),
+                        id: this._generateId(),
                         question: 'Sample Question?',
                         type: 'multiple',
                         options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
@@ -204,15 +215,24 @@ window.createEditorData = function (firebase, db, auth, storage) {
             this.editingQuizId = id;
             this.currentQuiz = JSON.parse(JSON.stringify(this.quizzes[id])); // Deep clone
 
-            // Backfill IDs and migrate Category to Tags
-            this.currentQuiz.questions.forEach((q, i) => {
-                if (!q.id) q.id = 'q-' + Date.now() + '-' + i;
+            // Backfill IDs and migrate Category to Tags + Normalize MC
+            this.currentQuiz.questions.forEach((q) => {
+                if (!q.id) q.id = this._generateId();
                 if (q.type !== 'round-title') {
                     if (q.category && !q.tags) {
                         q.tags = [q.category];
                         delete q.category;
                     }
                     if (!q.tags) q.tags = [];
+
+                    // Normalize question content
+                    q.question = this._normalizeString(q.question);
+                    if (q.options) {
+                        q.options = q.options.map((o) => this._normalizeString(o));
+                    }
+                    if (q.correctAnswer && typeof q.correctAnswer === 'string') {
+                        q.correctAnswer = this._normalizeString(q.correctAnswer);
+                    }
                 }
             });
 
@@ -251,7 +271,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
 
         addQuestion() {
             this.currentQuiz.questions.push({
-                id: 'q-' + Date.now(),
+                id: this._generateId(),
                 question: 'New Question?',
                 type: 'multiple',
                 options: ['A', 'B', 'C', 'D'],
@@ -288,7 +308,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
 
         addRound() {
             this.currentQuiz.questions.push({
-                id: 'r-' + Date.now(),
+                id: this._generateId(),
                 type: 'round-title',
                 title: 'New Round',
                 image: '',
@@ -328,6 +348,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
 
             this.currentQuiz.questions.forEach((q) => {
                 if (q.type === 'round-title') {
+                    q.title = this._normalizeString(q.title);
                     delete q.question;
                     delete q.options;
                     delete q.correctAnswer;
@@ -337,6 +358,18 @@ window.createEditorData = function (firebase, db, auth, storage) {
                     delete q.category;
                 } else {
                     delete q.category; // Ensure legacy field is removed
+                    
+                    // Final normalization pass
+                    q.question = this._normalizeString(q.question);
+                    if (q.options) {
+                        q.options = q.options.map(o => this._normalizeString(o));
+                    }
+                    if (q.correctAnswer && typeof q.correctAnswer === 'string') {
+                        q.correctAnswer = this._normalizeString(q.correctAnswer);
+                    } else if (Array.isArray(q.correctAnswer)) {
+                        q.correctAnswer = q.correctAnswer.map(a => this._normalizeString(a));
+                    }
+
                     // Validation: Must have a correct answer
                     const hasAnswer =
                         q.correctAnswer !== undefined &&
