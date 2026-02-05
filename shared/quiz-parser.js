@@ -65,7 +65,7 @@ window.QuizParser = {
                     timer: item.timer || 20,
                     image: item.image || null,
                     notes: item.notes || null,
-                    category: item.category || '',
+                    tags: item.tags || (item.category ? [item.category] : []),
                 };
 
                 if (newQ.questionType === 'MC') {
@@ -158,7 +158,7 @@ window.QuizParser = {
                     timer: item.timer || 20,
                     image: item.image || null,
                     notes: item.notes || null,
-                    category: item.category || '',
+                    tags: item.tags || (item.category ? [item.category] : []),
                 };
 
                 if (newQ.questionType === 'MC') {

@@ -7,6 +7,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
         currentQuiz: null,
         selectedQuestionIndex: 0,
         statusMsg: '',
+        newTagInput: '',
         autosaveTimeout: null,
         showSettings: false,
         settings: {
@@ -153,11 +154,19 @@ window.createEditorData = function (firebase, db, auth, storage) {
             this.editingQuizId = id;
             this.currentQuiz = JSON.parse(JSON.stringify(this.quizzes[id])); // Deep clone
 
-            // Backfill IDs for older quizzes that might not have them
+            // Backfill IDs and migrate Category to Tags
             this.currentQuiz.questions.forEach((q, i) => {
                 if (!q.id) q.id = 'q-' + Date.now() + '-' + i;
+                if (q.type !== 'round-title') {
+                    if (q.category && !q.tags) {
+                        q.tags = [q.category];
+                        delete q.category;
+                    }
+                    if (!q.tags) q.tags = [];
+                }
             });
 
+            this.renumberSlides();
             this.selectedQuestionIndex = 0;
             this.statusMsg = '✓ Saved';
 
@@ -169,6 +178,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
 
         selectQuestion(index) {
             this.selectedQuestionIndex = index;
+            this.newTagInput = '';
         },
 
         renumberSlides() {
@@ -193,10 +203,32 @@ window.createEditorData = function (firebase, db, auth, storage) {
                 correctAnswer: 'A',
                 timer: 30,
                 notes: '',
-                category: '',
+                tags: [],
             });
             this.renumberSlides();
             this.selectedQuestionIndex = this.currentQuiz.questions.length - 1;
+        },
+
+        addTag() {
+            const tag = this.newTagInput.trim();
+            if (!tag) return;
+            
+            const q = this.currentQuiz.questions[this.selectedQuestionIndex];
+            if (!q || q.type === 'round-title') return;
+            
+            if (!q.tags) q.tags = [];
+            if (!q.tags.includes(tag)) {
+                q.tags.push(tag);
+                this.triggerAutosave();
+            }
+            this.newTagInput = '';
+        },
+
+        removeTag(tag) {
+            const q = this.currentQuiz.questions[this.selectedQuestionIndex];
+            if (!q || !q.tags) return;
+            q.tags = q.tags.filter(t => t !== tag);
+            this.triggerAutosave();
         },
 
         addRound() {
@@ -244,10 +276,12 @@ window.createEditorData = function (firebase, db, auth, storage) {
                     delete q.question;
                     delete q.options;
                     delete q.correctAnswer;
-                    delete q.category;
                     delete q.notes;
                     delete q.timer;
+                    delete q.tags;
+                    delete q.category;
                 } else {
+                    delete q.category; // Ensure legacy field is removed
                     // Validation: Must have a correct answer
                     const hasAnswer =
                         q.correctAnswer !== undefined &&

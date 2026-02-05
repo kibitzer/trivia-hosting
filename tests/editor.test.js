@@ -56,22 +56,51 @@ describe('Editor Logic', () => {
             editor.editQuiz('q1');
         });
 
-        it('should calculate correct question numbers', () => {
-            // Index 0: round-title (0 questions before or at) -> but the helper counts current if it's not round-title
-            // Actually getQuestionNumber(index) counts how many non-round-titles exist from 0 to index.
-            expect(editor.getQuestionNumber(0)).toBe(0); // Round title
-            expect(editor.getQuestionNumber(1)).toBe(1); // First question
-            expect(editor.getQuestionNumber(2)).toBe(2); // Second question
+        it('should have correct initial numbering after editQuiz', () => {
+            const qs = editor.currentQuiz.questions;
+            expect(qs[0].roundNumber).toBe(1);
+            expect(qs[1].questionNumber).toBe(1);
+            expect(qs[2].questionNumber).toBe(2);
         });
 
-        it('should calculate correct round numbers', () => {
-            expect(editor.getRoundNumber(0)).toBe(1); // First round title
-            expect(editor.getRoundNumber(1)).toBe(1); // Still in first round
-            expect(editor.getRoundNumber(2)).toBe(1); // Still in first round
+        it('should update numbers dynamically after reordering', () => {
+            // Swap Q1 and Q2
+            const q1 = editor.currentQuiz.questions[1];
+            const q2 = editor.currentQuiz.questions[2];
+            editor.currentQuiz.questions[1] = q2;
+            editor.currentQuiz.questions[2] = q1;
 
-            // Add another round
-            editor.addRound();
-            expect(editor.getRoundNumber(3)).toBe(2); // Second round title
+            editor.renumberSlides();
+
+            expect(editor.currentQuiz.questions[1].questionNumber).toBe(1);
+            expect(editor.currentQuiz.questions[1].question).toBe('Q2');
+            expect(editor.currentQuiz.questions[2].questionNumber).toBe(2);
+            expect(editor.currentQuiz.questions[2].question).toBe('Q1');
+        });
+    });
+
+    describe('Tagging System', () => {
+        beforeEach(() => {
+            editor.editQuiz('q1');
+        });
+
+        it('should migrate legacy category to tags', () => {
+            editor.quizzes.legacy = {
+                questions: [{ type: 'multiple', question: 'Legacy', category: 'History' }]
+            };
+            editor.editQuiz('legacy');
+            expect(editor.currentQuiz.questions[0].tags).toContain('History');
+            expect(editor.currentQuiz.questions[0].category).toBeUndefined();
+        });
+
+        it('should add and remove tags', () => {
+            editor.selectedQuestionIndex = 1;
+            editor.newTagInput = 'New Tag';
+            editor.addTag();
+            expect(editor.currentQuiz.questions[1].tags).toContain('New Tag');
+
+            editor.removeTag('New Tag');
+            expect(editor.currentQuiz.questions[1].tags).not.toContain('New Tag');
         });
     });
 
@@ -149,16 +178,10 @@ describe('Editor Logic', () => {
             // Remove correct answer from a question
             editor.currentQuiz.questions[1].correctAnswer = '';
 
-            const alertSpy = vi.spyOn(global, 'alert').mockImplementation(() => {});
-
             await editor.saveQuiz();
 
-            expect(alertSpy).toHaveBeenCalledWith(
-                expect.stringContaining('missing a correct answer')
-            );
+            expect(editor.statusMsg).toContain('Missing answers');
             expect(mockDb.ref().set).not.toHaveBeenCalled();
-
-            alertSpy.mockRestore();
         });
 
         it('should update local quizzes cache after successful save', async () => {

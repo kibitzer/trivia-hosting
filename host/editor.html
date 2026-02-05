@@ -355,11 +355,27 @@
                                             class="input-group"
                                             x-show="currentQuiz.questions[selectedQuestionIndex].type !== 'round-title'"
                                         >
-                                            <label>Category (Optional)</label>
-                                            <input
-                                                type="text"
-                                                x-model="currentQuiz.questions[selectedQuestionIndex].category"
-                                            />
+                                            <label>Tags (e.g. Australia, History)</label>
+                                            <div style="display: flex; flex-direction: column; gap: 0.5rem">
+                                                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem">
+                                                    <template x-for="tag in currentQuiz.questions[selectedQuestionIndex].tags" :key="tag">
+                                                        <span 
+                                                            class="text-sm" 
+                                                            style="background: #f1f5f9; padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-weight: 700; color: var(--color-primary); display: flex; align-items: center; gap: 0.5rem;"
+                                                        >
+                                                            <span x-text="tag"></span>
+                                                            <button @click="removeTag(tag)" style="background: none; border: none; padding: 0; cursor: pointer; color: var(--color-danger); font-weight: 800; font-size: 1rem;">×</button>
+                                                        </span>
+                                                    </template>
+                                                </div>
+                                                <input
+                                                    type="text"
+                                                    x-model="newTagInput"
+                                                    placeholder="Add a tag and press Enter"
+                                                    @keydown.enter.prevent="addTag()"
+                                                    @blur="addTag()"
+                                                />
+                                            </div>
                                         </div>
                                     </div>
 
