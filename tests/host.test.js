@@ -66,6 +66,21 @@ describe('Host Logic', () => {
             expect(host.checkCorrectness('Red Planet')).toBe(true);
             expect(host.checkCorrectness('Venus')).toBe(false);
         });
+
+        it('should ignore punctuation and extra spaces in Short Answer', () => {
+            host.currentIndex = 0;
+            host.quizData = [
+                {
+                    type: 'question',
+                    questionType: 'SHORT',
+                    answer: 'New York, NY!',
+                },
+            ];
+
+            expect(host.checkCorrectness('new york ny')).toBe(true);
+            expect(host.checkCorrectness('New York NY!')).toBe(true);
+            expect(host.checkCorrectness('  new   york   ny  ')).toBe(true);
+        });
     });
 
     describe('Scoring Logic', () => {

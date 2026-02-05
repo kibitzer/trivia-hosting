@@ -326,10 +326,21 @@ window.createHostData = function (firebase, db, auth, analytics) {
             if (!this.currentItem) return false;
             const correct = this.currentItem.answer;
             if (this.currentItem.questionType === 'MC') return ans === correct;
-            const a = (ans || '').toLowerCase().trim();
+
+            // Normalise: lower case, remove punctuation, collapse whitespace, trim
+            const normalize = (s) =>
+                (s || '')
+                    .toLowerCase()
+                    .replace(/[^\w\s]|_/g, '')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+
+            const normalizedAns = normalize(ans);
+            const normalizedCorrect = normalize(correct);
+            const normalizedAccepted = (this.currentItem.acceptedAnswers || []).map(normalize);
+
             return (
-                (this.currentItem.acceptedAnswers || []).includes(a) ||
-                a === (correct || '').toLowerCase().trim()
+                normalizedAccepted.includes(normalizedAns) || normalizedAns === normalizedCorrect
             );
         },
         syncGameState() {
