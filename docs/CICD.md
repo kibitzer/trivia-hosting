@@ -7,10 +7,17 @@ This project uses **GitHub Actions** to automatically run tests on every push.
 The `.github/workflows/test.yml` pipeline performs the following steps on every Push to `main` and every Pull Request:
 
 1.  Installs Node.js dependencies.
-2.  Installs Playwright browsers.
+2.  Caches Playwright browser binaries (if unchanged).
 3.  Lints code (ESLint).
 4.  Runs Unit Tests (Vitest).
 5.  Runs End-to-End Tests (Playwright).
+
+## Environment Optimisation
+
+To reduce build times, the pipeline uses **GitHub Actions Caching**:
+
+- **npm Dependencies**: The `actions/setup-node` action caches the `~/.npm` directory based on `package-lock.json`.
+- **Playwright Browsers**: Browser binaries are cached in `~/.cache/ms-playwright`. The cache key is tied to the specific version of Playwright found in `package-lock.json`, ensuring the environment is only rebuilt when the tool is updated.
 
 ## Setup for CI
 
