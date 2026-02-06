@@ -571,7 +571,16 @@
                                                     />
                                                     <input
                                                         type="text"
-                                                        x-model="currentQuiz.questions[selectedQuestionIndex].options[oIdx]"
+                                                        :value="currentQuiz.questions[selectedQuestionIndex].options[oIdx]"
+                                                        @input="
+                                                            const newVal = $el.value;
+                                                            const q = currentQuiz.questions[selectedQuestionIndex];
+                                                            const oldVal = q.options[oIdx];
+                                                            q.options[oIdx] = newVal;
+                                                            if (q.type === 'multiple' && q.correctAnswer === oldVal) {
+                                                                q.correctAnswer = newVal;
+                                                            }
+                                                        "
                                                         placeholder="Option Text"
                                                         style="
                                                             border: none;

@@ -125,10 +125,9 @@ window.createEditorData = function (firebase, db, auth, storage) {
             // Watch for question type changes to set defaults
             this.$watch(
                 'currentQuiz.questions',
-                (questions, oldQuestions) => {
+                (questions) => {
                     if (!questions || !questions[this.selectedQuestionIndex]) return;
                     const q = questions[this.selectedQuestionIndex];
-                    const oldQ = oldQuestions ? oldQuestions[this.selectedQuestionIndex] : null;
 
                     if (q.type === 'true-false' && (!q.options || q.options.length !== 2)) {
                         q.options = ['True', 'False'];
@@ -136,16 +135,6 @@ window.createEditorData = function (firebase, db, auth, storage) {
                     }
                     if (q.type === 'identify' && (!q.question || q.question === 'New Question?')) {
                         q.question = 'Identify this picture:';
-                    }
-
-                    // Robust MC Option Sync: If an option text changed and it was the correct answer, update the correct answer
-                    if (q.type === 'multiple' && q.options && oldQ && oldQ.options) {
-                        oldQ.options.forEach((oldVal, idx) => {
-                            const newVal = q.options[idx];
-                            if (newVal !== undefined && newVal !== oldVal && q.correctAnswer === oldVal) {
-                                q.correctAnswer = newVal;
-                            }
-                        });
                     }
                 },
                 { deep: true }
@@ -524,9 +513,22 @@ window.createEditorData = function (firebase, db, auth, storage) {
 
                     if (!hasAnswer) {
                         validationError = `Question ${q.questionNumber || 'unknown'} is missing a correct answer.`;
-                    } else if (q.type === 'multiple' && q.options && !q.options.includes(q.correctAnswer)) {
-                        // For MC, the correct answer MUST be one of the options
-                        validationError = `Question ${q.questionNumber || 'unknown'}: The correct answer is not in the options list.`;
+                    } else if (q.type === 'multiple' && q.options) {
+                        // Check if exact match exists
+                        if (!q.options.includes(q.correctAnswer)) {
+                            // SELF-HEALING: Try to find a match via normalization
+                            const match = q.options.find(o => this._normalizeString(o) === this._normalizeString(q.correctAnswer));
+                            if (match) {
+                                q.correctAnswer = match;
+                            } else {
+                                console.error('MC Validation Failed:', {
+                                    question: q.questionNumber,
+                                    correctAnswer: q.correctAnswer,
+                                    options: q.options
+                                });
+                                validationError = `Question ${q.questionNumber || 'unknown'}: The correct answer is not in the options list.`;
+                            }
+                        }
                     }
                 }
             });
