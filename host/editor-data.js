@@ -208,6 +208,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
                     speedScoring: true,
                     autoReveal: true,
                     defaultTimer: 20,
+                    continuousScoreboard: true,
                 },
                 questions: [
                     {
@@ -251,6 +252,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
             if (this.currentQuiz.settings.speedScoring === undefined) this.currentQuiz.settings.speedScoring = true;
             if (this.currentQuiz.settings.autoReveal === undefined) this.currentQuiz.settings.autoReveal = true;
             if (this.currentQuiz.settings.defaultTimer === undefined) this.currentQuiz.settings.defaultTimer = 20;
+            if (this.currentQuiz.settings.continuousScoreboard === undefined) this.currentQuiz.settings.continuousScoreboard = true;
 
             // Backfill IDs and migrate Category to Tags + Normalize MC
             this.currentQuiz.questions.forEach((q) => {

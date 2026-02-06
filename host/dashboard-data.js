@@ -69,6 +69,7 @@ window.createDashboardData = function (firebase, db, auth) {
                     speedScoring: true,
                     autoReveal: true,
                     defaultTimer: 20,
+                    continuousScoreboard: true,
                 },
                 questions: [{
                     id: Date.now() + '-' + Math.random().toString(36).substring(2, 9),

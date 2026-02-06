@@ -22,6 +22,8 @@ window.createHostData = function (firebase, db, auth, analytics) {
         answerRevealed: false,
         autoReveal: true,
         speedScoringEnabled: true,
+        continuousScoreboard: true,
+        showScoreboard: false,
         gameState: {},
         players: {},
         currentAnswers: {},
@@ -105,6 +107,7 @@ window.createHostData = function (firebase, db, auth, analytics) {
                                         this.speedScoringEnabled = data.settings.speedScoring !== false;
                                         this.autoReveal = data.settings.autoReveal !== false;
                                         this.defaultTimer = data.settings.defaultTimer || 20;
+                                        this.continuousScoreboard = data.settings.continuousScoreboard !== false;
                                     }
 
                                     this.currentView = 'setup'; // Default to lobby/setup
@@ -351,6 +354,7 @@ window.createHostData = function (firebase, db, auth, analytics) {
                 answerRevealed: !!this.answerRevealed,
                 timerValue: this.timerValue,
                 timerStatus: this.timerStatus,
+                showScoreboard: this.continuousScoreboard || this.showScoreboard,
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
             };
 
@@ -397,6 +401,10 @@ window.createHostData = function (firebase, db, auth, analytics) {
                 db.ref('players').remove();
                 db.ref('answers').remove();
             }
+        },
+        toggleScoreboard() {
+            this.showScoreboard = !this.showScoreboard;
+            this.syncGameState();
         },
     };
 };
