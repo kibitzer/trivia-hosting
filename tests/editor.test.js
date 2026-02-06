@@ -137,6 +137,44 @@ describe('Editor Logic', () => {
             expect(q.correctAnswer).toBe('Apple');
         });
 
+        it('should correctly extract all quiz tags', () => {
+            editor.currentQuiz.questions[1].tags = ['History'];
+            editor.currentQuiz.questions[2].tags = ['Science', 'History'];
+            
+            const allTags = editor.allQuizTags;
+            expect(allTags).toHaveLength(2);
+            expect(allTags).toContain('History');
+            expect(allTags).toContain('Science');
+        });
+
+        it('should provide filtered tag suggestions after 2 characters', () => {
+            editor.currentQuiz.questions[1].tags = ['History', 'Geography'];
+            editor.selectedQuestionIndex = 2; // Q2
+            
+            editor.newTagInput = 'hi';
+            editor.updateTagSuggestions();
+            expect(editor.tagSuggestions).toContain('History');
+            expect(editor.tagSuggestions).not.toContain('Geography');
+
+            editor.newTagInput = 'h';
+            editor.updateTagSuggestions();
+            expect(editor.tagSuggestions).toHaveLength(0);
+        });
+
+        it('should navigate tag suggestions with arrow keys', () => {
+            editor.tagSuggestions = ['Tag 1', 'Tag 2', 'Tag 3'];
+            editor.activeTagSuggestionIndex = 0;
+
+            editor.navigateTagSuggestions('down');
+            expect(editor.activeTagSuggestionIndex).toBe(1);
+
+            editor.navigateTagSuggestions('up');
+            expect(editor.activeTagSuggestionIndex).toBe(0);
+
+            editor.navigateTagSuggestions('up'); // Wrap around
+            expect(editor.activeTagSuggestionIndex).toBe(2);
+        });
+
         it('should add and remove options correctly in MC questions', () => {
             editor.selectedQuestionIndex = 1; // MC question
             const q = editor.currentQuiz.questions[1];

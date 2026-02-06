@@ -8,6 +8,8 @@ window.createEditorData = function (firebase, db, auth, storage) {
         selectedQuestionIndex: 0,
         statusMsg: '',
         newTagInput: '',
+        tagSuggestions: [],
+        activeTagSuggestionIndex: -1,
         autosaveTimeout: null,
         showSettings: false,
         showGameOptions: false,
@@ -38,6 +40,15 @@ window.createEditorData = function (firebase, db, auth, storage) {
         },
 
         // --- Computed ---
+        get allQuizTags() {
+            if (!this.currentQuiz || !this.currentQuiz.questions) return [];
+            const tags = new Set();
+            this.currentQuiz.questions.forEach(q => {
+                if (q.tags) q.tags.forEach(t => tags.add(t));
+            });
+            return Array.from(tags).sort();
+        },
+
         get sortedQuizzes() {
             const list = Object.entries(this.quizzes).map(([id, data]) => ({
                 id,
@@ -307,6 +318,70 @@ window.createEditorData = function (firebase, db, auth, storage) {
         selectQuestion(index) {
             this.selectedQuestionIndex = index;
             this.newTagInput = '';
+            this.tagSuggestions = [];
+            this.activeTagSuggestionIndex = -1;
+        },
+
+        updateTagSuggestions() {
+            const input = this.newTagInput.toLowerCase().trim();
+            if (input.length < 2) {
+                this.tagSuggestions = [];
+                this.activeTagSuggestionIndex = -1;
+                return;
+            }
+
+            const currentTags = this.currentQuiz.questions[this.selectedQuestionIndex].tags || [];
+            this.tagSuggestions = this.allQuizTags.filter(t => 
+                t.toLowerCase().includes(input) && !currentTags.includes(t)
+            );
+            this.activeTagSuggestionIndex = this.tagSuggestions.length > 0 ? 0 : -1;
+        },
+
+        addTag() {
+            // If there's an active suggestion and we're not just adding free text
+            if (this.activeTagSuggestionIndex >= 0 && this.tagSuggestions[this.activeTagSuggestionIndex]) {
+                this.selectTag(this.tagSuggestions[this.activeTagSuggestionIndex]);
+                return;
+            }
+
+            const tag = this.newTagInput.trim();
+            if (!tag) return;
+            
+            const q = this.currentQuiz.questions[this.selectedQuestionIndex];
+            if (!q || q.type === 'round-title') return;
+            
+            if (!q.tags) q.tags = [];
+            if (!q.tags.includes(tag)) {
+                q.tags.push(tag);
+                this.triggerAutosave();
+            }
+            this.newTagInput = '';
+            this.tagSuggestions = [];
+            this.activeTagSuggestionIndex = -1;
+        },
+
+        selectTag(tag) {
+            const q = this.currentQuiz.questions[this.selectedQuestionIndex];
+            if (!q || q.type === 'round-title') return;
+            
+            if (!q.tags) q.tags = [];
+            if (!q.tags.includes(tag)) {
+                q.tags.push(tag);
+                this.triggerAutosave();
+            }
+            this.newTagInput = '';
+            this.tagSuggestions = [];
+            this.activeTagSuggestionIndex = -1;
+        },
+
+        navigateTagSuggestions(direction) {
+            if (this.tagSuggestions.length === 0) return;
+            
+            if (direction === 'down') {
+                this.activeTagSuggestionIndex = (this.activeTagSuggestionIndex + 1) % this.tagSuggestions.length;
+            } else if (direction === 'up') {
+                this.activeTagSuggestionIndex = (this.activeTagSuggestionIndex - 1 + this.tagSuggestions.length) % this.tagSuggestions.length;
+            }
         },
 
         renumberSlides() {
@@ -335,21 +410,6 @@ window.createEditorData = function (firebase, db, auth, storage) {
             });
             this.renumberSlides();
             this.selectedQuestionIndex = this.currentQuiz.questions.length - 1;
-        },
-
-        addTag() {
-            const tag = this.newTagInput.trim();
-            if (!tag) return;
-            
-            const q = this.currentQuiz.questions[this.selectedQuestionIndex];
-            if (!q || q.type === 'round-title') return;
-            
-            if (!q.tags) q.tags = [];
-            if (!q.tags.includes(tag)) {
-                q.tags.push(tag);
-                this.triggerAutosave();
-            }
-            this.newTagInput = '';
         },
 
         removeTag(tag) {

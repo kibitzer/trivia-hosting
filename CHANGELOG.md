@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.16] - 2026-02-06
+
+### Added
+
+- **Editor**: Implemented tag auto-suggestion in the question editor with keyboard navigation (Arrow keys + Enter) and intelligent filtering based on existing quiz tags.
+
 ## [0.6.15] - 2026-02-06
 
 ### Fixed
