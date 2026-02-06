@@ -572,8 +572,6 @@
                                                     <input
                                                         type="text"
                                                         x-model="currentQuiz.questions[selectedQuestionIndex].options[oIdx]"
-                                                        @focus="$el._oldValue = $el.value"
-                                                        @input="updateOptionText(oIdx, $el.value, $el._oldValue); $el._oldValue = $el.value"
                                                         placeholder="Option Text"
                                                         style="
                                                             border: none;

@@ -227,29 +227,6 @@ describe('Editor Logic', () => {
             expect(editor.statusMsg).toBe('✓ Saved');
         });
 
-        it('should keep correctAnswer in sync when typing in an option (simulating multiple keystrokes)', () => {
-            editor.selectedQuestionIndex = 1; // MC question
-            const q = editor.currentQuiz.questions[1];
-            q.options = ['A', 'B'];
-            q.correctAnswer = 'A';
-
-            // First keystroke: 'A' -> 'Ap'
-            let oldValue = 'A';
-            let newValue = 'Ap';
-            q.options[0] = newValue;
-            editor.updateOptionText(0, newValue, oldValue);
-            
-            expect(q.correctAnswer).toBe('Ap');
-
-            // Second keystroke: 'Ap' -> 'App'
-            oldValue = 'Ap';
-            newValue = 'App';
-            q.options[0] = newValue;
-            editor.updateOptionText(0, newValue, oldValue);
-            
-            expect(q.correctAnswer).toBe('App');
-        });
-
         it('should backfill missing notes in editQuiz', () => {
             editor.quizzes.noNotes = {
                 title: 'No Notes',

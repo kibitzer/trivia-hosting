@@ -125,9 +125,10 @@ window.createEditorData = function (firebase, db, auth, storage) {
             // Watch for question type changes to set defaults
             this.$watch(
                 'currentQuiz.questions',
-                (questions) => {
+                (questions, oldQuestions) => {
                     if (!questions || !questions[this.selectedQuestionIndex]) return;
                     const q = questions[this.selectedQuestionIndex];
+                    const oldQ = oldQuestions ? oldQuestions[this.selectedQuestionIndex] : null;
 
                     if (q.type === 'true-false' && (!q.options || q.options.length !== 2)) {
                         q.options = ['True', 'False'];
@@ -135,6 +136,16 @@ window.createEditorData = function (firebase, db, auth, storage) {
                     }
                     if (q.type === 'identify' && (!q.question || q.question === 'New Question?')) {
                         q.question = 'Identify this picture:';
+                    }
+
+                    // Robust MC Option Sync: If an option text changed and it was the correct answer, update the correct answer
+                    if (q.type === 'multiple' && q.options && oldQ && oldQ.options) {
+                        oldQ.options.forEach((oldVal, idx) => {
+                            const newVal = q.options[idx];
+                            if (newVal !== undefined && newVal !== oldVal && q.correctAnswer === oldVal) {
+                                q.correctAnswer = newVal;
+                            }
+                        });
                     }
                 },
                 { deep: true }
@@ -336,15 +347,6 @@ window.createEditorData = function (firebase, db, auth, storage) {
                 t.toLowerCase().includes(input) && !currentTags.includes(t)
             );
             this.activeTagSuggestionIndex = this.tagSuggestions.length > 0 ? 0 : -1;
-        },
-
-        updateOptionText(oIdx, newValue, oldValue) {
-            const q = this.currentQuiz.questions[this.selectedQuestionIndex];
-            if (!q || q.type !== 'multiple') return;
-            
-            if (q.correctAnswer === oldValue) {
-                q.correctAnswer = newValue;
-            }
         },
 
         addTag() {
