@@ -503,7 +503,10 @@ window.createEditorData = function (firebase, db, auth, storage) {
                         const normCA = this._normalizeString(q.correctAnswer);
                         if (q.correctAnswer !== normCA) q.correctAnswer = normCA;
                     } else if (Array.isArray(q.correctAnswer)) {
-                        const normCA = q.correctAnswer.map(a => this._normalizeString(a));
+                        // Filter out empty strings for short answers
+                        const normCA = q.correctAnswer
+                            .map(a => this._normalizeString(a))
+                            .filter(a => a && a.trim() !== '');
                         if (JSON.stringify(q.correctAnswer) !== JSON.stringify(normCA)) {
                             q.correctAnswer = normCA;
                         }
@@ -518,16 +521,22 @@ window.createEditorData = function (firebase, db, auth, storage) {
                             : String(q.correctAnswer).trim() !== '');
 
                     if (!hasAnswer) {
-                        validationError = `Question ${q.questionNumber} ("${(q.question || '').substring(0, 30)}...") is missing a correct answer.`;
+                        validationError = `Question ${q.questionNumber || 'unknown'} is missing a correct answer.`;
                     } else if (q.type === 'multiple' && q.options && !q.options.includes(q.correctAnswer)) {
                         // For MC, the correct answer MUST be one of the options
-                        validationError = `Question ${q.questionNumber}: The correct answer ("${q.correctAnswer}") is not listed in the options.`;
+                        validationError = `Question ${q.questionNumber || 'unknown'}: The correct answer is not in the options list.`;
                     }
                 }
             });
 
             if (validationError) {
-                this.statusMsg = '⚠️ Unsaved - Missing answers';
+                this.statusMsg = '⚠️ ' + validationError;
+                // Keep the error visible for a while
+                setTimeout(() => {
+                    if (this.statusMsg.includes('⚠️')) {
+                         this.statusMsg = '⚠️ Unsaved - Check slides';
+                    }
+                }, 5000);
                 return;
             }
 

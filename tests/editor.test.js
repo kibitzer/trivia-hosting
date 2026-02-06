@@ -209,6 +209,24 @@ describe('Editor Logic', () => {
             expect(q.options).toHaveLength(2);
         });
 
+        it('should maintain a valid correctAnswer when the selected option is removed', async () => {
+            editor.selectedQuestionIndex = 1; // MC question
+            const q = editor.currentQuiz.questions[1];
+            q.options = ['Option A', 'Option B', 'Option C'];
+            q.correctAnswer = 'Option B';
+
+            // Remove 'Option B' (index 1)
+            await editor.removeOption(1);
+            
+            expect(q.options).toHaveLength(2);
+            expect(q.options).not.toContain('Option B');
+            expect(q.correctAnswer).toBe('Option A'); // Fallback to first option
+
+            // Validation should pass
+            await editor.saveQuiz();
+            expect(editor.statusMsg).toBe('✓ Saved');
+        });
+
         it('should keep correctAnswer in sync when typing in an option (simulating multiple keystrokes)', () => {
             editor.selectedQuestionIndex = 1; // MC question
             const q = editor.currentQuiz.questions[1];
@@ -342,7 +360,7 @@ describe('Editor Logic', () => {
 
             await editor.saveQuiz();
 
-            expect(editor.statusMsg).toContain('Missing answers');
+            expect(editor.statusMsg).toContain('missing a correct answer');
             expect(mockDb.ref().set).not.toHaveBeenCalled();
         });
 

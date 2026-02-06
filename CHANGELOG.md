@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.20] - 2026-02-06
+
+### Fixed
+
+- **Quiz Editor**: Improved validation error reporting to show exactly which slide is missing a correct answer.
+- **Quiz Editor**: Fixed an issue where empty strings in short answer slides could cause validation failures.
+
 ## [0.6.19] - 2026-02-06
 
 ### Fixed
