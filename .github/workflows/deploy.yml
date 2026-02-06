@@ -9,6 +9,9 @@ on:
             - 'config/firebase.json'
             - '.github/workflows/deploy.yml'
 
+permissions:
+  contents: read
+
 jobs:
     deploy-rules:
         runs-on: ubuntu-latest
