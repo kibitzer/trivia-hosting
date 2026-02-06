@@ -79,7 +79,17 @@
                     fb.auth.onAuthStateChanged(user => {
                         if (user && !user.isAnonymous) {
                             const urlParams = new URLSearchParams(window.location.search);
-                            const redirect = urlParams.get('redirect') || 'dashboard.html';
+                            let redirect = urlParams.get('redirect') || 'dashboard.html';
+                            
+                            // Security: Only allow redirection to specific local dashboard/editor pages
+                            const allowedPages = ['dashboard.html', 'editor.html', 'host.html'];
+                            const isAllowed = allowedPages.some(page => redirect === page || redirect.startsWith(page + '?'));
+                            
+                            if (!isAllowed) {
+                                console.warn('Blocked potentially unsafe redirect:', redirect);
+                                redirect = 'dashboard.html';
+                            }
+                            
                             window.location.href = redirect;
                         }
                     });
