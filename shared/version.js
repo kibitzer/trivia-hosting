@@ -1,5 +1,5 @@
 // Single source of truth for the app version
-const TRIVIA_VERSION = '0.6.14';
+const TRIVIA_VERSION = '0.6.15';
 
 // Helper to display it
 window.displayVersion = function (elementId) {

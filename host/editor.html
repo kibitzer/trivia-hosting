@@ -508,11 +508,10 @@
                                                 >
                                                     <input
                                                         type="radio"
-                                                        :id="'q' + currentQuiz.questions[selectedQuestionIndex].id + '-opt' + oIdx"
-                                                        :name="'correct-' + currentQuiz.questions[selectedQuestionIndex].id"
+                                                        :name="'correct-opt-' + currentQuiz.questions[selectedQuestionIndex].id"
                                                         :value="currentQuiz.questions[selectedQuestionIndex].options[oIdx]"
                                                         :checked="currentQuiz.questions[selectedQuestionIndex].correctAnswer === currentQuiz.questions[selectedQuestionIndex].options[oIdx]"
-                                                        @change="currentQuiz.questions[selectedQuestionIndex].correctAnswer = $el.value"
+                                                        @change="currentQuiz.questions[selectedQuestionIndex].correctAnswer = $el.value; triggerAutosave()"
                                                         style="width: 1rem; height: 1rem; cursor: pointer;"
                                                     />
                                                     <input
