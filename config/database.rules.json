@@ -41,7 +41,7 @@
                     // Players can only submit their own answers
                     // SECURITY: Only allow submission if the timer is active (countdown or running)
                     ".write": "auth != null && auth.uid === $uid && (root.child('gameState/timerStatus').val() === 'running' || root.child('gameState/timerStatus').val() === 'countdown')",
-                    ".validate": "newData.hasChildren(['answer', 'timestamp'])"
+                    ".validate": "newData.hasChildren(['answer', 'timestamp']) && newData.child('answer').isString() && newData.child('answer').val().length <= 100"
                 }
             }
         }
