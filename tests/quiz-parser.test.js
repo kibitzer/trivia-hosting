@@ -5,6 +5,29 @@ import { describe, it, expect } from 'vitest';
 import '../shared/quiz-parser.js';
 
 describe('QuizParser Shared Logic', () => {
+    describe('toStructured (Editor Format)', () => {
+        it('should handle already structured input', () => {
+            const input = { title: 'T', questions: [] };
+            const result = QuizParser.toStructured(input);
+            expect(result).toBe(input);
+        });
+
+        it('should parse legacy flat array to structured object', () => {
+            const legacyInput = [
+                { type: 'round-title', title: 'Legacy Quiz' },
+                { type: 'multiple', question: 'Q1', options: ['A'], correctAnswer: 'A' }
+            ];
+            const result = QuizParser.toStructured(legacyInput);
+            expect(result.title).toBe('Legacy Quiz');
+            expect(result.questions).toHaveLength(2);
+            expect(result.questions[1].text).toBe('Q1');
+        });
+
+        it('should throw error for invalid format', () => {
+            expect(() => QuizParser.toStructured('not a quiz')).toThrow('Unrecognized quiz format');
+        });
+    });
+
     describe('toFlatSlides (Host Format)', () => {
         it('should convert sample quiz format correctly', () => {
             const sampleInput = {
@@ -115,6 +138,17 @@ describe('QuizParser Shared Logic', () => {
             };
             const result = QuizParser.toFlatSlides(input);
             expect(result[0].image).toBe('https://example.com/bg.jpg');
+        });
+
+        it('should inject a default round title if the first slide is not one', () => {
+            const input = {
+                title: 'My Quiz',
+                questions: [{ type: 'multiple', question: 'Q1', options: ['A'], correctAnswer: 'A' }]
+            };
+            const result = QuizParser.toFlatSlides(input);
+            expect(result[0].type).toBe('round-title');
+            expect(result[0].title).toBe('My Quiz');
+            expect(result[1].type).toBe('question');
         });
     });
 });

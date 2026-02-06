@@ -9,16 +9,18 @@ global.Swal = {
     fire: vi.fn(() => Promise.resolve({ isConfirmed: true })),
 };
 
-const mockDb = {
-    ref: vi.fn(() => ({
-        on: vi.fn(),
+const mockRef = {
+    on: vi.fn(),
+    set: vi.fn(),
+    push: vi.fn(() => ({
+        key: 'new-quiz-id',
         set: vi.fn(),
-        push: vi.fn(() => ({
-            key: 'new-quiz-id',
-            set: vi.fn(),
-        })),
-        remove: vi.fn(),
     })),
+    remove: vi.fn(),
+};
+
+const mockDb = {
+    ref: vi.fn(() => mockRef),
 };
 
 const mockFirebase = {
@@ -37,6 +39,7 @@ describe('Editor Logic', () => {
     let editor;
 
     beforeEach(() => {
+        vi.clearAllMocks();
         editor = window.createEditorData(mockFirebase, mockDb, mockAuth);
         // Pre-fill with a sample quiz for many tests
         editor.quizzes = {
@@ -54,6 +57,17 @@ describe('Editor Logic', () => {
     describe('Selection & Numbering', () => {
         beforeEach(() => {
             editor.editQuiz('q1');
+        });
+
+        it('should backfill missing settings with defaults in editQuiz', () => {
+            editor.quizzes.noSettings = {
+                title: 'No Settings',
+                questions: [{ type: 'multiple', question: 'Q', options: ['A'], correctAnswer: 'A' }]
+            };
+            editor.editQuiz('noSettings');
+            expect(editor.currentQuiz.settings).toBeDefined();
+            expect(editor.currentQuiz.settings.defaultTimer).toBe(20);
+            expect(editor.currentQuiz.settings.speedScoring).toBe(true);
         });
 
         it('should have correct initial numbering after editQuiz', () => {
@@ -195,6 +209,19 @@ describe('Editor Logic', () => {
     });
 
     describe('Save Logic', () => {
+        it('should include game settings in the saved quiz', async () => {
+            editor.editQuiz('q1');
+            editor.currentQuiz.settings.defaultTimer = 45;
+            editor.currentQuiz.settings.speedScoring = false;
+
+            await editor.saveQuiz();
+
+            const savedQuiz = mockRef.set.mock.calls[0][0];
+            expect(savedQuiz.settings.defaultTimer).toBe(45);
+            expect(savedQuiz.settings.speedScoring).toBe(false);
+            expect(savedQuiz.settings.autoReveal).toBe(true); // Default preserved
+        });
+
         it('should synchronize question and round numbers on save', async () => {
             editor.editQuiz('q1');
             // Mess up the numbers manually
