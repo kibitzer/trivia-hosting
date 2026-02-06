@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.9] - 2026-02-06
+
+### Added
+
+- **UI**: Incorporated the new project favicon (`favicon.svg`) across all application screens (Player, Dashboard, Host, Editor, and Login).
+
 ## [0.6.8] - 2026-02-06
 
 ### Changed
