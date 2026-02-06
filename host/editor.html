@@ -172,6 +172,26 @@
                 grid-template-columns: 1fr 1fr;
                 gap: 0.75rem;
             }
+
+            /* Game Options Panel */
+            .game-options-panel {
+                position: fixed;
+                top: 80px; /* Below header */
+                right: 0;
+                bottom: 0;
+                width: 320px;
+                background: white;
+                border-left: 1px solid var(--color-border);
+                box-shadow: -4px 0 15px rgba(0,0,0,0.05);
+                padding: 1.5rem;
+                overflow-y: auto;
+                z-index: 1000;
+                transform: translateX(0);
+                transition: transform 0.3s ease-in-out;
+            }
+            .game-options-panel[style*="display: none"] {
+                transform: translateX(100%);
+            }
         </style>
     </head>
     <body x-data="quizEditor">
@@ -206,6 +226,14 @@
                         </div>
                     </div>
                     <div style="display: flex; gap: 0.75rem; align-items: center">
+                        <button
+                            @click="showGameOptions = !showGameOptions"
+                            class="btn"
+                            :class="showGameOptions ? 'btn-primary' : 'btn-secondary'"
+                            style="padding: 0.5rem 0.75rem"
+                        >
+                            ⚙️ Game Options
+                        </button>
                         <div
                             x-show="statusMsg"
                             class="text-sm"
@@ -544,6 +572,72 @@
                         </div>
                     </div>
                 </template>
+
+                <!-- Game Options Side Panel -->
+                <div 
+                    class="game-options-panel" 
+                    x-show="showGameOptions"
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="translate-x-full"
+                    x-transition:enter-end="translate-x-0"
+                    x-transition:leave="transition ease-in duration-300"
+                    x-transition:leave-start="translate-x-0"
+                    x-transition:leave-end="translate-x-full"
+                >
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem">
+                        <h3 style="margin: 0">Game Options</h3>
+                        <button @click="showGameOptions = false" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-text-muted)">&times;</button>
+                    </div>
+
+                    <p class="text-muted text-sm" style="margin-bottom: 1.5rem">
+                        These settings apply to this specific quiz when hosted.
+                    </p>
+
+                    <div class="input-group">
+                        <label>Default Timer (seconds)</label>
+                        <input
+                            type="number"
+                            x-model.number="currentQuiz.settings.defaultTimer"
+                            min="5"
+                            step="5"
+                        />
+                        <p class="text-muted text-sm" style="margin-top: 0.25rem">
+                            Fallback for slides with no specific timer.
+                        </p>
+                    </div>
+
+                    <div class="card" style="background: var(--color-bg); margin-bottom: 1rem; border: none;">
+                        <label style="display: flex; gap: 0.75rem; align-items: start; cursor: pointer; margin: 0;">
+                            <input
+                                type="checkbox"
+                                x-model="currentQuiz.settings.speedScoring"
+                                style="width: 1.25rem; height: 1.25rem; margin-top: 0.1rem;"
+                            />
+                            <div>
+                                <span style="font-weight: 700; display: block;">Speed Scoring</span>
+                                <span class="text-muted text-sm" style="font-weight: 400; line-height: 1.3; display: block; margin-top: 0.25rem;">
+                                    Award bonus points for faster answers.
+                                </span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="card" style="background: var(--color-bg); margin-bottom: 1rem; border: none;">
+                        <label style="display: flex; gap: 0.75rem; align-items: start; cursor: pointer; margin: 0;">
+                            <input
+                                type="checkbox"
+                                x-model="currentQuiz.settings.autoReveal"
+                                style="width: 1.25rem; height: 1.25rem; margin-top: 0.1rem;"
+                            />
+                            <div>
+                                <span style="font-weight: 700; display: block;">Auto-Reveal</span>
+                                <span class="text-muted text-sm" style="font-weight: 400; line-height: 1.3; display: block; margin-top: 0.25rem;">
+                                    Automatically show answers when everyone has answered.
+                                </span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
             </div>
 
             <!-- Settings Modal -->

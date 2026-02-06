@@ -10,6 +10,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
         newTagInput: '',
         autosaveTimeout: null,
         showSettings: false,
+        showGameOptions: false,
         sortConfig: {
             column: 'updatedAt',
             direction: 'desc',
@@ -203,6 +204,11 @@ window.createEditorData = function (firebase, db, auth, storage) {
             const now = Date.now();
             const newQuiz = {
                 title: 'New Quiz',
+                settings: {
+                    speedScoring: true,
+                    autoReveal: true,
+                    defaultTimer: 20,
+                },
                 questions: [
                     {
                         id: this._generateId(),
@@ -232,6 +238,19 @@ window.createEditorData = function (firebase, db, auth, storage) {
         editQuiz(id) {
             this.editingQuizId = id;
             this.currentQuiz = JSON.parse(JSON.stringify(this.quizzes[id])); // Deep clone
+
+            // Ensure settings object exists with defaults
+            if (!this.currentQuiz.settings) {
+                this.currentQuiz.settings = {
+                    speedScoring: true,
+                    autoReveal: true,
+                    defaultTimer: 20,
+                };
+            }
+            // Ensure individual settings exist if object is partial
+            if (this.currentQuiz.settings.speedScoring === undefined) this.currentQuiz.settings.speedScoring = true;
+            if (this.currentQuiz.settings.autoReveal === undefined) this.currentQuiz.settings.autoReveal = true;
+            if (this.currentQuiz.settings.defaultTimer === undefined) this.currentQuiz.settings.defaultTimer = 20;
 
             // Backfill IDs and migrate Category to Tags + Normalize MC
             this.currentQuiz.questions.forEach((q) => {

@@ -247,95 +247,7 @@
                 </div>
 
                 <!-- VIEW: Settings -->
-                <div x-show="isAuthenticated && currentView === 'settings'">
-                    <div class="header">
-                        <h2>⚙️ Game Settings</h2>
-                    </div>
-
-                    <div
-                        style="
-                            max-width: 500px;
-                            margin: 0 auto;
-                            display: flex;
-                            flex-direction: column;
-                            gap: 1.5rem;
-                        "
-                    >
-                        <!-- Scoring Section -->
-                        <div class="card" style="background: var(--color-bg)">
-                            <h3 style="margin-bottom: 1rem; font-size: 1.1rem">🏆 Scoring</h3>
-                            <label
-                                style="
-                                    display: flex;
-                                    gap: 1rem;
-                                    align-items: flex-start;
-                                    cursor: pointer;
-                                "
-                            >
-                                <input
-                                    type="checkbox"
-                                    x-model="speedScoringEnabled"
-                                    style="width: 1.25rem; height: 1.25rem; margin-top: 0.25rem"
-                                />
-                                <div>
-                                    <strong style="display: block">Enable Speed Scoring</strong>
-                                    <span class="text-muted text-sm">
-                                        Fast answers get bonus points (500 base + bonus).
-                                    </span>
-                                </div>
-                            </label>
-                        </div>
-
-                        <!-- Timing Section -->
-                        <div class="card" style="background: var(--color-bg)">
-                            <h3 style="margin-bottom: 1rem; font-size: 1.1rem">⏱️ Timing & Automation</h3>
-
-                            <div style="margin-bottom: 1.5rem">
-                                <label style="font-weight: 600; display: block; margin-bottom: 0.5rem; font-size: 0.875rem"
-                                    >Default Timer (seconds):</label
-                                >
-                                <input
-                                    type="number"
-                                    x-model="defaultTimer"
-                                    style="max-width: 120px"
-                                />
-                            </div>
-
-                            <label
-                                style="
-                                    display: flex;
-                                    gap: 1rem;
-                                    align-items: flex-start;
-                                    cursor: pointer;
-                                "
-                            >
-                                <input
-                                    type="checkbox"
-                                    x-model="autoReveal"
-                                    style="width: 1.25rem; height: 1.25rem; margin-top: 0.25rem"
-                                />
-                                <div>
-                                    <strong style="display: block">Auto-Reveal Answers</strong>
-                                    <span class="text-muted text-sm">
-                                        Automatically show the answer once all players have
-                                        submitted.
-                                    </span>
-                                </div>
-                            </label>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div style="text-align: center; margin-top: 1rem">
-                            <button
-                                class="btn btn-primary"
-                                style="padding: 0.75rem 2.5rem"
-                                @click="closeSettings()"
-                            >
-                                ✅ Done
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <!-- Removed: Settings now handled in Editor -->
 
                 <!-- VIEW: Game -->
                 <div x-show="isAuthenticated && currentView === 'game'">
@@ -470,16 +382,6 @@
 
             <!-- Sidebar -->
             <div class="sidebar" x-show="isAuthenticated">
-                <div class="card" x-show="currentView === 'game'">
-                    <h3 style="font-size: 1rem; margin-bottom: 1rem">⏱️ Controls</h3>
-                    <button
-                        class="btn btn-secondary"
-                        style="width: 100%; margin-bottom: 0.75rem"
-                        @click="openSettings()"
-                    >
-                        ⚙️ Game Settings
-                    </button>
-                </div>
                 <div class="card" x-show="currentView === 'game'">
                     <h3 style="font-size: 1rem; margin-bottom: 1rem">📥 Answers</h3>
                     <div

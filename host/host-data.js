@@ -99,6 +99,14 @@ window.createHostData = function (firebase, db, auth, analytics) {
                                 const data = snap.val();
                                 if (data) {
                                     this.quizData = QuizParser.toFlatSlides(data);
+                                    
+                                    // Load Game Options
+                                    if (data.settings) {
+                                        this.speedScoringEnabled = data.settings.speedScoring !== false;
+                                        this.autoReveal = data.settings.autoReveal !== false;
+                                        this.defaultTimer = data.settings.defaultTimer || 20;
+                                    }
+
                                     this.currentView = 'setup'; // Default to lobby/setup
                                     this.successMsg = `✓ Loaded ${this.quizData.length} items`;
                                 } else {
@@ -386,14 +394,6 @@ window.createHostData = function (firebase, db, auth, analytics) {
                 db.ref('players').remove();
                 db.ref('answers').remove();
             }
-        },
-        openSettings() {
-            this.previousView = this.currentView;
-            this.currentView = 'settings';
-        },
-        closeSettings() {
-            this.currentView = this.previousView || 'setup';
-            this.previousView = null;
         },
     };
 };
