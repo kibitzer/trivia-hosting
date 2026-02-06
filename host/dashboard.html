@@ -11,10 +11,30 @@
         .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; }
         
         .quiz-table { width: 100%; border-collapse: collapse; background: var(--color-surface); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--color-border); box-shadow: var(--shadow-sm); }
-        .quiz-table th { text-align: left; padding: 1rem; background: #f8fafc; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 800; color: var(--color-text-muted); border-bottom: 2px solid var(--color-border); cursor: pointer; }
+        .quiz-table th { text-align: left; padding: 1rem; background: #f8fafc; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 800; color: var(--color-text-muted); border-bottom: 2px solid var(--color-border); }
+        .quiz-table th.sortable { cursor: pointer; }
+        .quiz-table th.sortable:hover { color: var(--color-primary); }
         .quiz-table td { padding: 1rem; border-bottom: 1px solid var(--color-border); vertical-align: middle; }
         .quiz-table tr:last-child td { border-bottom: none; }
         .quiz-table tr:hover { background: #f8fafc; }
+
+        .sort-icon {
+            display: inline-flex;
+            flex-direction: column;
+            margin-left: 0.4rem;
+            vertical-align: middle;
+            font-size: 0.6rem;
+            line-height: 0.7;
+        }
+        .sort-arrow {
+            color: var(--color-text-muted);
+            opacity: 0.3;
+            transition: all 0.2s ease;
+        }
+        .sort-arrow.active {
+            color: var(--color-primary);
+            opacity: 1;
+        }
         
         .active-session-card { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; }
     </style>
@@ -58,9 +78,33 @@
             <table class="quiz-table" x-show="Object.keys(quizzes).length > 0">
                 <thead>
                     <tr>
-                        <th @click="setSort('title')">Quiz Name</th>
-                        <th style="width: 100px;">Items</th>
-                        <th @click="setSort('updatedAt')">Updated</th>
+                        <th class="sortable" @click="setSort('title')">
+                            <div style="display: flex; align-items: center;">
+                                Quiz Name
+                                <span class="sort-icon">
+                                    <span class="sort-arrow" :class="{ 'active': sortConfig.column === 'title' && sortConfig.direction === 'asc' }">▲</span>
+                                    <span class="sort-arrow" :class="{ 'active': sortConfig.column === 'title' && sortConfig.direction === 'desc' }">▼</span>
+                                </span>
+                            </div>
+                        </th>
+                        <th class="sortable" style="width: 120px;" @click="setSort('questionCount')">
+                            <div style="display: flex; align-items: center;">
+                                Items
+                                <span class="sort-icon">
+                                    <span class="sort-arrow" :class="{ 'active': sortConfig.column === 'questionCount' && sortConfig.direction === 'asc' }">▲</span>
+                                    <span class="sort-arrow" :class="{ 'active': sortConfig.column === 'questionCount' && sortConfig.direction === 'desc' }">▼</span>
+                                </span>
+                            </div>
+                        </th>
+                        <th class="sortable" @click="setSort('updatedAt')">
+                            <div style="display: flex; align-items: center;">
+                                Updated
+                                <span class="sort-icon">
+                                    <span class="sort-arrow" :class="{ 'active': sortConfig.column === 'updatedAt' && sortConfig.direction === 'asc' }">▲</span>
+                                    <span class="sort-arrow" :class="{ 'active': sortConfig.column === 'updatedAt' && sortConfig.direction === 'desc' }">▼</span>
+                                </span>
+                            </div>
+                        </th>
                         <th style="width: 200px; text-align: right;">Actions</th>
                     </tr>
                 </thead>
