@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.11] - 2026-02-06
+
+### Changed
+
+- **UX**: Refined "Continuous Scoreboard" logic. When disabled, the scoreboard now appears in place of the question area on player devices when toggled ON by the host.
+
 ## [0.6.10] - 2026-02-06
 
 ### Added

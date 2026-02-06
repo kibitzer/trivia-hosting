@@ -364,7 +364,13 @@
 
             <!-- Game Section -->
             <div x-show="screen === 'game'">
-                <div :key="currentItem.currentIndex" x-transition:enter="fade-enter-active" x-transition:enter-start="fade-enter" x-transition:enter-end="fade-enter-to">
+                <div 
+                    :key="currentItem.currentIndex" 
+                    x-transition:enter="fade-enter-active" 
+                    x-transition:enter-start="fade-enter" 
+                    x-transition:enter-end="fade-enter-to"
+                    x-show="gameState.continuousScoreboard || !gameState.showScoreboard"
+                >
                     <div class="card">
                         <div class="header">
                         <h1 style="font-size: 1.25rem">🎯 Trivia Night</h1>
