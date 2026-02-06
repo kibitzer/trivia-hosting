@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.23] - 2026-02-06
+
+### Changed
+
+- **Quiz Editor**: Modernised the Multiple Choice options UI with a custom component featuring an interactive check button and trash icon.
+
+## [0.6.22] - 2026-02-06
+
+### Changed
+
+- **Quiz Editor**: Implemented robust MC sync via manual binding and self-healing validation to prevent data loss.
+
+## [0.6.21] - 2026-02-06
+
+### Changed
+
+- **Quiz Editor**: Implemented robust MC option sync via Alpine watcher.
+
 ## [0.6.20] - 2026-02-06
 
 ### Fixed

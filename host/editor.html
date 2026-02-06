@@ -227,6 +227,75 @@
                 background: var(--color-primary);
                 color: white;
             }
+
+            /* MC Option Component */
+            .mc-option-item {
+                display: flex;
+                gap: 0.75rem;
+                align-items: center;
+                background: var(--color-surface);
+                padding: 0.625rem;
+                border-radius: var(--radius-md);
+                border: 1px solid var(--color-border);
+                transition: all 0.2s ease;
+            }
+            .mc-option-item:hover {
+                border-color: var(--color-secondary);
+                box-shadow: var(--shadow-sm);
+            }
+            .mc-option-item.is-correct {
+                border-color: var(--color-success);
+                background: #f0fdf4; /* Green 50 */
+            }
+            .mc-option-check {
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                border: 2px solid var(--color-border);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                flex-shrink: 0;
+                background: white;
+                transition: all 0.2s;
+                color: transparent;
+                font-weight: 800;
+                font-size: 0.875rem;
+            }
+            .mc-option-item.is-correct .mc-option-check {
+                border-color: var(--color-success);
+                background: white;
+                color: var(--color-success);
+                box-shadow: inset 0 0 0 2px #f0fdf4;
+            }
+            .mc-option-input {
+                border: none !important;
+                background: transparent !important;
+                padding: 0 !important;
+                font-weight: 600 !important;
+                flex: 1;
+                font-size: 1rem !important;
+                box-shadow: none !important;
+            }
+            .mc-option-delete {
+                background: none;
+                border: none;
+                padding: 0.4rem;
+                cursor: pointer;
+                color: var(--color-secondary);
+                opacity: 0.5;
+                transition: all 0.2s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: var(--radius-md);
+            }
+            .mc-option-delete:hover {
+                opacity: 1;
+                color: var(--color-danger);
+                background: #fef2f2;
+            }
         </style>
     </head>
     <body x-data="quizEditor">
@@ -551,26 +620,20 @@
                                                 :key="oIdx"
                                             >
                                                 <div
-                                                    style="
-                                                        display: flex;
-                                                        gap: 0.75rem;
-                                                        align-items: center;
-                                                        background: var(--color-bg);
-                                                        padding: 0.75rem;
-                                                        border-radius: var(--radius-md);
-                                                        border: 1px solid var(--color-border);
-                                                    "
+                                                    class="mc-option-item"
+                                                    :class="{ 'is-correct': currentQuiz.questions[selectedQuestionIndex].correctAnswer === currentQuiz.questions[selectedQuestionIndex].options[oIdx] }"
                                                 >
-                                                    <input
-                                                        type="radio"
-                                                        :name="'correct-opt-' + currentQuiz.questions[selectedQuestionIndex].id"
-                                                        :value="currentQuiz.questions[selectedQuestionIndex].options[oIdx]"
-                                                        :checked="currentQuiz.questions[selectedQuestionIndex].correctAnswer === currentQuiz.questions[selectedQuestionIndex].options[oIdx]"
-                                                        @change="currentQuiz.questions[selectedQuestionIndex].correctAnswer = $el.value"
-                                                        style="width: 1rem; height: 1rem; cursor: pointer;"
-                                                    />
+                                                    <button
+                                                        type="button"
+                                                        class="mc-option-check"
+                                                        @click="currentQuiz.questions[selectedQuestionIndex].correctAnswer = currentQuiz.questions[selectedQuestionIndex].options[oIdx]"
+                                                        title="Set as correct answer"
+                                                    >
+                                                        ✓
+                                                    </button>
                                                     <input
                                                         type="text"
+                                                        class="mc-option-input"
                                                         :value="currentQuiz.questions[selectedQuestionIndex].options[oIdx]"
                                                         @input="
                                                             const newVal = $el.value;
@@ -582,20 +645,15 @@
                                                             }
                                                         "
                                                         placeholder="Option Text"
-                                                        style="
-                                                            border: none;
-                                                            background: transparent;
-                                                            padding: 0;
-                                                            font-weight: 600;
-                                                            flex: 1;
-                                                        "
                                                     />
                                                     <button 
+                                                        type="button"
+                                                        class="mc-option-delete"
                                                         @click="removeOption(oIdx)"
-                                                        style="background: none; border: none; padding: 0; cursor: pointer; color: var(--color-danger); opacity: 0.5; font-size: 1.25rem; font-weight: 800;"
-                                                        onmouseover="this.style.opacity = '1'"
-                                                        onmouseout="this.style.opacity = '0.5'"
-                                                    >×</button>
+                                                        title="Remove Option"
+                                                    >
+                                                        🗑️
+                                                    </button>
                                                 </div>
                                             </template>
                                         </div>
