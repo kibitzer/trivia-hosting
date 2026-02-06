@@ -410,6 +410,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
             });
             this.renumberSlides();
             this.selectedQuestionIndex = this.currentQuiz.questions.length - 1;
+            this.triggerAutosave();
         },
 
         removeTag(tag) {
@@ -428,6 +429,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
             });
             this.renumberSlides();
             this.selectedQuestionIndex = this.currentQuiz.questions.length - 1;
+            this.triggerAutosave();
         },
 
         async removeQuestion(index) {
@@ -449,6 +451,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
                 } else if (this.selectedQuestionIndex >= this.currentQuiz.questions.length) {
                     this.selectedQuestionIndex = Math.max(0, this.currentQuiz.questions.length - 1);
                 }
+                this.triggerAutosave();
             }
         },
 
