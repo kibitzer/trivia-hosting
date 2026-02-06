@@ -245,6 +245,7 @@
                             <input
                                 type="text"
                                 x-model="currentQuiz.title"
+                                @input="triggerAutosave()"
                                 style="
                                     font-size: 1.25rem;
                                     font-weight: 800;
@@ -371,6 +372,7 @@
                                             <label>Slide Type</label>
                                             <select
                                                 x-model="currentQuiz.questions[selectedQuestionIndex].type"
+                                                @change="triggerAutosave()"
                                             >
                                                 <option value="multiple">Multiple Choice</option>
                                                 <option value="short">Short Answer</option>
@@ -389,6 +391,7 @@
                                             <input
                                                 type="number"
                                                 x-model="currentQuiz.questions[selectedQuestionIndex].timer"
+                                                @input="triggerAutosave()"
                                             />
                                         </div>
                                         <div
@@ -444,6 +447,7 @@
                                         <input
                                             type="text"
                                             x-model="currentQuiz.questions[selectedQuestionIndex].title"
+                                            @input="triggerAutosave()"
                                             placeholder="e.g. Round 1: History"
                                             style="font-size: 1.125rem; font-weight: 700"
                                         />
@@ -484,6 +488,7 @@
                                         <label>Question Text</label>
                                         <textarea
                                             x-model="currentQuiz.questions[selectedQuestionIndex].question"
+                                            @input="triggerAutosave()"
                                             rows="3"
                                             style="font-size: 1.1rem; font-weight: 600"
                                         ></textarea>
@@ -568,7 +573,7 @@
                                                     <input
                                                         type="text"
                                                         x-model="currentQuiz.questions[selectedQuestionIndex].options[oIdx]"
-                                                        @input="if (currentQuiz.questions[selectedQuestionIndex].correctAnswer === $el._oldValue) currentQuiz.questions[selectedQuestionIndex].correctAnswer = $el.value"
+                                                        @input="if (currentQuiz.questions[selectedQuestionIndex].correctAnswer === $el._oldValue) currentQuiz.questions[selectedQuestionIndex].correctAnswer = $el.value; triggerAutosave()"
                                                         @focus="$el._oldValue = $el.value"
                                                         placeholder="Option Text"
                                                         style="
@@ -602,7 +607,7 @@
                                             type="text"
                                             placeholder="e.g. Answer 1, Answer 2"
                                             :value="Array.isArray(currentQuiz.questions[selectedQuestionIndex].correctAnswer) ? currentQuiz.questions[selectedQuestionIndex].correctAnswer.join(', ') : currentQuiz.questions[selectedQuestionIndex].correctAnswer"
-                                            @input="currentQuiz.questions[selectedQuestionIndex].correctAnswer = $event.target.value.split(',').map(s => s.trim())"
+                                            @input="currentQuiz.questions[selectedQuestionIndex].correctAnswer = $event.target.value.split(',').map(s => s.trim()); triggerAutosave()"
                                         />
                                     </div>
 
@@ -610,6 +615,7 @@
                                         <label>Host Notes (Optional)</label>
                                         <textarea
                                             x-model="currentQuiz.questions[selectedQuestionIndex].notes"
+                                            @input="triggerAutosave()"
                                             rows="2"
                                             placeholder="Notes for the host during this question..."
                                             class="text-sm"
@@ -652,6 +658,7 @@
                         <input
                             type="number"
                             x-model.number="currentQuiz.settings.defaultTimer"
+                            @input="triggerAutosave()"
                             min="5"
                             step="5"
                         />
@@ -665,6 +672,7 @@
                             <input
                                 type="checkbox"
                                 x-model="currentQuiz.settings.speedScoring"
+                                @change="triggerAutosave()"
                                 style="width: 1.25rem; height: 1.25rem; margin-top: 0.1rem;"
                             />
                             <div>
@@ -681,6 +689,7 @@
                             <input
                                 type="checkbox"
                                 x-model="currentQuiz.settings.autoReveal"
+                                @change="triggerAutosave()"
                                 style="width: 1.25rem; height: 1.25rem; margin-top: 0.1rem;"
                             />
                             <div>
@@ -697,6 +706,7 @@
                             <input
                                 type="checkbox"
                                 x-model="currentQuiz.settings.continuousScoreboard"
+                                @change="triggerAutosave()"
                                 style="width: 1.25rem; height: 1.25rem; margin-top: 0.1rem;"
                             />
                             <div>
