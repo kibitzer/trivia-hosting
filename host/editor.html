@@ -226,26 +226,29 @@
                             <span id="app-version-editor" class="text-muted" style="font-size: 0.65rem; font-weight: 700; margin-left: 0.5rem"></span>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 0.75rem; align-items: center">
-                        <button
-                            @click="showGameOptions = !showGameOptions"
-                            class="btn"
-                            :class="showGameOptions ? 'btn-primary' : 'btn-secondary'"
-                            style="padding: 0.5rem 0.75rem"
-                        >
-                            ⚙️ Game Options
-                        </button>
-                        <div
-                            x-show="statusMsg"
-                            class="text-sm"
-                            style="
-                                padding: 0.375rem 0.75rem;
-                                border-radius: var(--radius-full);
-                                font-weight: 700;
-                            "
-                            :style="statusMsg.includes('⚠️') ? 'background: #fff7ed; color: var(--color-warning);' : (statusMsg.includes('❌') ? 'background: #fef2f2; color: var(--color-danger);' : 'background: #f0fdf4; color: var(--color-success);')"
-                            x-text="statusMsg"
-                        ></div>
+                    <div style="display: flex; gap: 1rem; align-items: center">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; min-width: 300px; justify-content: flex-end">
+                            <div
+                                x-show="statusMsg"
+                                class="text-sm"
+                                style="
+                                    padding: 0.375rem 0.75rem;
+                                    border-radius: var(--radius-full);
+                                    font-weight: 700;
+                                    white-space: nowrap;
+                                "
+                                :style="statusMsg.includes('⚠️') ? 'background: #fff7ed; color: var(--color-warning);' : (statusMsg.includes('❌') ? 'background: #fef2f2; color: var(--color-danger);' : 'background: #f0fdf4; color: var(--color-success);')"
+                                x-text="statusMsg"
+                            ></div>
+                            <button
+                                @click="showGameOptions = !showGameOptions"
+                                class="btn"
+                                :class="showGameOptions ? 'btn-primary' : 'btn-secondary'"
+                                style="padding: 0.5rem 0.75rem; white-space: nowrap"
+                            >
+                                ⚙️ Game Options
+                            </button>
+                        </div>
                     </div>
                 </div>
 
