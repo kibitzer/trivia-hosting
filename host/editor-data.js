@@ -274,6 +274,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
                         delete q.category;
                     }
                     if (!q.tags) q.tags = [];
+                    if (q.notes === undefined) q.notes = '';
 
                     // Normalize question content
                     q.question = this._normalizeString(q.question);
@@ -335,6 +336,15 @@ window.createEditorData = function (firebase, db, auth, storage) {
                 t.toLowerCase().includes(input) && !currentTags.includes(t)
             );
             this.activeTagSuggestionIndex = this.tagSuggestions.length > 0 ? 0 : -1;
+        },
+
+        updateOptionText(oIdx, newValue, oldValue) {
+            const q = this.currentQuiz.questions[this.selectedQuestionIndex];
+            if (!q || q.type !== 'multiple') return;
+            
+            if (q.correctAnswer === oldValue) {
+                q.correctAnswer = newValue;
+            }
         },
 
         addTag() {
@@ -464,26 +474,39 @@ window.createEditorData = function (firebase, db, auth, storage) {
 
             this.currentQuiz.questions.forEach((q) => {
                 if (q.type === 'round-title') {
-                    q.title = this._normalizeString(q.title);
+                    const normTitle = this._normalizeString(q.title);
+                    if (q.title !== normTitle) q.title = normTitle;
+                    
                     delete q.question;
                     delete q.options;
                     delete q.correctAnswer;
-                    delete q.notes;
+                    // Do not delete notes, they might be used in the future or by custom themes
                     delete q.timer;
                     delete q.tags;
                     delete q.category;
                 } else {
                     delete q.category; // Ensure legacy field is removed
                     
-                    // Final normalization pass
-                    q.question = this._normalizeString(q.question);
+                    // Final normalization pass without redundant assignments to avoid Alpine re-renders
+                    const normQ = this._normalizeString(q.question);
+                    if (q.question !== normQ) q.question = normQ;
+
                     if (q.options) {
-                        q.options = q.options.map(o => this._normalizeString(o));
+                        const normOptions = q.options.map(o => this._normalizeString(o));
+                        // Check if options actually changed before replacing the array
+                        if (JSON.stringify(q.options) !== JSON.stringify(normOptions)) {
+                            q.options = normOptions;
+                        }
                     }
+
                     if (q.correctAnswer && typeof q.correctAnswer === 'string') {
-                        q.correctAnswer = this._normalizeString(q.correctAnswer);
+                        const normCA = this._normalizeString(q.correctAnswer);
+                        if (q.correctAnswer !== normCA) q.correctAnswer = normCA;
                     } else if (Array.isArray(q.correctAnswer)) {
-                        q.correctAnswer = q.correctAnswer.map(a => this._normalizeString(a));
+                        const normCA = q.correctAnswer.map(a => this._normalizeString(a));
+                        if (JSON.stringify(q.correctAnswer) !== JSON.stringify(normCA)) {
+                            q.correctAnswer = normCA;
+                        }
                     }
 
                     // Validation: Must have a correct answer

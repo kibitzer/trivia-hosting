@@ -208,6 +208,49 @@ describe('Editor Logic', () => {
             editor.removeOption(0); // Should fail
             expect(q.options).toHaveLength(2);
         });
+
+        it('should keep correctAnswer in sync when typing in an option (simulating multiple keystrokes)', () => {
+            editor.selectedQuestionIndex = 1; // MC question
+            const q = editor.currentQuiz.questions[1];
+            q.options = ['A', 'B'];
+            q.correctAnswer = 'A';
+
+            // First keystroke: 'A' -> 'Ap'
+            let oldValue = 'A';
+            let newValue = 'Ap';
+            q.options[0] = newValue;
+            editor.updateOptionText(0, newValue, oldValue);
+            
+            expect(q.correctAnswer).toBe('Ap');
+
+            // Second keystroke: 'Ap' -> 'App'
+            oldValue = 'Ap';
+            newValue = 'App';
+            q.options[0] = newValue;
+            editor.updateOptionText(0, newValue, oldValue);
+            
+            expect(q.correctAnswer).toBe('App');
+        });
+
+        it('should backfill missing notes in editQuiz', () => {
+            editor.quizzes.noNotes = {
+                title: 'No Notes',
+                questions: [{ type: 'multiple', question: 'Q', options: ['A'], correctAnswer: 'A' }]
+            };
+            editor.editQuiz('noNotes');
+            expect(editor.currentQuiz.questions[0].notes).toBe('');
+        });
+
+        it('should preserve and save host notes', async () => {
+            editor.selectedQuestionIndex = 1;
+            const q = editor.currentQuiz.questions[1];
+            q.notes = 'These are some notes';
+
+            await editor.saveQuiz();
+
+            const savedQuiz = mockRef.set.mock.calls[0][0];
+            expect(savedQuiz.questions[1].notes).toBe('These are some notes');
+        });
     });
 
     describe('Question Management', () => {

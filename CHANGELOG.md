@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.19] - 2026-02-06
+
+### Fixed
+
+- **Quiz Editor**: Fixed a critical bug where Multiple Choice correct answers would go out of sync while editing option labels.
+- **Quiz Editor**: Resolved an issue where host notes were being blanked out or deleted for certain slide types.
+- **Quiz Editor**: Improved UI stability by optimised save logic that prevents redundant re-renders and preserves input focus.
+
 ## [0.6.18] - 2026-02-06
 
 ### Changed

@@ -573,8 +573,8 @@
                                                     <input
                                                         type="text"
                                                         x-model="currentQuiz.questions[selectedQuestionIndex].options[oIdx]"
-                                                        @input="if (currentQuiz.questions[selectedQuestionIndex].correctAnswer === $el._oldValue) currentQuiz.questions[selectedQuestionIndex].correctAnswer = $el.value"
                                                         @focus="$el._oldValue = $el.value"
+                                                        @input="updateOptionText(oIdx, $el.value, $el._oldValue); $el._oldValue = $el.value"
                                                         placeholder="Option Text"
                                                         style="
                                                             border: none;
@@ -611,7 +611,7 @@
                                         />
                                     </div>
 
-                                    <div class="input-group" style="margin-top: 2rem">
+                                    <div class="input-group" style="margin-top: 2rem" x-show="currentQuiz.questions[selectedQuestionIndex].type !== 'round-title'">
                                         <label>Host Notes (Optional)</label>
                                         <textarea
                                             x-model="currentQuiz.questions[selectedQuestionIndex].notes"
