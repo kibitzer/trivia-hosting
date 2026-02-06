@@ -195,17 +195,16 @@ window.createHostData = function (firebase, db, auth, analytics) {
         },
         startCountdown() {
             this.stopAllTimers();
-            let c = 3;
+            this.timerValue = 3;
             this.timerStatus = 'countdown';
+            this.syncGameState();
+
             this.countdownInterval = setInterval(() => {
-                this.timerValue = c--;
-                db.ref('gameState').update({
-                    timerValue: this.timerValue,
-                    timerStatus: 'countdown',
-                });
-                if (c < 0) {
-                    clearInterval(this.countdownInterval);
+                this.timerValue--;
+                if (this.timerValue < 0) {
                     this.startMainTimer();
+                } else {
+                    this.syncGameState();
                 }
             }, 1000);
         },
@@ -213,12 +212,16 @@ window.createHostData = function (firebase, db, auth, analytics) {
             this.stopAllTimers();
             this.timerStatus = 'running';
             this.timerValue = this.currentItem.timer || this.defaultTimer;
+            this.syncGameState();
+
             this.timerInterval = setInterval(() => {
                 this.timerValue--;
-                db.ref('gameState').update({ timerValue: this.timerValue, timerStatus: 'running' });
                 if (this.timerValue <= 0) {
                     this.stopAllTimers();
                     this.timerStatus = 'ended';
+                    this.syncGameState();
+                } else {
+                    db.ref('gameState').update({ timerValue: this.timerValue, timerStatus: 'running' });
                 }
             }, 1000);
         },

@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.4] - 2026-02-06
+
+### Fixed
+
+- **Host**: Fixed an issue where the countdown timer would briefly display the previous slide's value by ensuring immediate state synchronization.
+
 ## [0.6.3] - 2026-02-06
 
 ### Added
