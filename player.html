@@ -429,7 +429,7 @@
                             </template>
 
                             <!-- VIEW: Multiple Choice -->
-                            <div class="options-list" x-show="currentItem.questionType === 'MC'">
+                            <div class="options-list" x-show="currentItem.questionType === 'MC' && timerStatus !== 'countdown'">
                                 <template x-for="opt in currentItem.options">
                                     <button
                                         class="option-btn"
@@ -447,7 +447,7 @@
 
                             <!-- VIEW: Short Answer -->
                             <div
-                                x-show="currentItem.questionType === 'SHORT' && !hasSubmitted && !gameState.answerRevealed"
+                                x-show="currentItem.questionType === 'SHORT' && timerStatus !== 'countdown' && !hasSubmitted && !gameState.answerRevealed"
                             >
                                 <div class="answer-input-group">
                                     <input

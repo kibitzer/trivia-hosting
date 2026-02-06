@@ -298,7 +298,7 @@
                                     />
                                 </template>
                                 <template x-if="currentItem.questionType === 'MC'">
-                                    <div class="options-grid">
+                                    <div class="options-grid" x-show="timerStatus !== 'countdown'">
                                         <template x-for="opt in currentItem.options">
                                             <div
                                                 class="option"
@@ -311,6 +311,7 @@
                                 <template x-if="currentItem.questionType === 'SHORT'">
                                     <div
                                         class="text-muted"
+                                        x-show="timerStatus !== 'countdown'"
                                         style="
                                             text-align: center;
                                             padding: 1.5rem;
