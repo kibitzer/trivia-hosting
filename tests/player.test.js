@@ -2,6 +2,7 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import '../shared/data-service.js';
 
 // Mock Alpine
 global.Alpine = {
@@ -52,6 +53,8 @@ describe('Player Logic', () => {
 
         const triviaPlayer = triviaPlayerCall[1];
         player = triviaPlayer();
+
+        TriviaDataService.init(mockDb);
 
         // Mock TriviaFirebase global
         global.TriviaFirebase = {

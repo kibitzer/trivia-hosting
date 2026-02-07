@@ -3,6 +3,7 @@
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import '../shared/quiz-parser.js';
+import '../shared/data-service.js';
 import '../host/host-data.js'; // Execute side effects (assigns to window)
 
 // Mock Swal
@@ -17,6 +18,11 @@ const mockDb = {
         set: vi.fn(),
         update: vi.fn(),
         remove: vi.fn(),
+        child: vi.fn(() => ({
+            set: vi.fn(),
+            on: vi.fn(),
+            onDisconnect: vi.fn(() => ({ set: vi.fn() }))
+        }))
     })),
 };
 
@@ -32,6 +38,7 @@ describe('Host Logic', () => {
     let host;
 
     beforeEach(() => {
+        TriviaDataService.init(mockDb);
         host = window.createHostData(mockFirebase, mockDb);
     });
 
@@ -87,8 +94,15 @@ describe('Host Logic', () => {
         it('should award more points for faster answers', async () => {
             const mockSet = vi.fn();
             // Mock DB behavior for this test
-            const dbRefMock = vi.fn(() => ({ set: mockSet, update: vi.fn() }));
-            const customHost = window.createHostData(mockFirebase, { ref: dbRefMock });
+            const customMockDb = { 
+                ref: vi.fn(() => ({ 
+                    set: mockSet, 
+                    update: vi.fn(),
+                    child: vi.fn(() => ({ set: mockSet }))
+                })) 
+            };
+            TriviaDataService.init(customMockDb);
+            const customHost = window.createHostData(mockFirebase, customMockDb);
 
             customHost.players = { p1: { name: 'Alice', score: 0 } };
             customHost.gameState = { timestamp: 1000 }; // Question starts at 1000ms
@@ -117,8 +131,15 @@ describe('Host Logic', () => {
 
         it('should award flat 1000 points when speed scoring is disabled', async () => {
             const mockSet = vi.fn();
-            const dbRefMock = vi.fn(() => ({ set: mockSet, update: vi.fn() }));
-            const customHost = window.createHostData(mockFirebase, { ref: dbRefMock });
+            const customMockDb = { 
+                ref: vi.fn(() => ({ 
+                    set: mockSet, 
+                    update: vi.fn(),
+                    child: vi.fn(() => ({ set: mockSet }))
+                })) 
+            };
+            TriviaDataService.init(customMockDb);
+            const customHost = window.createHostData(mockFirebase, customMockDb);
 
             customHost.speedScoringEnabled = false; // DISABLE Speed Scoring
             customHost.players = { p1: { name: 'Bob', score: 0 } };

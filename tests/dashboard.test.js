@@ -2,6 +2,7 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import '../shared/data-service.js';
 import '../host/dashboard-data.js';
 
 // Mock Swal
@@ -37,6 +38,7 @@ describe('Dashboard Logic', () => {
     let dashboard;
 
     beforeEach(() => {
+        TriviaDataService.init(mockDb);
         dashboard = window.createDashboardData(mockFirebase, mockDb, mockAuth);
         dashboard.quizzes = {
             q1: { title: 'B Quiz', updatedAt: 2000, questions: [1, 2] },

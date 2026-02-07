@@ -6,6 +6,7 @@
         console.log('Initializing App...');
 
         const fb = TriviaFirebase.init();
+        if (fb) TriviaDataService.init(fb.db);
         const hasData = typeof window.createHostData === 'function';
 
         if (!fb || !hasData) {

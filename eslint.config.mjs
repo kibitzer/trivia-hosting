@@ -24,6 +24,7 @@ export default [
                 TriviaAI: 'readonly',
                 QuizParser: 'readonly',
                 TriviaUI: 'readonly',
+                TriviaDataService: 'readonly',
             },
         },
         rules: {

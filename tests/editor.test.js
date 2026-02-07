@@ -2,6 +2,7 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import '../shared/data-service.js';
 import '../host/editor-data.js';
 
 // Mock Swal
@@ -40,6 +41,7 @@ describe('Editor Logic', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        TriviaDataService.init(mockDb);
         editor = window.createEditorData(mockFirebase, mockDb, mockAuth);
         // Pre-fill with a sample quiz for many tests
         editor.quizzes = {

@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-02-07
+
+### Refactored
+
+- **Architecture**: Introduced `shared/data-service.js` to centralise all Firebase interactions, removing redundant database reference logic across the codebase.
+- **State Management**: Automated Host-to-Firebase synchronisation using Alpine.js watchers, significantly simplifying the `host-data.js` logic and eliminating manual sync calls.
+- **Styles**: Consolidated shared layout, typography, and component styles (Timer, Scoreboard, Slide Cards) into `shared/styles.css`.
+- **Scoreboard**: Unified the scoreboard UI structure and styling between the Host and Player views.
+- **Cleanup**: Removed over 300 lines of redundant CSS and boilerplate HTML from main view files.
+
 ## [0.6.41] - 2026-02-07
 
 ### UI/UX

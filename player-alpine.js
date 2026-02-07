@@ -64,14 +64,15 @@
                 // Initialize Firebase via helper
                 const fb = TriviaFirebase.init();
                 if (!fb) return;
+                
+                TriviaDataService.init(fb.db);
 
-                const db = fb.db;
                 const auth = fb.auth;
                 const analytics = fb.analytics;
-                this.analytics = analytics; // Store for methods
+                this.analytics = analytics;
 
                 // Connection Status
-                db.ref('.info/connected').on('value', (snap) => {
+                TriviaDataService.connectedRef.on('value', (snap) => {
                     self.isConnected = snap.val() === true;
                 });
 
@@ -82,7 +83,7 @@
                         const savedName = localStorage.getItem('triviaPlayerName');
                         if (savedName && self.screen === 'join') {
                             self.playerName = savedName;
-                            self.registerPlayer(db);
+                            self.registerPlayer();
                         }
                     }
                 });
@@ -95,7 +96,7 @@
                 try {
                     const result = await firebase.auth().signInAnonymously();
                     this.playerId = result.user.uid;
-                    this.registerPlayer(firebase.database());
+                    this.registerPlayer();
 
                     if (this.analytics) {
                         this.analytics.logEvent('player_join', {
@@ -108,11 +109,11 @@
                 }
             },
 
-            registerPlayer(db) {
+            registerPlayer() {
                 if (!this.playerId || !this.playerName) return;
                 if (this.screen === 'game') return;
 
-                const playerRef = db.ref(`players/${this.playerId}`);
+                const playerRef = TriviaDataService.playerRef(this.playerId);
 
                 playerRef.update({
                     name: this.playerName,
@@ -124,23 +125,23 @@
                 playerRef.child('online').onDisconnect().set(false);
 
                 this.screen = 'game';
-                this.startGame(db);
+                this.startGame();
             },
 
-            startGame(db) {
+            startGame() {
                 // Listen for Global State
-                db.ref('gameState').on('value', (snap) => {
+                TriviaDataService.gameStateRef.on('value', (snap) => {
                     const state = snap.val();
                     if (state) this.handleStateChange(state);
                 });
 
                 // Listen for My Score
-                db.ref(`players/${this.playerId}/score`).on('value', (snap) => {
+                TriviaDataService.playerRef(this.playerId).child('score').on('value', (snap) => {
                     this.score = snap.val() || 0;
                 });
 
                 // Listen for All Players (Scoreboard)
-                db.ref('players').on('value', (snap) => {
+                TriviaDataService.playersRef.on('value', (snap) => {
                     this.allPlayers = snap.val() || {};
                 });
             },
@@ -149,7 +150,6 @@
                 const oldRevealed = !!this.gameState.answerRevealed;
 
                 // Update gameState properties while maintaining reactivity
-                // Clear old properties that are not in the new state (e.g. images, answers)
                 Object.keys(this.gameState).forEach((key) => {
                     if (!(key in newState)) delete this.gameState[key];
                 });
@@ -164,7 +164,6 @@
                     !this.gameState.type;
 
                 // Detect new question to reset inputs
-                // Use newState to avoid intermediate undefined values during the delete/assign loop
                 if (
                     newState.type === 'question' &&
                     newState.questionNumber &&
@@ -179,14 +178,12 @@
 
                 // Detect Answer Reveal Transition
                 if (nowRevealed && !oldRevealed) {
-                    // Calculate correctness for the feedback flash
                     this.isCorrect = this.isCorrectOption(this.currentAnswer);
 
                     if (this.hasSubmitted) {
                         if (this.isCorrect) {
                             this.streak++;
 
-                            // Log streak milestones
                             if (this.analytics && [3, 5, 10].includes(this.streak)) {
                                 this.analytics.logEvent('streak_milestone', {
                                     streak_count: this.streak,
@@ -197,7 +194,6 @@
                             this.streak = 0;
                         }
 
-                        // Trigger visual flash
                         this.showFeedback = true;
                         setTimeout(() => {
                             this.showFeedback = false;
@@ -219,9 +215,8 @@
 
             submitAnswer() {
                 this.hasSubmitted = true;
-                const db = firebase.database();
                 if (this.gameState.questionNumber) {
-                    db.ref(`answers/${this.gameState.questionNumber}/${this.playerId}`).set({
+                    TriviaDataService.answersForQuestionRef(this.gameState.questionNumber).child(this.playerId).set({
                         answer: this.currentAnswer,
                         timestamp: firebase.database.ServerValue.TIMESTAMP,
                     });

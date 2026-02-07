@@ -107,19 +107,16 @@ window.createEditorData = function (firebase, db, auth, storage) {
                     console.log('[Editor] Auth confirmed, quizId:', quizId);
                     
                     if (quizId) {
-                        db.ref(`quizzes/${quizId}`).on('value', (snap) => {
+                        TriviaDataService.quizRef(quizId).on('value', (snap) => {
                             const data = snap.val();
                             console.log('[Editor] Quiz data loaded:', { quizId, dataExists: !!data });
                             
                             if (data) {
-                                // Update local cache
                                 this.quizzes[quizId] = data;
                                 
                                 if (!this.editingQuizId) {
-                                    // First load
                                     this.editQuiz(quizId);
                                 }
-                                // Ensure loading state is cleared after data arrives
                                 this.waitingForAuth = false;
                             } else {
                                 console.warn('[Editor] Quiz not found, redirecting to dashboard');
@@ -266,7 +263,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
                 createdAt: firebase.database.ServerValue.TIMESTAMP,
                 updatedAt: firebase.database.ServerValue.TIMESTAMP,
             };
-            const ref = db.ref('quizzes').push();
+            const ref = TriviaDataService.quizzesRef.push();
             ref.set(newQuiz);
 
             // Seed local cache with numeric timestamps for sorting/display
@@ -596,7 +593,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
             const now = Date.now();
             this.currentQuiz.updatedAt = firebase.database.ServerValue.TIMESTAMP;
             try {
-                await db.ref(`quizzes/${this.editingQuizId}`).set(this.currentQuiz);
+                await TriviaDataService.quizRef(this.editingQuizId).set(this.currentQuiz);
 
                 // CRITICAL: Update the local cache so that slide switching doesn't revert to old data
                 // before the Firebase listener catches up.
@@ -623,7 +620,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
             });
 
             if (result.isConfirmed) {
-                db.ref(`quizzes/${id}`).remove();
+                TriviaDataService.quizRef(id).remove();
                 if (this.editingQuizId === id) this.closeEditor();
             }
         },

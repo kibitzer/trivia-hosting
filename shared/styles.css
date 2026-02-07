@@ -207,3 +207,139 @@ textarea:focus {
         transform: rotate(360deg);
     }
 }
+
+/* --- LAYOUT --- */
+.container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+}
+.header h1 {
+    font-size: 2.25rem;
+    margin-bottom: 0.5rem;
+}
+
+/* --- SHARED COMPONENTS --- */
+
+/* Timer */
+.timer-display {
+    font-size: 4rem;
+    text-align: center;
+    font-weight: 800;
+    color: var(--color-primary);
+    margin: 1.5rem 0;
+    line-height: 1;
+}
+.timer-display.countdown {
+    color: var(--color-warning);
+    animation: pulse 1s infinite;
+}
+.timer-display.danger {
+    color: var(--color-danger);
+    animation: pulse 0.5s infinite;
+}
+.timer-display.stopped {
+    color: var(--color-text-muted);
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(0.95); }
+}
+
+/* Question Header */
+.question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+.question-number {
+    background: var(--color-primary);
+    color: white;
+    padding: 0.25rem 1rem;
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+/* Visual Slide (Round Title / Question Image) */
+.slide-card {
+    background: var(--color-primary);
+    color: white;
+    text-align: center;
+    padding: 3rem;
+    border-radius: var(--radius-lg);
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+.slide-card h2 {
+    color: white;
+    font-size: 2.5rem;
+    position: relative;
+    z-index: 2;
+}
+.slide-card-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.15;
+}
+.slide-card-content {
+    position: relative;
+    z-index: 2;
+}
+
+/* Scoreboard */
+.score-list {
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+.score-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    background: var(--color-bg);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    transition: all 0.2s ease;
+}
+.score-item.leader {
+    background: #fefce8;
+    border-color: #fde047;
+}
+.score-item.me {
+    border-left: 4px solid var(--color-primary);
+}
+.score-item-name {
+    font-weight: 700;
+    font-size: 0.9375rem;
+}
+.score-item-score {
+    font-weight: 800;
+    color: var(--color-success);
+}
+
+/* Animations */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}

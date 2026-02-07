@@ -16,14 +16,14 @@ window.createDashboardData = function (firebase, db, auth) {
                         this.userEmail = user.email;
                         this.loading = true;
                         
-                        // Listen for quizzes
-                        db.ref('quizzes').on('value', snap => {
+                        // Listen for quizzes via DataService
+                        TriviaDataService.quizzesRef.on('value', snap => {
                             this.quizzes = snap.val() || {};
                             this.loading = false;
                         });
 
-                        // Listen for active game
-                        db.ref('gameState').on('value', snap => {
+                        // Listen for active game via DataService
+                        TriviaDataService.gameStateRef.on('value', snap => {
                             this.activeGame = snap.val();
                         });
                     } else {
@@ -97,7 +97,7 @@ window.createDashboardData = function (firebase, db, auth) {
                 createdAt: firebase.database.ServerValue.TIMESTAMP,
                 updatedAt: firebase.database.ServerValue.TIMESTAMP
             };
-            const ref = db.ref('quizzes').push();
+            const ref = TriviaDataService.quizzesRef.push();
             await ref.set(newQuiz);
             this.editQuiz(ref.key);
         },
@@ -112,7 +112,7 @@ window.createDashboardData = function (firebase, db, auth) {
                 confirmButtonText: 'Yes, delete it'
             });
             if (result.isConfirmed) {
-                db.ref(`quizzes/${id}`).remove();
+                TriviaDataService.quizRef(id).remove();
             }
         },
 

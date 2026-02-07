@@ -73,37 +73,35 @@ window.createHostData = function (firebase, db, auth, analytics) {
                 auth.onAuthStateChanged((user) => {
                     if (user && !user.isAnonymous) {
                         this.isAuthenticated = true;
-                        // Check for quizId in URL
+                        
                         const urlParams = new URLSearchParams(window.location.search);
                         this.selectedQuizId = urlParams.get('quizId');
                         console.log('[Host] Auth confirmed, quizId:', this.selectedQuizId);
 
-                        // Only attach listeners when authenticated
-                        db.ref('players').on('value', (snap) => {
+                        // Attach listeners via DataService
+                        TriviaDataService.playersRef.on('value', (snap) => {
                             this.players = snap.val() || {};
                             this.checkAutoReveal();
                         });
-                        db.ref('answers').on('value', (snap) => {
+                        TriviaDataService.answersRef.on('value', (snap) => {
                             this.currentAnswers = snap.val() || {};
                             this.checkAutoReveal();
                         });
 
-                        // Initialize gameState if empty
-                        db.ref('gameState').on('value', (snap) => {
+                        TriviaDataService.gameStateRef.on('value', (snap) => {
                             if (!snap.exists()) {
-                                db.ref('gameState').set({ status: 'waiting' });
+                                TriviaDataService.setGameState({ status: 'waiting' });
                             }
                             this.gameState = snap.val() || {};
                         });
 
                         // Load the specific quiz if ID is provided
                         if (this.selectedQuizId) {
-                            db.ref(`quizzes/${this.selectedQuizId}`).once('value', (snap) => {
+                            TriviaDataService.quizRef(this.selectedQuizId).once('value', (snap) => {
                                 const data = snap.val();
                                 if (data) {
                                     this.quizData = QuizParser.toFlatSlides(data);
                                     
-                                    // Load Game Options
                                     if (data.settings) {
                                         this.speedScoringEnabled = data.settings.speedScoring !== false;
                                         this.autoReveal = data.settings.autoReveal !== false;
@@ -111,7 +109,7 @@ window.createHostData = function (firebase, db, auth, analytics) {
                                         this.continuousScoreboard = data.settings.continuousScoreboard !== false;
                                     }
 
-                                    this.currentView = 'setup'; // Default to lobby/setup
+                                    this.currentView = 'setup';
                                     this.successMsg = `✓ Loaded ${this.quizData.length} items`;
                                     this.waitingForAuth = false;
                                 } else {
@@ -121,16 +119,12 @@ window.createHostData = function (firebase, db, auth, analytics) {
                                 }
                             });
                         } else {
-                            // If no quizId, go to dashboard
-                            console.warn('[Host] No quizId in URL, redirecting to dashboard');
                             this.waitingForAuth = false;
                             window.location.href = 'dashboard.html';
                         }
                     } else {
-                        // Give Firebase a moment to restore session before redirecting
                         setTimeout(() => {
                             if (!auth.currentUser || auth.currentUser.isAnonymous) {
-                                console.log('[Host] Not authenticated, redirecting to login');
                                 this.waitingForAuth = false;
                                 const target = 'host.html' + window.location.search;
                                 window.location.href = 'login.html?redirect=' + encodeURIComponent(target);
@@ -138,9 +132,16 @@ window.createHostData = function (firebase, db, auth, analytics) {
                         }, 1000);
                     }
                 });
-            db.ref('.info/connected').on('value', (snap) => {
+
+            TriviaDataService.connectedRef.on('value', (snap) => {
                 this.isConnected = snap.val() === true;
             });
+
+            // Set up automatic state synchronization
+            this.$watch('currentIndex', () => this.syncGameState());
+            this.$watch('answerRevealed', () => this.syncGameState());
+            this.$watch('timerStatus', () => this.syncGameState());
+            this.$watch('showScoreboard', () => this.syncGameState());
         },
         logout() {
             if (auth) auth.signOut();
@@ -148,7 +149,6 @@ window.createHostData = function (firebase, db, auth, analytics) {
         startGame() {
             this.currentView = 'game';
             this.currentIndex = 0;
-            this.syncGameState();
 
             if (analytics) {
                 analytics.logEvent('game_start', {
@@ -175,10 +175,12 @@ window.createHostData = function (firebase, db, auth, analytics) {
             this.stopAllTimers();
             this.currentIndex = -1;
             this.currentView = 'setup';
-            db.ref('gameState').set({ status: 'waiting' });
-            db.ref('answers').remove();
-            Object.keys(this.players).forEach((p) => db.ref(`players/${p}/score`).set(0));
-            this.syncGameState();
+            
+            TriviaDataService.setGameState({ status: 'waiting' });
+            TriviaDataService.clearAnswers();
+            
+            // Reset player scores
+            Object.keys(this.players).forEach((p) => TriviaDataService.updatePlayerScore(p, 0));
         },
         nextItem() {
             if (this.currentIndex >= this.quizData.length - 1) {
@@ -196,33 +198,27 @@ window.createHostData = function (firebase, db, auth, analytics) {
             this.answerRevealed = false;
             this.stopAllTimers();
             this.timerValue = this.currentItem.timer || this.defaultTimer;
+            
             if (this.currentItem.type === 'question') {
                 this.startCountdown();
-                // Clear answers for the new question number
-                db.ref(`answers/${this.currentItem.questionNumber}`).remove();
+                TriviaDataService.answersForQuestionRef(this.currentItem.questionNumber).remove();
             }
-            // Sync game state after updating index and resetting timers
-            this.syncGameState();
         },
         prevItem() {
             if (this.currentIndex > 0) {
                 this.currentIndex--;
                 this.answerRevealed = false;
-                this.syncGameState();
             }
         },
         startCountdown() {
             this.stopAllTimers();
             this.timerValue = 3;
             this.timerStatus = 'countdown';
-            this.syncGameState();
 
             this.countdownInterval = setInterval(() => {
                 this.timerValue--;
                 if (this.timerValue < 0) {
                     this.startMainTimer();
-                } else {
-                    this.syncGameState();
                 }
             }, 1000);
         },
@@ -230,16 +226,14 @@ window.createHostData = function (firebase, db, auth, analytics) {
             this.stopAllTimers();
             this.timerStatus = 'running';
             this.timerValue = this.currentItem.timer || this.defaultTimer;
-            this.syncGameState();
 
             this.timerInterval = setInterval(() => {
                 this.timerValue--;
                 if (this.timerValue <= 0) {
                     this.stopAllTimers();
                     this.timerStatus = 'ended';
-                    this.syncGameState();
                 } else {
-                    db.ref('gameState').update({ timerValue: this.timerValue, timerStatus: 'running' });
+                    TriviaDataService.updateGameState({ timerValue: this.timerValue, timerStatus: 'running' });
                 }
             }, 1000);
         },
@@ -271,8 +265,8 @@ window.createHostData = function (firebase, db, auth, analytics) {
             ).length;
             if (online > 0 && ansCount >= online && !this.autoRevealTimeout) {
                 this.autoRevealTimeout = setTimeout(() => {
-                    this.autoRevealTimeout = null; // Clear before calling reveal
-                    this.timerStatus = 'revealed'; // Update local status first
+                    this.autoRevealTimeout = null;
+                    this.timerStatus = 'revealed';
                     this.revealAnswer();
                 }, 2000);
             }
@@ -283,8 +277,8 @@ window.createHostData = function (firebase, db, auth, analytics) {
             this.timerStatus = 'revealed';
 
             const answers = this.currentAnswers[this.currentItem.questionNumber] || {};
-            const questionStartTime = this.gameState.timestamp; // When the question was synced to Firebase
-            const totalTimeLimit = (this.currentItem.timer || this.defaultTimer) * 1000; // ms
+            const questionStartTime = this.gameState.timestamp;
+            const totalTimeLimit = (this.currentItem.timer || this.defaultTimer) * 1000;
 
             let correctCount = 0;
             let totalResponseTime = 0;
@@ -294,15 +288,13 @@ window.createHostData = function (firebase, db, auth, analytics) {
                 const isCorrect = this.checkCorrectness(data.answer);
                 if (isCorrect) {
                     correctCount++;
-                    let totalPoints = 1000; // Default flat score
+                    let totalPoints = 1000;
 
                     if (
                         this.speedScoringEnabled &&
                         typeof questionStartTime === 'number' &&
                         typeof data.timestamp === 'number'
                     ) {
-                        // Calculate Bonus: Faster answers get more points
-                        // Points = 500 (base) + (percentage of time remaining * 500)
                         const timeTaken = data.timestamp - questionStartTime;
                         const timeLeftRatio = Math.max(
                             0,
@@ -316,7 +308,7 @@ window.createHostData = function (firebase, db, auth, analytics) {
                     }
 
                     const currentScore = this.players[pid]?.score || 0;
-                    db.ref(`players/${pid}/score`).set(currentScore + totalPoints);
+                    TriviaDataService.updatePlayerScore(pid, currentScore + totalPoints);
                 } else {
                     if (
                         typeof questionStartTime === 'number' &&
@@ -338,8 +330,6 @@ window.createHostData = function (firebase, db, auth, analytics) {
                         responseCount > 0 ? Math.floor(totalResponseTime / responseCount) : 0,
                 });
             }
-
-            this.syncGameState();
         },
         checkCorrectness(ans) {
             if (!this.currentItem) return false;
@@ -363,6 +353,8 @@ window.createHostData = function (firebase, db, auth, analytics) {
             );
         },
         syncGameState() {
+            if (!this.currentItem) return;
+
             const base = {
                 currentIndex: this.currentIndex,
                 status: 'active',
@@ -391,7 +383,8 @@ window.createHostData = function (firebase, db, auth, analytics) {
                     options: this.currentItem.options || null,
                     answer: this.answerRevealed ? this.currentItem.answer : null,
                 });
-            db.ref('gameState').set(base);
+            
+            TriviaDataService.setGameState(base);
         },
         async removePlayer(pid) {
             const result = await Swal.fire({
@@ -402,7 +395,7 @@ window.createHostData = function (firebase, db, auth, analytics) {
                 confirmButtonColor: '#f44336',
                 confirmButtonText: 'Yes, kick them',
             });
-            if (result.isConfirmed) db.ref(`players/${pid}`).remove();
+            if (result.isConfirmed) TriviaDataService.removePlayer(pid);
         },
         async clearPlayers() {
             const result = await Swal.fire({
@@ -414,13 +407,12 @@ window.createHostData = function (firebase, db, auth, analytics) {
                 confirmButtonText: 'Yes, clear all',
             });
             if (result.isConfirmed) {
-                db.ref('players').remove();
-                db.ref('answers').remove();
+                TriviaDataService.playersRef.remove();
+                TriviaDataService.clearAnswers();
             }
         },
         toggleScoreboard() {
             this.showScoreboard = !this.showScoreboard;
-            this.syncGameState();
         },
     };
 };

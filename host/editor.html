@@ -868,6 +868,7 @@
         <!-- Scripts -->
         <script src="../shared/version.js"></script>
         <script src="../shared/ui-components.js"></script>
+        <script src="../shared/data-service.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
         <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -884,6 +885,7 @@
             document.addEventListener('alpine:init', () => {
                 const fb = TriviaFirebase.init();
                 if (fb) {
+                    TriviaDataService.init(fb.db);
                     Alpine.data('quizEditor', () =>
                         window.createEditorData(fb.firebase, fb.db, fb.auth, fb.storage)
                     );
