@@ -79,18 +79,26 @@
                     fb.auth.onAuthStateChanged(user => {
                         if (user && !user.isAnonymous) {
                             const urlParams = new URLSearchParams(window.location.search);
-                            let redirect = urlParams.get('redirect') || 'dashboard.html';
-                            
-                            // Security: Only allow redirection to specific local dashboard/editor pages
+                            const rawRedirect = urlParams.get('redirect') || 'dashboard.html';
                             const allowedPages = ['dashboard.html', 'editor.html', 'host.html'];
-                            const isAllowed = allowedPages.some(page => redirect === page || redirect.startsWith(page + '?'));
                             
-                            if (!isAllowed) {
-                                console.warn('Blocked potentially unsafe redirect:', redirect);
-                                redirect = 'dashboard.html';
+                            let safeRedirect = 'dashboard.html';
+                            try {
+                                // Use URL API to safely validate the redirect target
+                                const url = new URL(rawRedirect, window.location.href);
+                                const isSameOrigin = url.origin === window.location.origin;
+                                const isSafeProtocol = url.protocol === 'http:' || url.protocol === 'https:';
+                                const pageName = url.pathname.split('/').pop();
+                                
+                                if (isSameOrigin && isSafeProtocol && allowedPages.includes(pageName)) {
+                                    // Use the sanitized href from the URL object
+                                    safeRedirect = url.href;
+                                }
+                            } catch (e) {
+                                // Fallback to default dashboard on any parsing error
                             }
                             
-                            window.location.href = redirect;
+                            window.location.replace(safeRedirect);
                         }
                     });
                     if (typeof displayVersion === 'function') displayVersion('app-version');
