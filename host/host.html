@@ -391,19 +391,23 @@
                         >
                             ⬅️ Previous
                         </button>
-                        <button class="btn btn-danger" @click="resetGame()">🔄 Reset Quiz</button>
                     </div>
                 </div>
             </div>
 
             <!-- Sidebar -->
             <div class="sidebar" x-show="isAuthenticated">
-                <div class="card" x-show="currentView === 'game' && !continuousScoreboard">
-                    <h3 style="font-size: 1rem; margin-bottom: 1rem">📺 Broadcast</h3>
-                    <label style="display: flex; gap: 0.75rem; align-items: center; cursor: pointer;">
-                        <input type="checkbox" :checked="showScoreboard" @change="toggleScoreboard()" style="width: 1.25rem; height: 1.25rem;">
-                        <span style="font-weight: 700; font-size: 0.875rem;">Show Scoreboard to Players</span>
-                    </label>
+                <div class="card" x-show="currentView === 'game'">
+                    <h3 style="font-size: 1rem; margin-bottom: 1rem">🎮 Game Controls</h3>
+                    
+                    <div x-show="!continuousScoreboard" style="margin-bottom: 1rem;">
+                        <label style="display: flex; gap: 0.75rem; align-items: center; cursor: pointer;">
+                            <input type="checkbox" :checked="showScoreboard" @change="toggleScoreboard()" style="width: 1.25rem; height: 1.25rem;">
+                            <span style="font-weight: 700; font-size: 0.875rem;">Show Scoreboard to Players</span>
+                        </label>
+                    </div>
+
+                    <button class="btn btn-danger" style="width: 100%;" @click="resetGame()">🔄 Reset Quiz</button>
                 </div>
                 <div class="card" x-show="currentView === 'game'">
                     <h3 style="font-size: 1rem; margin-bottom: 1rem">📥 Answers</h3>

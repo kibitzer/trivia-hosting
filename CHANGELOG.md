@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.41] - 2026-02-07
+
+### UI/UX
+
+- **Host Panel**: Reorganised the Host Control Panel by centralising game management actions.
+    - Relabelled 'Broadcast' section to 'Game Controls' in the sidebar.
+    - Moved the 'Reset Quiz' button into the new 'Game Controls' section for better accessibility.
+    - Improved layout logic for the scoreboard display toggle.
+
 ## [0.6.40] - 2026-02-07
 
 ### Documentation
