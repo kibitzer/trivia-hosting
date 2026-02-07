@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.30] - 2026-02-07
+
+### Improved
+
+- **Auth**: Increased authentication grace period to 1000ms for improved stability in local environments.
+- **Redirection**: Enhanced redirect URL validation in `login.html` with better path parsing and added console logging to assist in debugging local environment issues.
+
 ## [0.6.29] - 2026-02-07
 
 ### Fixed

@@ -33,7 +33,7 @@ window.createDashboardData = function (firebase, db, auth) {
                                 this.waitingForAuth = false;
                                 window.location.href = 'login.html?redirect=' + encodeURIComponent('dashboard.html');
                             }
-                        }, 500);
+                        }, 1000);
                     }
                 });
             if (typeof window.displayVersion === 'function') window.displayVersion('app-version');

@@ -117,7 +117,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
                             const target = 'editor.html' + window.location.search;
                             window.location.href = 'login.html?redirect=' + encodeURIComponent(target);
                         }
-                    }, 500);
+                    }, 1000);
                 }
             });
 

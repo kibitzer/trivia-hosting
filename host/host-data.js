@@ -129,7 +129,7 @@ window.createHostData = function (firebase, db, auth, analytics) {
                                 const target = 'host.html' + window.location.search;
                                 window.location.href = 'login.html?redirect=' + encodeURIComponent(target);
                             }
-                        }, 500);
+                        }, 1000);
                     }
                 });
             db.ref('.info/connected').on('value', (snap) => {
