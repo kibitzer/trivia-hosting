@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.31] - 2026-02-07
+
+### Fixed
+
+- **Editor**: Fixed a critical crash where Alpine.js attempted to render the interface before quiz data was loaded, causing a "Cannot read properties of null" error. Wrapped editor content in a conditional template to ensure data availability.
+- **Debugging**: Added console logging to the Editor's data listener to trace quiz loading issues.
+
 ## [0.6.30] - 2026-02-07
 
 ### Improved

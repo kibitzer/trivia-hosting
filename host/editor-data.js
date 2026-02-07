@@ -97,11 +97,13 @@ window.createEditorData = function (firebase, db, auth, storage) {
                     if (quizId) {
                         db.ref(`quizzes/${quizId}`).on('value', (snap) => {
                             const data = snap.val();
+                            console.log('[Editor] Quiz data loaded:', { quizId, dataExists: !!data });
                             if (data && !this.editingQuizId) {
                                 // First load
                                 this.quizzes[quizId] = data;
                                 this.editQuiz(quizId);
                             } else if (!data) {
+                                console.warn('[Editor] Quiz not found, redirecting to dashboard');
                                 // Only redirect if we are sure the quiz doesn't exist (snap is null)
                                 window.location.href = 'dashboard.html';
                             }

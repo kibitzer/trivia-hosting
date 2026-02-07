@@ -311,61 +311,62 @@
                 @input.stop="triggerAutosave()"
                 @change.stop="triggerAutosave()"
             >
-                <div class="header" style="margin-bottom: 1rem">
-                    <div style="display: flex; align-items: center; gap: 1rem; flex: 1">
-                        <button
-                            @click="closeEditor()"
-                            class="btn btn-secondary"
-                            style="padding: 0.5rem 0.75rem"
-                        >
-                            ← Dashboard
-                        </button>
-                        <div style="display: flex; flex-direction: column; flex: 1; max-width: 600px">
-                            <input
-                                type="text"
-                                x-model="currentQuiz.title"
-                                style="
-                                    font-size: 1.25rem;
-                                    font-weight: 800;
-                                    border: none;
-                                    background: transparent;
-                                    padding: 0.25rem 0.5rem;
-                                    border-radius: var(--radius-md);
-                                    width: 100%;
-                                "
-                                onfocus="this.style.background = 'white'; this.style.boxShadow = 'var(--shadow-sm)'"
-                                onblur="this.style.background = 'transparent'; this.style.boxShadow = 'none'"
-                            />
-                            <span id="app-version-editor" class="text-muted" style="font-size: 0.65rem; font-weight: 700; margin-left: 0.5rem"></span>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 1rem; align-items: center">
-                        <div style="display: flex; align-items: center; gap: 0.75rem; min-width: 450px; justify-content: flex-end">
-                            <div
-                                x-show="statusMsg"
-                                class="text-sm"
-                                style="
-                                    padding: 0.375rem 0.75rem;
-                                    border-radius: var(--radius-md);
-                                    font-weight: 700;
-                                "
-                                :style="statusMsg.includes('⚠️') ? 'background: #fff7ed; color: var(--color-warning);' : (statusMsg.includes('❌') ? 'background: #fef2f2; color: var(--color-danger);' : 'background: #f0fdf4; color: var(--color-success);')"
-                                x-text="statusMsg"
-                            ></div>
-                            <button
-                                @click="showGameOptions = !showGameOptions"
-                                class="btn"
-                                :class="showGameOptions ? 'btn-primary' : 'btn-secondary'"
-                                style="padding: 0.5rem 0.75rem; white-space: nowrap"
-                            >
-                                ⚙️ Game Options
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
                 <template x-if="currentQuiz">
-                    <div class="editor-layout">
+                    <div style="display: flex; flex-direction: column; height: 100%; width: 100%;">
+                        <div class="header" style="margin-bottom: 1rem">
+                            <div style="display: flex; align-items: center; gap: 1rem; flex: 1">
+                                <button
+                                    @click="closeEditor()"
+                                    class="btn btn-secondary"
+                                    style="padding: 0.5rem 0.75rem"
+                                >
+                                    ← Dashboard
+                                </button>
+                                <div style="display: flex; flex-direction: column; flex: 1; max-width: 600px">
+                                    <input
+                                        type="text"
+                                        x-model="currentQuiz.title"
+                                        style="
+                                            font-size: 1.25rem;
+                                            font-weight: 800;
+                                            border: none;
+                                            background: transparent;
+                                            padding: 0.25rem 0.5rem;
+                                            border-radius: var(--radius-md);
+                                            width: 100%;
+                                        "
+                                        onfocus="this.style.background = 'white'; this.style.boxShadow = 'var(--shadow-sm)'"
+                                        onblur="this.style.background = 'transparent'; this.style.boxShadow = 'none'"
+                                    />
+                                    <span id="app-version-editor" class="text-muted" style="font-size: 0.65rem; font-weight: 700; margin-left: 0.5rem"></span>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 1rem; align-items: center">
+                                <div style="display: flex; align-items: center; gap: 0.75rem; min-width: 450px; justify-content: flex-end">
+                                    <div
+                                        x-show="statusMsg"
+                                        class="text-sm"
+                                        style="
+                                            padding: 0.375rem 0.75rem;
+                                            border-radius: var(--radius-md);
+                                            font-weight: 700;
+                                        "
+                                        :style="statusMsg.includes('⚠️') ? 'background: #fff7ed; color: var(--color-warning);' : (statusMsg.includes('❌') ? 'background: #fef2f2; color: var(--color-danger);' : 'background: #f0fdf4; color: var(--color-success);')"
+                                        x-text="statusMsg"
+                                    ></div>
+                                    <button
+                                        @click="showGameOptions = !showGameOptions"
+                                        class="btn"
+                                        :class="showGameOptions ? 'btn-primary' : 'btn-secondary'"
+                                        style="padding: 0.5rem 0.75rem; white-space: nowrap"
+                                    >
+                                        ⚙️ Game Options
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="editor-layout">
                         <!-- Sidebar: Question List -->
                         <div class="sidebar">
                             <div id="slide-list-container" style="display: flex; flex-direction: column; gap: 0.5rem">
@@ -699,7 +700,7 @@
                             </template>
                         </div>
                     </div>
-                </template>
+                <!-- Old template end removed -->
 
                 <!-- Game Options Side Panel -->
                 <div 
@@ -782,6 +783,9 @@
                         </label>
                     </div>
                 </div>
+                <!-- Closing wrapper and template -->
+                    </div>
+                </template>
             </div>
 
             <!-- Settings Modal -->
