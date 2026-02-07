@@ -42,96 +42,103 @@
 </head>
 <body x-data="dashboard">
     <div class="container" x-cloak>
-        <div class="header">
-            <div>
-                <h1>Dashboard</h1>
-                <p class="text-muted">Welcome back, <span x-text="userEmail" class="font-weight-bold"></span></p>
-                <span id="app-version" class="text-muted" style="font-size: 0.75rem; font-weight: 700;"></span>
-            </div>
-            <div style="display: flex; gap: 0.75rem;">
-                <button @click="logout" class="btn btn-secondary">Logout</button>
-                <button @click="createNewQuiz" class="btn btn-success">+ Create Quiz</button>
-            </div>
+        <div x-show="waitingForAuth" style="text-align: center; padding: 4rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem; animation: pulse 1.5s infinite;">⏳</div>
+            <p class="text-muted">Verifying Authentication...</p>
         </div>
 
-        <!-- Active Session Detection -->
-        <template x-if="activeGame && activeGame.status !== 'waiting'">
-            <div class="active-session-card">
+        <div x-show="!waitingForAuth">
+            <div class="header">
                 <div>
-                    <h3 style="color: #1e40af; margin-bottom: 0.25rem;">Active Session Detected</h3>
-                    <p style="color: #1e40af; opacity: 0.8; font-size: 0.875rem;">
-                        There is a game currently in progress (<span x-text="activeGame.roundTitle || 'Live Game'"></span>).
-                    </p>
+                    <h1>Dashboard</h1>
+                    <p class="text-muted">Welcome back, <span x-text="userEmail" class="font-weight-bold"></span></p>
+                    <span id="app-version" class="text-muted" style="font-size: 0.75rem; font-weight: 700;"></span>
                 </div>
-                <a href="host.html" class="btn btn-primary" style="background: #1e40af; border-color: #1e40af;">Resume Game</a>
-            </div>
-        </template>
-
-        <div class="card" style="padding: 0; overflow: hidden;">
-            <div style="padding: 1.5rem;">
-                <h3>Your Quizzes</h3>
-            </div>
-            
-            <div x-show="Object.keys(quizzes).length === 0 && !loading" class="text-muted" style="padding: 4rem; text-align: center; font-weight: 600">
-                No quizzes found. Click "Create Quiz" to get started.
+                <div style="display: flex; gap: 0.75rem;">
+                    <button @click="logout" class="btn btn-secondary">Logout</button>
+                    <button @click="createNewQuiz" class="btn btn-success">+ Create Quiz</button>
+                </div>
             </div>
 
-            <table class="quiz-table" x-show="Object.keys(quizzes).length > 0">
-                <thead>
-                    <tr>
-                        <th class="sortable" @click="setSort('title')">
-                            <div style="display: flex; align-items: center;">
-                                Quiz Name
-                                <span class="sort-icon">
-                                    <span class="sort-arrow" :class="{ 'active': sortConfig.column === 'title' && sortConfig.direction === 'asc' }">▲</span>
-                                    <span class="sort-arrow" :class="{ 'active': sortConfig.column === 'title' && sortConfig.direction === 'desc' }">▼</span>
-                                </span>
-                            </div>
-                        </th>
-                        <th class="sortable" style="width: 120px;" @click="setSort('questionCount')">
-                            <div style="display: flex; align-items: center;">
-                                Items
-                                <span class="sort-icon">
-                                    <span class="sort-arrow" :class="{ 'active': sortConfig.column === 'questionCount' && sortConfig.direction === 'asc' }">▲</span>
-                                    <span class="sort-arrow" :class="{ 'active': sortConfig.column === 'questionCount' && sortConfig.direction === 'desc' }">▼</span>
-                                </span>
-                            </div>
-                        </th>
-                        <th class="sortable" @click="setSort('updatedAt')">
-                            <div style="display: flex; align-items: center;">
-                                Updated
-                                <span class="sort-icon">
-                                    <span class="sort-arrow" :class="{ 'active': sortConfig.column === 'updatedAt' && sortConfig.direction === 'asc' }">▲</span>
-                                    <span class="sort-arrow" :class="{ 'active': sortConfig.column === 'updatedAt' && sortConfig.direction === 'desc' }">▼</span>
-                                </span>
-                            </div>
-                        </th>
-                        <th style="width: 200px; text-align: right;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <template x-for="quiz in sortedQuizzes" :key="quiz.id">
+            <!-- Active Session Detection -->
+            <template x-if="activeGame && activeGame.status !== 'waiting'">
+                <div class="active-session-card">
+                    <div>
+                        <h3 style="color: #1e40af; margin-bottom: 0.25rem;">Active Session Detected</h3>
+                        <p style="color: #1e40af; opacity: 0.8; font-size: 0.875rem;">
+                            There is a game currently in progress (<span x-text="activeGame.roundTitle || 'Live Game'"></span>).
+                        </p>
+                    </div>
+                    <a href="host.html" class="btn btn-primary" style="background: #1e40af; border-color: #1e40af;">Resume Game</a>
+                </div>
+            </template>
+
+            <div class="card" style="padding: 0; overflow: hidden;">
+                <div style="padding: 1.5rem;">
+                    <h3>Your Quizzes</h3>
+                </div>
+                
+                <div x-show="Object.keys(quizzes).length === 0 && !loading" class="text-muted" style="padding: 4rem; text-align: center; font-weight: 600">
+                    No quizzes found. Click "Create Quiz" to get started.
+                </div>
+
+                <table class="quiz-table" x-show="Object.keys(quizzes).length > 0">
+                    <thead>
                         <tr>
-                            <td>
-                                <strong style="color: var(--color-primary)" x-text="quiz.title"></strong>
-                            </td>
-                            <td>
-                                <span class="text-sm font-weight-bold" x-text="quiz.questionCount"></span>
-                            </td>
-                            <td>
-                                <div class="text-sm" style="font-weight: 600" x-text="TriviaUI.formatDateTime(quiz.updatedAt)"></div>
-                            </td>
-                            <td style="text-align: right">
-                                <div style="display: flex; gap: 0.5rem; justify-content: flex-end">
-                                    <button @click="launchQuiz(quiz.id)" class="btn btn-primary" style="padding: 0.4rem 0.8rem">Launch</button>
-                                    <button @click="editQuiz(quiz.id)" class="btn btn-secondary" style="padding: 0.4rem 0.8rem">Edit</button>
-                                    <button @click="deleteQuiz(quiz.id)" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; color: var(--color-danger)">Delete</button>
+                            <th class="sortable" @click="setSort('title')">
+                                <div style="display: flex; align-items: center;">
+                                    Quiz Name
+                                    <span class="sort-icon">
+                                        <span class="sort-arrow" :class="{ 'active': sortConfig.column === 'title' && sortConfig.direction === 'asc' }">▲</span>
+                                        <span class="sort-arrow" :class="{ 'active': sortConfig.column === 'title' && sortConfig.direction === 'desc' }">▼</span>
+                                    </span>
                                 </div>
-                            </td>
+                            </th>
+                            <th class="sortable" style="width: 120px;" @click="setSort('questionCount')">
+                                <div style="display: flex; align-items: center;">
+                                    Items
+                                    <span class="sort-icon">
+                                        <span class="sort-arrow" :class="{ 'active': sortConfig.column === 'questionCount' && sortConfig.direction === 'asc' }">▲</span>
+                                        <span class="sort-arrow" :class="{ 'active': sortConfig.column === 'questionCount' && sortConfig.direction === 'desc' }">▼</span>
+                                    </span>
+                                </div>
+                            </th>
+                            <th class="sortable" @click="setSort('updatedAt')">
+                                <div style="display: flex; align-items: center;">
+                                    Updated
+                                    <span class="sort-icon">
+                                        <span class="sort-arrow" :class="{ 'active': sortConfig.column === 'updatedAt' && sortConfig.direction === 'asc' }">▲</span>
+                                        <span class="sort-arrow" :class="{ 'active': sortConfig.column === 'updatedAt' && sortConfig.direction === 'desc' }">▼</span>
+                                    </span>
+                                </div>
+                            </th>
+                            <th style="width: 200px; text-align: right;">Actions</th>
                         </tr>
-                    </template>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <template x-for="quiz in sortedQuizzes" :key="quiz.id">
+                            <tr>
+                                <td>
+                                    <strong style="color: var(--color-primary)" x-text="quiz.title"></strong>
+                                </td>
+                                <td>
+                                    <span class="text-sm font-weight-bold" x-text="quiz.questionCount"></span>
+                                </td>
+                                <td>
+                                    <div class="text-sm" style="font-weight: 600" x-text="TriviaUI.formatDateTime(quiz.updatedAt)"></div>
+                                </td>
+                                <td style="text-align: right">
+                                    <div style="display: flex; gap: 0.5rem; justify-content: flex-end">
+                                        <button @click="launchQuiz(quiz.id)" class="btn btn-primary" style="padding: 0.4rem 0.8rem">Launch</button>
+                                        <button @click="editQuiz(quiz.id)" class="btn btn-secondary" style="padding: 0.4rem 0.8rem">Edit</button>
+                                        <button @click="deleteQuiz(quiz.id)" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; color: var(--color-danger)">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 

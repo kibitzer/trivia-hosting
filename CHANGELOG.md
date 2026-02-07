@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.27] - 2026-02-07
+
+### Fixed
+
+- **Auth**: Resolved a race condition where users were prematurely redirected to the Dashboard or Login page before Firebase Authentication could verify their status. Added a "Verifying Authentication" loading state to all host-side pages.
+
 ## [0.6.26] - 2026-02-07
 
 ### Security

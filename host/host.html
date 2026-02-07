@@ -221,13 +221,13 @@
                 </div>
 
                 <!-- VIEW: Loading/Redirecting -->
-                <div x-show="loading || !quizData.length" style="text-align: center; padding: 4rem">
+                <div x-show="waitingForAuth || loading || !quizData.length" style="text-align: center; padding: 4rem">
                     <div class="timer-display">⏳</div>
-                    <p class="text-muted" x-text="loading ? 'Loading Quiz...' : 'Preparing Host Panel...'"></p>
+                    <p class="text-muted" x-text="waitingForAuth ? 'Verifying Authentication...' : (loading ? 'Loading Quiz...' : 'Preparing Host Panel...')"></p>
                 </div>
 
                 <!-- VIEW: Setup/Lobby -->
-                <div x-show="isAuthenticated && currentView === 'setup' && quizData.length > 0">
+                <div x-show="!waitingForAuth && isAuthenticated && currentView === 'setup' && quizData.length > 0">
                     <div x-show="errorMsg" style="color: var(--color-danger); background: #fef2f2; padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1rem; font-weight: 600;" x-text="errorMsg"></div>
                     <div x-show="successMsg" style="color: var(--color-success); background: #f0fdf4; padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1rem; font-weight: 600;" x-text="successMsg"></div>
                     
@@ -251,7 +251,7 @@
                 <!-- Removed: Settings now handled in Editor -->
 
                 <!-- VIEW: Game -->
-                <div x-show="isAuthenticated && currentView === 'game'">
+                <div x-show="!waitingForAuth && isAuthenticated && currentView === 'game'">
                     <div :key="currentIndex" x-transition:enter="fade-enter-active" x-transition:enter-start="fade-enter" x-transition:enter-end="fade-enter-to">
                         <div class="text-muted text-sm" style="text-align: center; font-weight: 600">
                             ITEM <span x-text="currentIndex + 1"></span> OF

@@ -4,12 +4,12 @@ window.createDashboardData = function (firebase, db, auth) {
         userEmail: '',
         quizzes: {},
         activeGame: null,
-        loading: true,
-        sortConfig: { column: 'updatedAt', direction: 'desc' },
+        waitingForAuth: true,
 
         init() {
             if (auth)
                 auth.onAuthStateChanged(user => {
+                    this.waitingForAuth = false;
                     if (!user || user.isAnonymous) {
                         window.location.href = 'login.html?redirect=dashboard.html';
                     } else {

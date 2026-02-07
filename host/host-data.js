@@ -30,6 +30,7 @@ window.createHostData = function (firebase, db, auth, analytics) {
         timerInterval: null,
         countdownInterval: null,
         autoRevealTimeout: null,
+        waitingForAuth: true,
 
         // --- Computed Properties ---
         get playerList() {
@@ -69,6 +70,7 @@ window.createHostData = function (firebase, db, auth, analytics) {
         init() {
             if (auth)
                 auth.onAuthStateChanged((user) => {
+                    this.waitingForAuth = false;
                     this.isAuthenticated = !!user;
                     if (!user || user.isAnonymous) {
                         window.location.href = 'login.html?redirect=host.html' + window.location.search;

@@ -21,6 +21,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
             autosaveDelay: 2000,
             showQuestionNumbers: true,
         },
+        waitingForAuth: true,
 
         // Placeholder for Alpine magic properties
         $watch: () => {},
@@ -87,6 +88,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
             }
 
             auth.onAuthStateChanged((user) => {
+                this.waitingForAuth = false;
                 this.isAuthenticated = !!user;
                 if (!user || user.isAnonymous) {
                     window.location.href = 'login.html?redirect=editor.html' + window.location.search;
@@ -102,6 +104,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
                                 this.quizzes[quizId] = data;
                                 this.editQuiz(quizId);
                             } else if (!data) {
+                                // Only redirect if we are sure the quiz doesn't exist (snap is null)
                                 window.location.href = 'dashboard.html';
                             }
                         });

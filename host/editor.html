@@ -300,8 +300,13 @@
     </head>
     <body x-data="quizEditor">
         <div class="container" x-cloak>
+            <div x-show="waitingForAuth" style="text-align: center; padding: 4rem;">
+                <div style="font-size: 3rem; margin-bottom: 1rem; animation: pulse 1.5s infinite;">⏳</div>
+                <p class="text-muted">Verifying Authentication...</p>
+            </div>
+
             <div 
-                x-show="editingQuizId" 
+                x-show="!waitingForAuth && editingQuizId" 
                 style="display: flex; flex-direction: column; height: 92vh"
                 @input.stop="triggerAutosave()"
                 @change.stop="triggerAutosave()"
