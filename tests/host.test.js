@@ -178,19 +178,58 @@ describe('Host Logic', () => {
         it('should transition from countdown to main timer automatically', () => {
             host.currentIndex = 0;
             host.quizData = [{ type: 'question', timer: 20 }];
+            host.countdownDuration = 2; // Test custom duration
 
             host.startCountdown();
             expect(host.timerStatus).toBe('countdown');
+            expect(host.timerValue).toBe(2);
 
-            // Ticking the countdown (3, 2, 1, 0)
-            vi.advanceTimersByTime(1000); // 3
-            vi.advanceTimersByTime(1000); // 2
-            vi.advanceTimersByTime(1000); // 1
+            vi.advanceTimersByTime(1000); // 2 -> 1
+            vi.advanceTimersByTime(1000); // 1 -> 0
             vi.advanceTimersByTime(1000); // 0 -> triggers startMainTimer
 
             expect(host.timerStatus).toBe('running');
-            // Check that it's running
-            expect(host.timerValue).toBeLessThanOrEqual(20);
+            expect(host.timerValue).toBe(20);
+        });
+
+        it('should transition directly to main timer if countdown is disabled', () => {
+            host.quizData = [
+                { type: 'round-title' },
+                { type: 'question', timer: 15 }
+            ];
+            host.currentIndex = 0;
+            host.enableCountdown = false;
+
+            host.nextItem(); // Move to Q1
+
+            expect(host.timerStatus).toBe('running');
+            expect(host.timerValue).toBe(15);
+        });
+
+        it('should randomize MC options when randomizeOptions is enabled', () => {
+            host.quizData = [
+                { type: 'round-title' },
+                { 
+                    type: 'question', 
+                    questionType: 'MC', 
+                    options: ['A', 'B', 'C', 'D'],
+                    questionNumber: 1
+                }
+            ];
+            host.currentIndex = 0;
+            host.randomizeOptions = true;
+
+            // Mock Math.random to ensure we get a specific shuffle (reversed)
+            vi.spyOn(Math, 'random').mockReturnValue(0); 
+
+            host.nextItem();
+
+            expect(host.currentOptions).toBeDefined();
+            expect(host.currentOptions).not.toEqual(['A', 'B', 'C', 'D']);
+            // With sort(() => -0.5), it should be a shuffle. 
+            // Exact outcome depends on implementation, but defined/not-equal is a good check.
+            
+            vi.restoreAllMocks();
         });
 
         it('should auto-reveal after delay when all players have answered', () => {

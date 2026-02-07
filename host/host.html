@@ -214,7 +214,7 @@
                                 </template>
                                 <template x-if="currentItem.questionType === 'MC'">
                                     <div class="options-grid" x-show="timerStatus !== 'countdown'">
-                                        <template x-for="opt in currentItem.options">
+                                        <template x-for="opt in (currentOptions || currentItem.options)">
                                             <div
                                                 class="option"
                                                 x-text="opt"

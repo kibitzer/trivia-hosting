@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.2] - 2026-02-07
+
+### Added
+
+- **Game Options**: Added new configurable settings to the Quiz Editor.
+    - **Countdown Toggle**: Hosts can now enable or disable the pre-question countdown.
+    - **Custom Countdown Duration**: If enabled, the countdown length can be set between 1 and 7 seconds.
+    - **MC Randomisation**: Added an option to shuffle the order of multiple-choice answers for all players, ensuring a more dynamic game experience.
+
 ## [0.7.1] - 2026-02-07
 
 ### Fixed
