@@ -60,6 +60,7 @@ describe('AI Helper', () => {
     });
 
     it('should handle API errors gracefully', async () => {
+        vi.spyOn(console, 'error').mockImplementation(() => {});
         TriviaAI.apiKey = 'test-key';
         
         global.fetch = vi.fn(() =>

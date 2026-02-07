@@ -41,6 +41,7 @@ describe('Editor Logic', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        vi.spyOn(console, 'log').mockImplementation(() => {});
         TriviaDataService.init(mockDb);
         editor = window.createEditorData(mockFirebase, mockDb, mockAuth);
         // Pre-fill with a sample quiz for many tests
@@ -70,6 +71,9 @@ describe('Editor Logic', () => {
             expect(editor.currentQuiz.settings).toBeDefined();
             expect(editor.currentQuiz.settings.defaultTimer).toBe(20);
             expect(editor.currentQuiz.settings.speedScoring).toBe(true);
+            expect(editor.currentQuiz.settings.randomizeOptions).toBe(false);
+            expect(editor.currentQuiz.settings.enableCountdown).toBe(true);
+            expect(editor.currentQuiz.settings.countdownDuration).toBe(3);
         });
 
         it('should have correct initial numbering after editQuiz', () => {
@@ -303,6 +307,9 @@ describe('Editor Logic', () => {
             editor.editQuiz('q1');
             editor.currentQuiz.settings.defaultTimer = 45;
             editor.currentQuiz.settings.speedScoring = false;
+            editor.currentQuiz.settings.countdownDuration = 5;
+            editor.currentQuiz.settings.enableCountdown = false;
+            editor.currentQuiz.settings.randomizeOptions = true;
 
             await editor.saveQuiz();
 
@@ -310,6 +317,9 @@ describe('Editor Logic', () => {
             expect(savedQuiz.settings.defaultTimer).toBe(45);
             expect(savedQuiz.settings.speedScoring).toBe(false);
             expect(savedQuiz.settings.autoReveal).toBe(true); // Default preserved
+            expect(savedQuiz.settings.countdownDuration).toBe(5);
+            expect(savedQuiz.settings.enableCountdown).toBe(false);
+            expect(savedQuiz.settings.randomizeOptions).toBe(true);
         });
 
         it('should synchronize question and round numbers on save', async () => {

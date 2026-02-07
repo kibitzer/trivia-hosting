@@ -23,6 +23,10 @@ window.createHostData = function (firebase, db, auth, analytics) {
         autoReveal: true,
         speedScoringEnabled: true,
         continuousScoreboard: true,
+        enableCountdown: true,
+        countdownDuration: 3,
+        randomizeOptions: false,
+        currentOptions: null,
         showScoreboard: false,
         gameState: {},
         players: {},
@@ -107,6 +111,9 @@ window.createHostData = function (firebase, db, auth, analytics) {
                                         this.autoReveal = data.settings.autoReveal !== false;
                                         this.defaultTimer = data.settings.defaultTimer || 20;
                                         this.continuousScoreboard = data.settings.continuousScoreboard !== false;
+                                        this.enableCountdown = data.settings.enableCountdown !== false;
+                                        this.countdownDuration = data.settings.countdownDuration || 3;
+                                        this.randomizeOptions = !!data.settings.randomizeOptions;
                                     }
 
                                     this.currentView = 'setup';
@@ -198,9 +205,20 @@ window.createHostData = function (firebase, db, auth, analytics) {
             this.answerRevealed = false;
             this.stopAllTimers();
             this.timerValue = this.currentItem.timer || this.defaultTimer;
+            this.currentOptions = null; // Reset
             
             if (this.currentItem.type === 'question') {
-                this.startCountdown();
+                // Handle Randomisation
+                if (this.randomizeOptions && this.currentItem.questionType === 'MC' && this.currentItem.options) {
+                    this.currentOptions = [...this.currentItem.options].sort(() => Math.random() - 0.5);
+                }
+
+                if (this.enableCountdown) {
+                    this.startCountdown();
+                } else {
+                    this.startMainTimer();
+                }
+                
                 TriviaDataService.answersForQuestionRef(this.currentItem.questionNumber).remove();
             }
         },
@@ -212,7 +230,7 @@ window.createHostData = function (firebase, db, auth, analytics) {
         },
         startCountdown() {
             this.stopAllTimers();
-            this.timerValue = 3;
+            this.timerValue = Math.min(Math.max(this.countdownDuration, 1), 7);
             this.timerStatus = 'countdown';
 
             this.countdownInterval = setInterval(() => {
@@ -380,7 +398,7 @@ window.createHostData = function (firebase, db, auth, analytics) {
                     questionType: this.currentItem.questionType,
                     questionText: this.currentItem.text,
                     questionImage: this.currentItem.image || null,
-                    options: this.currentItem.options || null,
+                    options: this.currentOptions || this.currentItem.options || null,
                     answer: this.answerRevealed ? this.currentItem.answer : null,
                 });
             

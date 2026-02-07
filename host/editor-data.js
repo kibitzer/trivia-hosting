@@ -14,6 +14,9 @@ window.createEditorData = function (firebase, db, auth, storage) {
                 autoReveal: true,
                 defaultTimer: 20,
                 continuousScoreboard: true,
+                randomizeOptions: false,
+                enableCountdown: true,
+                countdownDuration: 3,
             }
         },
         selectedQuestionIndex: 0,
@@ -246,6 +249,9 @@ window.createEditorData = function (firebase, db, auth, storage) {
                     autoReveal: true,
                     defaultTimer: 20,
                     continuousScoreboard: true,
+                    randomizeOptions: false,
+                    enableCountdown: true,
+                    countdownDuration: 3,
                 },
                 questions: [
                     {
@@ -296,6 +302,9 @@ window.createEditorData = function (firebase, db, auth, storage) {
             if (this.currentQuiz.settings.autoReveal === undefined) this.currentQuiz.settings.autoReveal = true;
             if (this.currentQuiz.settings.defaultTimer === undefined) this.currentQuiz.settings.defaultTimer = 20;
             if (this.currentQuiz.settings.continuousScoreboard === undefined) this.currentQuiz.settings.continuousScoreboard = true;
+            if (this.currentQuiz.settings.randomizeOptions === undefined) this.currentQuiz.settings.randomizeOptions = false;
+            if (this.currentQuiz.settings.enableCountdown === undefined) this.currentQuiz.settings.enableCountdown = true;
+            if (this.currentQuiz.settings.countdownDuration === undefined) this.currentQuiz.settings.countdownDuration = 3;
 
             // Backfill IDs and migrate Category to Tags + Normalize MC
             this.currentQuiz.questions.forEach((q) => {

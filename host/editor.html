@@ -803,6 +803,48 @@
                             </div>
                         </label>
                     </div>
+
+                    <div class="card" style="background: var(--color-bg); margin-bottom: 1rem; border: none;">
+                        <label style="display: flex; gap: 0.75rem; align-items: start; cursor: pointer; margin: 0;">
+                            <input
+                                type="checkbox"
+                                x-model="currentQuiz.settings.randomizeOptions"
+                                style="width: 1.25rem; height: 1.25rem; margin-top: 0.1rem;"
+                            />
+                            <div>
+                                <span style="font-weight: 700; display: block;">Randomise MC Options</span>
+                                <span class="text-muted text-sm" style="font-weight: 400; line-height: 1.3; display: block; margin-top: 0.25rem;">
+                                    If on, the multiple choice answers will appear in a random order for every player.
+                                </span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="card" style="background: var(--color-bg); margin-bottom: 1rem; border: none;">
+                        <label style="display: flex; gap: 0.75rem; align-items: start; cursor: pointer; margin: 0;">
+                            <input
+                                type="checkbox"
+                                x-model="currentQuiz.settings.enableCountdown"
+                                style="width: 1.25rem; height: 1.25rem; margin-top: 0.1rem;"
+                            />
+                            <div>
+                                <span style="font-weight: 700; display: block;">Enable Countdown</span>
+                                <span class="text-muted text-sm" style="font-weight: 400; line-height: 1.3; display: block; margin-top: 0.25rem;">
+                                    Show a short countdown before each question starts.
+                                </span>
+                            </div>
+                        </label>
+                        <div x-show="currentQuiz.settings.enableCountdown" style="margin-top: 1rem; padding-left: 2rem;">
+                            <label class="text-sm" style="font-weight: 600; margin-bottom: 0.25rem; display: block;">Duration (seconds)</label>
+                            <input
+                                type="number"
+                                x-model.number="currentQuiz.settings.countdownDuration"
+                                min="1"
+                                max="7"
+                                style="width: 80px; padding: 0.4rem;"
+                            />
+                        </div>
+                    </div>
                 </div>
                 <!-- Closing wrapper and template -->
                     </div>
