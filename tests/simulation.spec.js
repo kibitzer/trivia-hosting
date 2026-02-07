@@ -122,7 +122,7 @@ test('Trivia Full Simulation', async ({ browser }) => {
 
             // Either we are waiting or we see a question/round (allow both for robustness)
 
-            const gameScreens = page.locator('.waiting-screen, .question-display, .round-display');
+            const gameScreens = page.locator('.waiting-screen, .question-display, .slide-card');
 
             await expect(gameScreens.filter({ visible: true }).first()).toBeVisible({ timeout: 15000 });
 
@@ -200,7 +200,7 @@ test('Trivia Full Simulation', async ({ browser }) => {
         await expect(hostPage.locator('text=IAU 2006 definition.')).toBeVisible();
 
         // Final Scoreboard Check
-        const scoreboardRows = hostPage.locator('.scroll-list .list-row');
+        const scoreboardRows = hostPage.locator('.score-list .score-item');
         await expect(scoreboardRows.first()).toBeVisible({ timeout: 10000 });
 
         const count = await scoreboardRows.count();
