@@ -128,6 +128,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
                 'currentQuiz',
                 (value) => {
                     if (value && this.editingQuizId) {
+                        console.log('[Editor] currentQuiz changed, triggering autosave');
                         this.triggerAutosave();
                     }
                 },
@@ -138,7 +139,8 @@ window.createEditorData = function (firebase, db, auth, storage) {
             this.$watch(
                 'currentQuiz.questions',
                 (questions) => {
-                    if (!questions || !questions[this.selectedQuestionIndex]) return;
+                    if (!this.currentQuiz || !questions || !questions[this.selectedQuestionIndex]) return;
+                    console.log('[Editor] questions changed, checking defaults');
                     const q = questions[this.selectedQuestionIndex];
 
                     if (q.type === 'true-false' && (!q.options || q.options.length !== 2)) {
