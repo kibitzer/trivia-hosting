@@ -311,7 +311,7 @@
                 @input.stop="triggerAutosave()"
                 @change.stop="triggerAutosave()"
             >
-                <template x-if="currentQuiz">
+                <template x-if="dataLoaded">
                     <div style="display: flex; flex-direction: column; height: 100%; width: 100%;">
                         <div class="header" style="margin-bottom: 1rem">
                             <div style="display: flex; align-items: center; gap: 1rem; flex: 1">

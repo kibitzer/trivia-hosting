@@ -2,9 +2,20 @@ window.createEditorData = function (firebase, db, auth, storage) {
     return {
         isAuthenticated: false,
         loading: false,
+        dataLoaded: false,
         quizzes: {},
         editingQuizId: null,
-        currentQuiz: null,
+        // Initialize with safe defaults to prevent Alpine crash
+        currentQuiz: {
+            title: '',
+            questions: [],
+            settings: {
+                speedScoring: true,
+                autoReveal: true,
+                defaultTimer: 20,
+                continuousScoreboard: true,
+            }
+        },
         selectedQuestionIndex: 0,
         statusMsg: '',
         newTagInput: '',
@@ -98,13 +109,24 @@ window.createEditorData = function (firebase, db, auth, storage) {
                         db.ref(`quizzes/${quizId}`).on('value', (snap) => {
                             const data = snap.val();
                             console.log('[Editor] Quiz data loaded:', { quizId, dataExists: !!data });
-                            if (data && !this.editingQuizId) {
-                                // First load
+                            
+                            if (data) {
+                                // Update local cache
                                 this.quizzes[quizId] = data;
-                                this.editQuiz(quizId);
-                            } else if (!data) {
+                                
+                                if (!this.editingQuizId) {
+                                    // First load or subsequent update
+                                    this.editQuiz(quizId);
+                                } else if (this.editingQuizId === quizId) {
+                                    // If we are already editing this quiz, we might want to merge or ignore
+                                    // identifying if this is a remote change vs local is hard without more logic.
+                                    // For now, relies on editQuiz to handle it or the user to refresh if desynced.
+                                    // But strictly speaking, editQuiz replaces currentQuiz.
+                                    // Let's just ensure we set dataLoaded.
+                                    this.dataLoaded = true;
+                                }
+                            } else {
                                 console.warn('[Editor] Quiz not found, redirecting to dashboard');
-                                // Only redirect if we are sure the quiz doesn't exist (snap is null)
                                 window.location.href = 'dashboard.html';
                             }
                         });
@@ -323,6 +345,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
             this.renumberSlides();
             this.selectedQuestionIndex = 0;
             this.statusMsg = '✓ Saved';
+            this.dataLoaded = true;
 
             // Initialize Sortable after Alpine has rendered the list
             this.$nextTick(() => {
