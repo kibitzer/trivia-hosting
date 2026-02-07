@@ -38,6 +38,7 @@ describe('Dashboard Logic', () => {
     let dashboard;
 
     beforeEach(() => {
+        vi.spyOn(console, 'log').mockImplementation(() => {});
         TriviaDataService.init(mockDb);
         dashboard = window.createDashboardData(mockFirebase, mockDb, mockAuth);
         dashboard.quizzes = {

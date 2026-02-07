@@ -12,17 +12,20 @@ describe('Firebase Helper', () => {
     });
 
     it('should return null if Firebase SDK is missing', () => {
+        vi.spyOn(console, 'error').mockImplementation(() => {});
         const result = TriviaFirebase.init();
         expect(result).toBeNull();
     });
 
     it('should return null if firebaseConfig is missing', () => {
+        vi.spyOn(console, 'error').mockImplementation(() => {});
         global.firebase = { apps: [] };
         const result = TriviaFirebase.init();
         expect(result).toBeNull();
     });
 
     it('should initialize Firebase and return services', () => {
+        vi.spyOn(console, 'log').mockImplementation(() => {});
         const mockDb = { ref: vi.fn() };
         const mockAuth = vi.fn();
         

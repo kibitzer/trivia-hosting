@@ -44,6 +44,7 @@ describe('Player Logic', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        vi.spyOn(console, 'log').mockImplementation(() => {});
         // Dispatch alpine:init to trigger the IIFE's internal registration
         document.dispatchEvent(new Event('alpine:init'));
 

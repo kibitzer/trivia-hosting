@@ -41,6 +41,7 @@ describe('Editor Logic', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        vi.spyOn(console, 'log').mockImplementation(() => {});
         TriviaDataService.init(mockDb);
         editor = window.createEditorData(mockFirebase, mockDb, mockAuth);
         // Pre-fill with a sample quiz for many tests
