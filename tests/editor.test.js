@@ -236,6 +236,16 @@ describe('Editor Logic', () => {
             expect(editor.currentQuiz.questions[0].notes).toBe('');
         });
 
+        it('should backfill missing fact-checking fields in editQuiz', () => {
+            editor.quizzes.noFactCheck = {
+                title: 'No Fact Check',
+                questions: [{ type: 'multiple', question: 'Q', options: ['A'], correctAnswer: 'A' }]
+            };
+            editor.editQuiz('noFactCheck');
+            expect(editor.currentQuiz.questions[0].factCheckingRequired).toBe(false);
+            expect(editor.currentQuiz.questions[0].factCheckingSource).toBe('');
+        });
+
         it('should preserve and save host notes', async () => {
             editor.selectedQuestionIndex = 1;
             const q = editor.currentQuiz.questions[1];
@@ -253,12 +263,14 @@ describe('Editor Logic', () => {
             editor.editQuiz('q1');
         });
 
-        it('should add a question and select it', () => {
+        it('should add a question and select it with fact-checking defaults', () => {
             const initialLength = editor.currentQuiz.questions.length;
             editor.addQuestion();
             expect(editor.currentQuiz.questions.length).toBe(initialLength + 1);
             expect(editor.selectedQuestionIndex).toBe(initialLength);
             expect(editor.currentQuiz.questions[initialLength].type).toBe('multiple');
+            expect(editor.currentQuiz.questions[initialLength].factCheckingRequired).toBe(false);
+            expect(editor.currentQuiz.questions[initialLength].factCheckingSource).toBe('');
         });
 
         it('should add a round and select it', () => {
@@ -321,6 +333,7 @@ describe('Editor Logic', () => {
             // Add some "garbage" fields that shouldn't be on a round-title
             editor.currentQuiz.questions[0].options = ['should be deleted'];
             editor.currentQuiz.questions[0].correctAnswer = 'should be deleted';
+            editor.currentQuiz.questions[0].factCheckingRequired = true;
 
             await editor.saveQuiz();
 
@@ -328,6 +341,19 @@ describe('Editor Logic', () => {
             expect(roundTitle.options).toBeUndefined();
             expect(roundTitle.correctAnswer).toBeUndefined();
             expect(roundTitle.timer).toBeUndefined();
+            expect(roundTitle.factCheckingRequired).toBeUndefined();
+        });
+
+        it('should preserve and save fact-checking fields', async () => {
+            editor.editQuiz('q1');
+            editor.currentQuiz.questions[1].factCheckingRequired = true;
+            editor.currentQuiz.questions[1].factCheckingSource = 'Verified by AI';
+
+            await editor.saveQuiz();
+
+            const savedQuiz = mockRef.set.mock.calls[0][0];
+            expect(savedQuiz.questions[1].factCheckingRequired).toBe(true);
+            expect(savedQuiz.questions[1].factCheckingSource).toBe('Verified by AI');
         });
 
         it('should fail validation if a question is missing a correct answer', async () => {

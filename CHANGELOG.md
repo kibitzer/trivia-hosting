@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.38] - 2026-02-07
+
+### Added
+
+- **Tests**: Added comprehensive unit tests for the fact-checking feature in `tests/quiz-parser.test.js` and `tests/editor.test.js`.
+- **E2E**: Updated the end-to-end simulation in `tests/simulation.spec.js` to verify the full flow of fact-checking data from creation to Host View.
+
 ## [0.6.37] - 2026-02-07
 
 ### Added

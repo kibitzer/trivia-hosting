@@ -150,5 +150,24 @@ describe('QuizParser Shared Logic', () => {
             expect(result[0].title).toBe('My Quiz');
             expect(result[1].type).toBe('question');
         });
+
+        it('should correctly map fact-checking fields', () => {
+            const input = {
+                title: 'Fact Check Quiz',
+                questions: [
+                    {
+                        type: 'multiple',
+                        question: 'Q',
+                        options: ['A'],
+                        correctAnswer: 'A',
+                        factCheckingRequired: true,
+                        factCheckingSource: 'http://verified.com'
+                    }
+                ]
+            };
+            const result = QuizParser.toFlatSlides(input);
+            expect(result[1].factCheckingRequired).toBe(true);
+            expect(result[1].factCheckingSource).toBe('http://verified.com');
+        });
     });
 });
