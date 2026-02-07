@@ -67,8 +67,14 @@ window.createDashboardData = function (firebase, db, auth) {
             }
         },
 
-        launchQuiz(id) { window.location.href = `host.html?quizId=${id}`; },
-        editQuiz(id) { window.location.href = `editor.html?quizId=${id}`; },
+        launchQuiz(id) { 
+            console.log('[Dashboard] Launching quiz:', id);
+            window.location.href = `host.html?quizId=${id}`; 
+        },
+        editQuiz(id) { 
+            console.log('[Dashboard] Editing quiz:', id);
+            window.location.href = `editor.html?quizId=${id}`; 
+        },
 
         async createNewQuiz() {
             const newQuiz = {

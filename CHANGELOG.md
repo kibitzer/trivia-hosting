@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.35] - 2026-02-07
+
+### Fixed
+
+- **Service Worker**: Resolved a critical `TypeError` in `sw.js` that was crashing the Service Worker on `localhost`. Restructured fetch logic to safely handle network/cache misses and restricted interception to same-origin requests.
+- **Redirection**: Improved navigation stability in local environments by implementing more robust redirection handling in the Dashboard, Host, and Editor. Added detailed logging to trace the page lifecycle and authentication state.
+- **Editor**: Hardened the `editQuiz` function to prevent `null` assignments, further protecting against Alpine.js initialization crashes.
+
 ## [0.6.34] - 2026-02-07
 
 ### Fixed

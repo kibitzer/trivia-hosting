@@ -88,6 +88,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
         },
 
         init() {
+            console.log('[Editor] Page loaded:', window.location.href);
             // Load settings
             const savedSettings = localStorage.getItem('triviaEditorSettings');
             if (savedSettings) {
@@ -100,10 +101,10 @@ window.createEditorData = function (firebase, db, auth, storage) {
 
             auth.onAuthStateChanged((user) => {
                 if (user && !user.isAnonymous) {
-                    this.waitingForAuth = false;
                     this.isAuthenticated = true;
                     const urlParams = new URLSearchParams(window.location.search);
                     const quizId = urlParams.get('quizId');
+                    console.log('[Editor] Auth confirmed, quizId:', quizId);
                     
                     if (quizId) {
                         db.ref(`quizzes/${quizId}`).on('value', (snap) => {
@@ -115,28 +116,27 @@ window.createEditorData = function (firebase, db, auth, storage) {
                                 this.quizzes[quizId] = data;
                                 
                                 if (!this.editingQuizId) {
-                                    // First load or subsequent update
+                                    // First load
                                     this.editQuiz(quizId);
-                                } else if (this.editingQuizId === quizId) {
-                                    // If we are already editing this quiz, we might want to merge or ignore
-                                    // identifying if this is a remote change vs local is hard without more logic.
-                                    // For now, relies on editQuiz to handle it or the user to refresh if desynced.
-                                    // But strictly speaking, editQuiz replaces currentQuiz.
-                                    // Let's just ensure we set dataLoaded.
-                                    this.dataLoaded = true;
                                 }
+                                // Ensure loading state is cleared after data arrives
+                                this.waitingForAuth = false;
                             } else {
                                 console.warn('[Editor] Quiz not found, redirecting to dashboard');
+                                this.waitingForAuth = false;
                                 window.location.href = 'dashboard.html';
                             }
                         });
                     } else {
+                        console.warn('[Editor] No quizId in URL, redirecting to dashboard');
+                        this.waitingForAuth = false;
                         window.location.href = 'dashboard.html';
                     }
                 } else {
                     // Give Firebase a moment to restore session before redirecting
                     setTimeout(() => {
                         if (!auth.currentUser || auth.currentUser.isAnonymous) {
+                            console.log('[Editor] Not authenticated, redirecting to login');
                             this.waitingForAuth = false;
                             const target = 'editor.html' + window.location.search;
                             window.location.href = 'login.html?redirect=' + encodeURIComponent(target);
@@ -277,6 +277,10 @@ window.createEditorData = function (firebase, db, auth, storage) {
         },
 
         editQuiz(id) {
+            if (!this.quizzes[id]) {
+                console.warn('[Editor] Attempted to edit non-existent quiz ID:', id);
+                return;
+            }
             this.editingQuizId = id;
             this.currentQuiz = JSON.parse(JSON.stringify(this.quizzes[id])); // Deep clone
 

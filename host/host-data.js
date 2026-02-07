@@ -68,14 +68,15 @@ window.createHostData = function (firebase, db, auth, analytics) {
 
         // --- Methods ---
         init() {
+            console.log('[Host] Page loaded:', window.location.href);
             if (auth)
                 auth.onAuthStateChanged((user) => {
                     if (user && !user.isAnonymous) {
-                        this.waitingForAuth = false;
                         this.isAuthenticated = true;
                         // Check for quizId in URL
                         const urlParams = new URLSearchParams(window.location.search);
                         this.selectedQuizId = urlParams.get('quizId');
+                        console.log('[Host] Auth confirmed, quizId:', this.selectedQuizId);
 
                         // Only attach listeners when authenticated
                         db.ref('players').on('value', (snap) => {
@@ -112,19 +113,24 @@ window.createHostData = function (firebase, db, auth, analytics) {
 
                                     this.currentView = 'setup'; // Default to lobby/setup
                                     this.successMsg = `✓ Loaded ${this.quizData.length} items`;
+                                    this.waitingForAuth = false;
                                 } else {
                                     this.errorMsg = 'Quiz not found';
                                     setTimeout(() => window.location.href = 'dashboard.html', 3000);
+                                    this.waitingForAuth = false;
                                 }
                             });
                         } else {
                             // If no quizId, go to dashboard
+                            console.warn('[Host] No quizId in URL, redirecting to dashboard');
+                            this.waitingForAuth = false;
                             window.location.href = 'dashboard.html';
                         }
                     } else {
                         // Give Firebase a moment to restore session before redirecting
                         setTimeout(() => {
                             if (!auth.currentUser || auth.currentUser.isAnonymous) {
+                                console.log('[Host] Not authenticated, redirecting to login');
                                 this.waitingForAuth = false;
                                 const target = 'host.html' + window.location.search;
                                 window.location.href = 'login.html?redirect=' + encodeURIComponent(target);
