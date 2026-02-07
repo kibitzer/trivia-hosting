@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.37] - 2026-02-07
+
+### Added
+
+- **Fact Checking**: Introduced a new fact-checking feature for question slides.
+    - **Editor**: Added 'Fact Checking Required' toggle and 'Verification Source' text area to each question slide.
+    - **Host View**: Verification sources are now displayed to the host when an answer is revealed for marked questions.
+    - **Data Model**: Updated quiz schema and parser to support verified information and sources.
+
 ## [0.6.36] - 2026-02-07
 
 ### Fixed

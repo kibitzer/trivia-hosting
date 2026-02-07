@@ -259,6 +259,8 @@ window.createEditorData = function (firebase, db, auth, storage) {
                         correctAnswer: 'Option 1',
                         timer: 30,
                         tags: [],
+                        factCheckingRequired: false,
+                        factCheckingSource: '',
                     },
                 ],
                 createdAt: firebase.database.ServerValue.TIMESTAMP,
@@ -308,6 +310,10 @@ window.createEditorData = function (firebase, db, auth, storage) {
                     }
                     if (!q.tags) q.tags = [];
                     if (q.notes === undefined) q.notes = '';
+                    
+                    // Fact checking migration
+                    if (q.factCheckingRequired === undefined) q.factCheckingRequired = false;
+                    if (q.factCheckingSource === undefined) q.factCheckingSource = '';
 
                     // Normalize question content
                     q.question = this._normalizeString(q.question);
@@ -442,6 +448,8 @@ window.createEditorData = function (firebase, db, auth, storage) {
                 timer: 30,
                 notes: '',
                 tags: [],
+                factCheckingRequired: false,
+                factCheckingSource: '',
             });
             this.renumberSlides();
             this.selectedQuestionIndex = this.currentQuiz.questions.length - 1;
@@ -509,6 +517,8 @@ window.createEditorData = function (firebase, db, auth, storage) {
                     delete q.timer;
                     delete q.tags;
                     delete q.category;
+                    delete q.factCheckingRequired;
+                    delete q.factCheckingSource;
                 } else {
                     delete q.category; // Ensure legacy field is removed
                     
@@ -535,6 +545,11 @@ window.createEditorData = function (firebase, db, auth, storage) {
                         if (JSON.stringify(q.correctAnswer) !== JSON.stringify(normCA)) {
                             q.correctAnswer = normCA;
                         }
+                    }
+
+                    // Normalize fact checking source
+                    if (q.factCheckingSource !== undefined) {
+                        q.factCheckingSource = String(q.factCheckingSource).trim();
                     }
 
                     // Validation: Must have a correct answer

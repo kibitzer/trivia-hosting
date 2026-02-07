@@ -66,6 +66,8 @@ window.QuizParser = {
                     image: item.image || null,
                     notes: item.notes || null,
                     tags: item.tags || (item.category ? [item.category] : []),
+                    factCheckingRequired: !!item.factCheckingRequired,
+                    factCheckingSource: item.factCheckingSource || null,
                 };
 
                 if (newQ.questionType === 'MC') {
