@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.4] - 2026-02-07
+
+### UI/UX
+
+- **Host Panel**: Removed the redundant 'Logout' button from the Host Control Panel header. Users can still logout via the Dashboard.
+
 ## [0.7.3] - 2026-02-07
 
 ### Improved
