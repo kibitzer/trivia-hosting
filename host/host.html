@@ -280,9 +280,19 @@
                         <template x-if="currentItem && currentItem.type === 'question'">
                             <div x-transition:enter="fade-enter-active" x-transition:enter-start="fade-enter" x-transition:enter-end="fade-enter-to">
                                 <div class="question-header">
-                                    <span class="question-number"
-                                        >QUESTION <span x-text="currentItem.questionNumber"></span
-                                    ></span>
+                                    <div style="display: flex; gap: 0.75rem; align-items: center;">
+                                        <span class="question-number"
+                                            >QUESTION <span x-text="currentItem.questionNumber"></span
+                                        ></span>
+                                        <template x-if="currentItem.factCheckingRequired">
+                                            <span 
+                                                class="text-sm" 
+                                                style="background: #fff7ed; color: var(--color-warning); padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-weight: 800; border: 1px solid #fed7aa;"
+                                            >
+                                                ⚠️ FACT CHECK REQUIRED
+                                            </span>
+                                        </template>
+                                    </div>
                                     <span
                                         class="text-muted text-sm"
                                         style="font-weight: 700"
@@ -332,6 +342,10 @@
                                         x-text="currentItem.answer"
                                     ></div>
                                 </div>
+                                <div class="host-notes" style="background: #eff6ff; border-color: var(--color-primary);" x-show="currentItem.factCheckingRequired && answerRevealed">
+                                    <h4 style="font-size: 0.875rem; margin-bottom: 0.25rem; color: var(--color-primary)">🔍 FACT CHECKING</h4>
+                                    <div class="text-sm" style="white-space: pre-wrap;" x-text="currentItem.factCheckingSource || 'No verification source or explanation provided.'"></div>
+                                </div>
                                 <div class="host-notes" x-show="currentItem.notes && answerRevealed">
                                     <h4 style="font-size: 0.875rem; margin-bottom: 0.25rem">🔒 HOST NOTES</h4>
                                     <p class="text-sm" x-text="currentItem.notes"></p>
@@ -377,19 +391,23 @@
                         >
                             ⬅️ Previous
                         </button>
-                        <button class="btn btn-danger" @click="resetGame()">🔄 Reset Quiz</button>
                     </div>
                 </div>
             </div>
 
             <!-- Sidebar -->
             <div class="sidebar" x-show="isAuthenticated">
-                <div class="card" x-show="currentView === 'game' && !continuousScoreboard">
-                    <h3 style="font-size: 1rem; margin-bottom: 1rem">📺 Broadcast</h3>
-                    <label style="display: flex; gap: 0.75rem; align-items: center; cursor: pointer;">
-                        <input type="checkbox" :checked="showScoreboard" @change="toggleScoreboard()" style="width: 1.25rem; height: 1.25rem;">
-                        <span style="font-weight: 700; font-size: 0.875rem;">Show Scoreboard to Players</span>
-                    </label>
+                <div class="card" x-show="currentView === 'game'">
+                    <h3 style="font-size: 1rem; margin-bottom: 1rem">🎮 Game Controls</h3>
+                    
+                    <div x-show="!continuousScoreboard" style="margin-bottom: 1rem;">
+                        <label style="display: flex; gap: 0.75rem; align-items: center; cursor: pointer;">
+                            <input type="checkbox" :checked="showScoreboard" @change="toggleScoreboard()" style="width: 1.25rem; height: 1.25rem;">
+                            <span style="font-weight: 700; font-size: 0.875rem;">Show Scoreboard to Players</span>
+                        </label>
+                    </div>
+
+                    <button class="btn btn-danger" style="width: 100%;" @click="resetGame()">🔄 Reset Quiz</button>
                 </div>
                 <div class="card" x-show="currentView === 'game'">
                     <h3 style="font-size: 1rem; margin-bottom: 1rem">📥 Answers</h3>

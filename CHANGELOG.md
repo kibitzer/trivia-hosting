@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.41] - 2026-02-07
+
+### UI/UX
+
+- **Host Panel**: Reorganised the Host Control Panel by centralising game management actions.
+    - Relabelled 'Broadcast' section to 'Game Controls' in the sidebar.
+    - Moved the 'Reset Quiz' button into the new 'Game Controls' section for better accessibility.
+    - Improved layout logic for the scoreboard display toggle.
+
+## [0.6.40] - 2026-02-07
+
+### Documentation
+
+- **README**: Updated local development instructions to recommend `http-server` over `serve` to prevent issues with URL parameter stripping.
+
+## [0.6.39] - 2026-02-07
+
+### Improved
+
+- **Fact Checking**: Enhanced visibility of fact-checking notifications in the Host View.
+    - Added an immediate '⚠️ FACT CHECK REQUIRED' badge to the question header that appears as soon as a marked question is shown.
+    - Updated the verification details box to show a fallback message if no source was provided, ensuring the host is always notified when a fact-check is required.
+    - Fixed a bug in the legacy data parser that was failing to map fact-checking fields for older quiz formats.
+
+## [0.6.38] - 2026-02-07
+
+### Added
+
+- **Tests**: Added comprehensive unit tests for the fact-checking feature in `tests/quiz-parser.test.js` and `tests/editor.test.js`.
+- **E2E**: Updated the end-to-end simulation in `tests/simulation.spec.js` to verify the full flow of fact-checking data from creation to Host View.
+
+## [0.6.37] - 2026-02-07
+
+### Added
+
+- **Fact Checking**: Introduced a new fact-checking feature for question slides.
+    - **Editor**: Added 'Fact Checking Required' toggle and 'Verification Source' text area to each question slide.
+    - **Host View**: Verification sources are now displayed to the host when an answer is revealed for marked questions.
+    - **Data Model**: Updated quiz schema and parser to support verified information and sources.
+
 ## [0.6.36] - 2026-02-07
 
 ### Fixed

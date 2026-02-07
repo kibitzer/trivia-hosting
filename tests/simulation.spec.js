@@ -75,6 +75,15 @@ test('Trivia Full Simulation', async ({ browser }) => {
                         correctAnswer: 'Au',
                         timer: 30,
                     },
+                    {
+                        type: 'multiple',
+                        question: 'Is Pluto a planet?',
+                        options: ['Yes', 'No'],
+                        correctAnswer: 'No',
+                        timer: 30,
+                        factCheckingRequired: true,
+                        factCheckingSource: 'IAU 2006 definition.',
+                    },
                 ],
                 updatedAt: firebase.database.ServerValue.TIMESTAMP,
             };
@@ -174,6 +183,21 @@ test('Trivia Full Simulation', async ({ browser }) => {
         }
 
         await hostPage.click('button:has-text("Reveal Answer")');
+
+        // 6. Host: Move to Question 3 (Fact Checked: Pluto)
+        await hostPage.click('button:has-text("Next")');
+        await expect(hostPage.locator('text=QUESTION 3')).toBeVisible();
+
+        // Players answer
+        for (const p of players) {
+            await p.page.click('button:has-text("No")');
+        }
+
+        await hostPage.click('button:has-text("Reveal Answer")');
+
+        // VERIFY FACT CHECKING UI on Host
+        await expect(hostPage.locator('text=FACT CHECKING')).toBeVisible();
+        await expect(hostPage.locator('text=IAU 2006 definition.')).toBeVisible();
 
         // Final Scoreboard Check
         const scoreboardRows = hostPage.locator('.scroll-list .list-row');

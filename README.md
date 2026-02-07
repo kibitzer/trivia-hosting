@@ -23,7 +23,20 @@ A real-time, browser-based trivia hosting application powered by Firebase Realti
 
 ## 🚀 Setup & Installation
 
-... (Setup sections) ...
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/kibitzer/trivia-hosting.git
+    cd trivia-hosting
+    ```
+2.  **Install dependencies**: `npm install`
+3.  **Configure Firebase**:
+    - Copy `config/firebase-config.template.js` to `config/firebase-config.js`.
+    - Update the file with your Firebase project credentials.
+4.  **Local Development**: We recommend using `http-server` to serve the project locally:
+    ```bash
+    npx http-server .
+    ```
+5.  **Access**: Open the local URL (usually `http://localhost:8080`) in your browser.
 
 ## 🎮 How to Play
 
