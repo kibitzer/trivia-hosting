@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.39] - 2026-02-07
+
+### Improved
+
+- **Fact Checking**: Enhanced visibility of fact-checking notifications in the Host View.
+    - Added an immediate '⚠️ FACT CHECK REQUIRED' badge to the question header that appears as soon as a marked question is shown.
+    - Updated the verification details box to show a fallback message if no source was provided, ensuring the host is always notified when a fact-check is required.
+    - Fixed a bug in the legacy data parser that was failing to map fact-checking fields for older quiz formats.
+
 ## [0.6.38] - 2026-02-07
 
 ### Added
