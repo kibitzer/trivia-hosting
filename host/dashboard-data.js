@@ -4,7 +4,9 @@ window.createDashboardData = function (firebase, db, auth) {
         userEmail: '',
         quizzes: {},
         activeGame: null,
+        loading: true,
         waitingForAuth: true,
+        sortConfig: { column: 'updatedAt', direction: 'desc' },
 
         init() {
             if (auth)

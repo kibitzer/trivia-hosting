@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.28] - 2026-02-07
+
+### Fixed
+
+- **Dashboard**: Restored 'loading' and 'sortConfig' properties that were accidentally removed in the previous update, fixing the quiz list display and sorting.
+
 ## [0.6.27] - 2026-02-07
 
 ### Fixed
