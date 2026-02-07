@@ -88,11 +88,9 @@ window.createEditorData = function (firebase, db, auth, storage) {
             }
 
             auth.onAuthStateChanged((user) => {
-                this.waitingForAuth = false;
-                this.isAuthenticated = !!user;
-                if (!user || user.isAnonymous) {
-                    window.location.href = 'login.html?redirect=editor.html' + window.location.search;
-                } else {
+                if (user && !user.isAnonymous) {
+                    this.waitingForAuth = false;
+                    this.isAuthenticated = true;
                     const urlParams = new URLSearchParams(window.location.search);
                     const quizId = urlParams.get('quizId');
                     
@@ -111,6 +109,15 @@ window.createEditorData = function (firebase, db, auth, storage) {
                     } else {
                         window.location.href = 'dashboard.html';
                     }
+                } else {
+                    // Give Firebase a moment to restore session before redirecting
+                    setTimeout(() => {
+                        if (!auth.currentUser || auth.currentUser.isAnonymous) {
+                            this.waitingForAuth = false;
+                            const target = 'editor.html' + window.location.search;
+                            window.location.href = 'login.html?redirect=' + encodeURIComponent(target);
+                        }
+                    }, 500);
                 }
             });
 

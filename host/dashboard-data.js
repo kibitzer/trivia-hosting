@@ -11,10 +11,8 @@ window.createDashboardData = function (firebase, db, auth) {
         init() {
             if (auth)
                 auth.onAuthStateChanged(user => {
-                    this.waitingForAuth = false;
-                    if (!user || user.isAnonymous) {
-                        window.location.href = 'login.html?redirect=dashboard.html';
-                    } else {
+                    if (user && !user.isAnonymous) {
+                        this.waitingForAuth = false;
                         this.userEmail = user.email;
                         this.loading = true;
                         
@@ -28,6 +26,14 @@ window.createDashboardData = function (firebase, db, auth) {
                         db.ref('gameState').on('value', snap => {
                             this.activeGame = snap.val();
                         });
+                    } else {
+                        // Give Firebase a moment to restore session before redirecting
+                        setTimeout(() => {
+                            if (!auth.currentUser || auth.currentUser.isAnonymous) {
+                                this.waitingForAuth = false;
+                                window.location.href = 'login.html?redirect=' + encodeURIComponent('dashboard.html');
+                            }
+                        }, 500);
                     }
                 });
             if (typeof window.displayVersion === 'function') window.displayVersion('app-version');

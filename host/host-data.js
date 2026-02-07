@@ -70,11 +70,9 @@ window.createHostData = function (firebase, db, auth, analytics) {
         init() {
             if (auth)
                 auth.onAuthStateChanged((user) => {
-                    this.waitingForAuth = false;
-                    this.isAuthenticated = !!user;
-                    if (!user || user.isAnonymous) {
-                        window.location.href = 'login.html?redirect=host.html' + window.location.search;
-                    } else {
+                    if (user && !user.isAnonymous) {
+                        this.waitingForAuth = false;
+                        this.isAuthenticated = true;
                         // Check for quizId in URL
                         const urlParams = new URLSearchParams(window.location.search);
                         this.selectedQuizId = urlParams.get('quizId');
@@ -123,6 +121,15 @@ window.createHostData = function (firebase, db, auth, analytics) {
                             // If no quizId, go to dashboard
                             window.location.href = 'dashboard.html';
                         }
+                    } else {
+                        // Give Firebase a moment to restore session before redirecting
+                        setTimeout(() => {
+                            if (!auth.currentUser || auth.currentUser.isAnonymous) {
+                                this.waitingForAuth = false;
+                                const target = 'host.html' + window.location.search;
+                                window.location.href = 'login.html?redirect=' + encodeURIComponent(target);
+                            }
+                        }, 500);
                     }
                 });
             db.ref('.info/connected').on('value', (snap) => {
