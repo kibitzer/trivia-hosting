@@ -525,10 +525,20 @@
 
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
-                    navigator.serviceWorker
-                        .register('../sw.js')
-                        .then((reg) => console.log('SW registered'))
-                        .catch((err) => console.log('SW registration failed', err));
+                    // Unregister SW on localhost to prevent caching/redirection issues during dev
+                    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                        navigator.serviceWorker.getRegistrations().then(registrations => {
+                            for (let registration of registrations) {
+                                registration.unregister();
+                                console.log('Service Worker unregistered on localhost');
+                            }
+                        });
+                    } else {
+                        navigator.serviceWorker
+                            .register('../sw.js')
+                            .then((reg) => console.log('SW registered'))
+                            .catch((err) => console.log('SW registration failed', err));
+                    }
                 });
             }
         </script>
