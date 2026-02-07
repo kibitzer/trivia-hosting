@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.34] - 2026-02-07
+
+### Fixed
+
+- **Redirection**: Resolved a redirection loop that occurred locally due to "Clean URLs" (extensionless paths) being stripped by local servers like `npx serve`. The whitelist now correctly recognizes both extensionless and `.html` versions of authorized pages.
+- **Editor**: Fixed a persistent initialization crash by refactoring Alpine.js watchers. Merged nested property watchers into a single top-level watcher to prevent Alpine from eagerly evaluating (and crashing on) `null` objects before they are loaded.
+
 ## [0.6.33] - 2026-02-07
 
 ### Fixed

@@ -80,31 +80,35 @@
                         if (user && !user.isAnonymous) {
                             const urlParams = new URLSearchParams(window.location.search);
                             const rawRedirect = urlParams.get('redirect') || 'dashboard.html';
-                            const allowedPages = ['dashboard.html', 'editor.html', 'host.html'];
+                            // Security: Only allow redirection to specific local dashboard/editor pages
+                            // Support both extensionless (clean URLs) and .html versions
+                            const allowedPages = ['dashboard', 'editor', 'host', 'dashboard.html', 'editor.html', 'host.html'];
                             
                             let safeRedirect = 'dashboard.html';
                             try {
                                 // Use URL API to safely validate the redirect target
-                                // This handles both relative and absolute URLs
                                 const url = new URL(rawRedirect, window.location.href);
                                 
                                 // Security checks
                                 const isSameOrigin = url.origin === window.location.origin;
                                 const isSafeProtocol = url.protocol === 'http:' || url.protocol === 'https:';
                                 
-                                // Extract the file name (e.g., 'editor.html') from the path
-                                const pathParts = url.pathname.split('/');
-                                const fileName = pathParts[pathParts.length - 1] || pathParts[pathParts.length - 2];
+                                // Extract the page name from the path, handling various structures
+                                // e.g., /host/editor.html -> editor.html
+                                // e.g., /host/editor -> editor
+                                // e.g., /editor -> editor
+                                const pathParts = url.pathname.split('/').filter(p => p);
+                                const lastPart = pathParts.pop() || '';
                                 
                                 console.log('[Login] Validating redirect:', {
                                     raw: rawRedirect,
                                     resolved: url.href,
                                     isSameOrigin,
                                     isSafeProtocol,
-                                    fileName
+                                    lastPart
                                 });
 
-                                if (isSameOrigin && isSafeProtocol && allowedPages.includes(fileName)) {
+                                if (isSameOrigin && isSafeProtocol && allowedPages.includes(lastPart)) {
                                     // Use the sanitized href from the URL object to preserve query params
                                     safeRedirect = url.href;
                                 } else {

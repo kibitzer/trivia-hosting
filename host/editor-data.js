@@ -56,7 +56,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
             if (!this.currentQuiz || !this.currentQuiz.questions) return [];
             const tags = new Set();
             this.currentQuiz.questions.forEach(q => {
-                if (q.tags) q.tags.forEach(t => tags.add(t));
+                if (q && q.tags) q.tags.forEach(t => tags.add(t));
             });
             return Array.from(tags).sort();
         },
@@ -149,28 +149,21 @@ window.createEditorData = function (firebase, db, auth, storage) {
             this.$watch(
                 'currentQuiz',
                 (value) => {
-                    if (value && this.editingQuizId) {
-                        console.log('[Editor] currentQuiz changed, triggering autosave');
-                        this.triggerAutosave();
-                    }
-                },
-                { deep: true }
-            );
+                    if (!value || !this.editingQuizId) return;
+                    
+                    console.log('[Editor] currentQuiz changed');
+                    this.triggerAutosave();
 
-            // Watch for question type changes to set defaults
-            this.$watch(
-                'currentQuiz.questions',
-                (questions) => {
-                    if (!this.currentQuiz || !questions || !questions[this.selectedQuestionIndex]) return;
-                    console.log('[Editor] questions changed, checking defaults');
-                    const q = questions[this.selectedQuestionIndex];
-
-                    if (q.type === 'true-false' && (!q.options || q.options.length !== 2)) {
-                        q.options = ['True', 'False'];
-                        if (!q.correctAnswer) q.correctAnswer = 'True';
-                    }
-                    if (q.type === 'identify' && (!q.question || q.question === 'New Question?')) {
-                        q.question = 'Identify this picture:';
+                    // Logic moved from questions watcher to avoid eager evaluation crash
+                    if (value.questions && value.questions[this.selectedQuestionIndex]) {
+                        const q = value.questions[this.selectedQuestionIndex];
+                        if (q.type === 'true-false' && (!q.options || q.options.length !== 2)) {
+                            q.options = ['True', 'False'];
+                            if (!q.correctAnswer) q.correctAnswer = 'True';
+                        }
+                        if (q.type === 'identify' && (!q.question || q.question === 'New Question?')) {
+                            q.question = 'Identify this picture:';
+                        }
                     }
                 },
                 { deep: true }
