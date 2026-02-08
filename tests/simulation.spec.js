@@ -29,6 +29,9 @@ test('Trivia Full Simulation', async ({ browser }) => {
     const hostPage = await setupPage(hostContext, 'HOST');
     await hostPage.goto(LOGIN_URL);
 
+    // Verify Version Number is visible
+    await expect(hostPage.locator('text=/v\\d+\\.\\d+\\.\\d+/')).toBeVisible();
+
     // Verify PWA Manifest
     const manifestResponse = await hostPage.request.get(`http://localhost:${PORT}/manifest.json`);
     expect(manifestResponse.status()).toBe(200);
@@ -46,6 +49,7 @@ test('Trivia Full Simulation', async ({ browser }) => {
 
     // Wait for Dashboard
     await expect(hostPage.locator('h1:has-text("Dashboard")')).toBeVisible({ timeout: 10000 });
+    await expect(hostPage.locator('text=/v\\d+\\.\\d+\\.\\d+/')).toBeVisible();
 
     let testQuizId = null;
 
@@ -90,6 +94,15 @@ test('Trivia Full Simulation', async ({ browser }) => {
             return quizRef.set(sampleQuiz).then(() => quizRef.key);
         });
 
+        // Verify version in Editor
+        const editBtn = hostPage.locator(`tr:has-text("Test Simulation Quiz") button:has-text("Edit")`);
+        await expect(editBtn).toBeVisible({ timeout: 10000 });
+        await editBtn.click();
+        await expect(hostPage).toHaveURL(/editor\.html\?quizId=/);
+        await expect(hostPage.locator('text=/v\\d+\\.\\d+\\.\\d+/')).toBeVisible();
+        await hostPage.click('button:has-text("Dashboard")');
+        await expect(hostPage.locator('h1:has-text("Dashboard")')).toBeVisible({ timeout: 10000 });
+
         // Click Launch for the new quiz
         const launchBtn = hostPage.locator(`tr:has-text("Test Simulation Quiz") button:has-text("Launch")`);
         await expect(launchBtn).toBeVisible({ timeout: 10000 });
@@ -98,6 +111,7 @@ test('Trivia Full Simulation', async ({ browser }) => {
         // Should now be on host.html
         await expect(hostPage).toHaveURL(/host\.html\?quizId=/);
         await expect(hostPage.locator('h2:has-text("Ready to Start!")')).toBeVisible({ timeout: 10000 });
+        await expect(hostPage.locator('text=/v\\d+\\.\\d+\\.\\d+/')).toBeVisible();
 
         // 3. Setup 3 Players
         const players = [];
@@ -109,6 +123,7 @@ test('Trivia Full Simulation', async ({ browser }) => {
             await page.goto(PLAYER_URL);
 
             await page.fill('input[x-model="playerName"]', name);
+            await expect(page.locator('text=/v\\d+\\.\\d+\\.\\d+/')).toBeVisible();
             await page.click('button:has-text("Join Game")');
 
             // Wait for join section to disappear (indicates screen change)
