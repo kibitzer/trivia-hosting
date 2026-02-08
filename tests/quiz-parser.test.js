@@ -170,7 +170,7 @@ describe('QuizParser Shared Logic', () => {
             expect(result[1].factCheckingSource).toBe('http://verified.com');
         });
 
-        it('should correctly map difficulty field', () => {
+        it('should correctly map difficulty field and migrate numeric values', () => {
             const input = {
                 title: 'Difficulty Quiz',
                 questions: [
@@ -193,13 +193,21 @@ describe('QuizParser Shared Logic', () => {
                         question: 'Medium Q',
                         options: ['A'],
                         correctAnswer: 'A'
+                    },
+                    {
+                        type: 'short',
+                        question: 'String Easy Q',
+                        options: ['A'],
+                        correctAnswer: 'A',
+                        difficulty: 'Easy'
                     }
                 ]
             };
             const result = QuizParser.toFlatSlides(input);
-            expect(result[1].difficulty).toBe(0); // Easy
-            expect(result[2].difficulty).toBe(2); // Hard
-            expect(result[3].difficulty).toBe(1); // Default Medium
+            expect(result[1].difficulty).toBe('Easy');
+            expect(result[2].difficulty).toBe('Hard');
+            expect(result[3].difficulty).toBe('Medium');
+            expect(result[4].difficulty).toBe('Easy');
         });
 
         it('should correctly map rebusImages field', () => {

@@ -477,10 +477,10 @@
                                             x-show="currentQuiz.questions[selectedQuestionIndex].type !== 'round-title'"
                                         >
                                             <label>Difficulty</label>
-                                            <select x-model.number="currentQuiz.questions[selectedQuestionIndex].difficulty">
-                                                <option value="0">Easy</option>
-                                                <option value="1" selected>Medium</option>
-                                                <option value="2">Hard</option>
+                                            <select x-model="currentQuiz.questions[selectedQuestionIndex].difficulty">
+                                                <option value="Easy">Easy</option>
+                                                <option value="Medium" selected>Medium</option>
+                                                <option value="Hard">Hard</option>
                                             </select>
                                         </div>
                                         <div

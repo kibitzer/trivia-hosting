@@ -261,7 +261,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
                         options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
                         correctAnswer: 'Option 1',
                         timer: 30,
-                        difficulty: 1,
+                        difficulty: 'Medium',
                         tags: [],
                         rebusImages: [],
                         factCheckingRequired: false,
@@ -322,7 +322,12 @@ window.createEditorData = function (firebase, db, auth, storage) {
                     // Fact checking migration
                     if (q.factCheckingRequired === undefined) q.factCheckingRequired = false;
                     if (q.factCheckingSource === undefined) q.factCheckingSource = '';
-                    if (q.difficulty === undefined) q.difficulty = 1;
+                    
+                    if (q.difficulty === 0 || q.difficulty === '0') q.difficulty = 'Easy';
+                    else if (q.difficulty === 1 || q.difficulty === '1') q.difficulty = 'Medium';
+                    else if (q.difficulty === 2 || q.difficulty === '2') q.difficulty = 'Hard';
+                    else if (q.difficulty === undefined) q.difficulty = 'Medium';
+
                     if (q.rebusImages === undefined) q.rebusImages = [];
 
                     // Normalize question content
@@ -463,7 +468,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
                 options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
                 correctAnswer: 'Option 1',
                 timer: 30,
-                difficulty: 1,
+                difficulty: 'Medium',
                 notes: '',
                 tags: [],
                 rebusImages: [],

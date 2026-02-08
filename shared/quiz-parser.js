@@ -66,7 +66,12 @@ window.QuizParser = {
                     image: item.image || null,
                     rebusImages: item.rebusImages || null,
                     notes: item.notes || null,
-                    difficulty: item.difficulty !== undefined ? item.difficulty : 1,
+                    difficulty: (function(val) {
+                        if (val === 0 || val === '0') return 'Easy';
+                        if (val === 1 || val === '1') return 'Medium';
+                        if (val === 2 || val === '2') return 'Hard';
+                        return val || 'Medium';
+                    })(item.difficulty),
                     tags: item.tags || (item.category ? [item.category] : []),
                     factCheckingRequired: !!item.factCheckingRequired,
                     factCheckingSource: item.factCheckingSource || null,
@@ -163,7 +168,12 @@ window.QuizParser = {
                     image: item.image || null,
                     rebusImages: item.rebusImages || null,
                     notes: item.notes || null,
-                    difficulty: item.difficulty !== undefined ? item.difficulty : 1,
+                    difficulty: (function(val) {
+                        if (val === 0 || val === '0') return 'Easy';
+                        if (val === 1 || val === '1') return 'Medium';
+                        if (val === 2 || val === '2') return 'Hard';
+                        return val || 'Medium';
+                    })(item.difficulty),
                     tags: item.tags || (item.category ? [item.category] : []),
                     factCheckingRequired: !!item.factCheckingRequired,
                     factCheckingSource: item.factCheckingSource || null,

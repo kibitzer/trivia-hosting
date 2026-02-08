@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.8] - 2026-02-08
+
+### Changed
+
+- **Difficulty Attribute**: Transitioned from numeric values (0, 1, 2) to string values ('Easy', 'Medium', 'Hard') for improved readability and maintenance.
+- **Migration**: Added automated migration logic to convert existing numeric difficulty values to strings.
+- **Player Interface**: Removed difficulty indicators from the player screen.
+- **Host Dashboard**: Updated difficulty display to use string values directly.
+
 ## [0.7.7] - 2026-02-08
 
 ### Added
