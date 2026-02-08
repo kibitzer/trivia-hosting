@@ -263,6 +263,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
                         timer: 30,
                         difficulty: 1,
                         tags: [],
+                        rebusImages: [],
                         factCheckingRequired: false,
                         factCheckingSource: '',
                     },
@@ -322,6 +323,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
                     if (q.factCheckingRequired === undefined) q.factCheckingRequired = false;
                     if (q.factCheckingSource === undefined) q.factCheckingSource = '';
                     if (q.difficulty === undefined) q.difficulty = 1;
+                    if (q.rebusImages === undefined) q.rebusImages = [];
 
                     // Normalize question content
                     q.question = this._normalizeString(q.question);
@@ -369,6 +371,13 @@ window.createEditorData = function (firebase, db, auth, storage) {
             this.newTagInput = '';
             this.tagSuggestions = [];
             this.activeTagSuggestionIndex = -1;
+            
+            this.$nextTick(() => {
+                const q = this.currentQuiz.questions[index];
+                if (q && q.type === 'rebus') {
+                    this.initRebusSortable();
+                }
+            });
         },
 
         updateTagSuggestions() {
@@ -457,6 +466,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
                 difficulty: 1,
                 notes: '',
                 tags: [],
+                rebusImages: [],
                 factCheckingRequired: false,
                 factCheckingSource: '',
             });
@@ -781,6 +791,75 @@ window.createEditorData = function (firebase, db, auth, storage) {
             }
             
             this.triggerAutosave();
+        },
+
+        async uploadRebusImage(event) {
+            const file = event.target.files[0];
+            if (!file || !storage) return;
+
+            if (file.size > 2 * 1024 * 1024) {
+                alert('File is too large! Please choose an image under 2MB.');
+                return;
+            }
+
+            this.statusMsg = 'Uploading...';
+
+            try {
+                const extension = file.name.split('.').pop();
+                const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${extension}`;
+                const storageRef = storage.ref(`rebus_images/${fileName}`);
+
+                const snapshot = await storageRef.put(file);
+                const downloadURL = await snapshot.ref.getDownloadURL();
+
+                const q = this.currentQuiz.questions[this.selectedQuestionIndex];
+                if (!q.rebusImages) q.rebusImages = [];
+                q.rebusImages.push(downloadURL);
+                
+                this.statusMsg = '✓ Uploaded';
+                this.triggerAutosave();
+            } catch (e) {
+                console.error('Rebus upload failed', e);
+                this.statusMsg = '❌ Upload failed';
+            } finally {
+                event.target.value = '';
+            }
+        },
+
+        removeRebusImage(index) {
+            const q = this.currentQuiz.questions[this.selectedQuestionIndex];
+            if (!q || !q.rebusImages) return;
+            q.rebusImages.splice(index, 1);
+            this.triggerAutosave();
+        },
+
+        rebusSortableInstance: null,
+        initRebusSortable() {
+            const el = document.getElementById('rebus-sortable-list');
+            if (!el || typeof Sortable === 'undefined') return;
+
+            if (this.rebusSortableInstance) {
+                this.rebusSortableInstance.destroy();
+            }
+
+            this.rebusSortableInstance = Sortable.create(el, {
+                animation: 150,
+                handle: '.rebus-item', // Make the whole item the handle or just the image? Let's use item.
+                onEnd: (evt) => {
+                    const oldIndex = evt.oldIndex;
+                    const newIndex = evt.newIndex;
+                    if (oldIndex === newIndex) return;
+
+                    const q = this.currentQuiz.questions[this.selectedQuestionIndex];
+                    if (!q || !q.rebusImages) return;
+
+                    // Move item in array
+                    const item = q.rebusImages.splice(oldIndex, 1)[0];
+                    q.rebusImages.splice(newIndex, 0, item);
+                    
+                    this.triggerAutosave();
+                },
+            });
         },
     };
 };

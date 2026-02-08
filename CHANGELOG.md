@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.7] - 2026-02-08
+
+### Added
+
+- **Quiz Editor**: New **Rebus** question type. Supports multiple images with drag-and-drop reordering.
+- **Host Dashboard**: Responsive rebus image grid display with numbered indices.
+- **Player Interface**: Visual indicator for Rebus questions and a responsive image layout for mobile.
+- **Data Schema**: Expanded question model to support `rebusImages` array.
+
 ## [0.7.6] - 2026-02-08
 
 ### Added

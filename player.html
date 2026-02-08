@@ -319,10 +319,15 @@
                     <!-- QUESTION DISPLAY -->
                         <div class="question-display" x-transition:enter="fade-enter-active" x-transition:enter-start="fade-enter" x-transition:enter-end="fade-enter-to">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                                <span
-                                    class="question-number"
-                                    x-text="'QUESTION ' + currentItem.questionNumber"
-                                ></span>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <span
+                                        class="question-number"
+                                        x-text="'QUESTION ' + currentItem.questionNumber"
+                                    ></span>
+                                    <template x-if="currentItem.rebusImages">
+                                        <span class="text-xs" style="background: var(--color-primary); color: white; padding: 0.15rem 0.5rem; border-radius: var(--radius-full); font-weight: 800;">REBUS</span>
+                                    </template>
+                                </div>
                                 <template x-if="currentItem.difficulty !== undefined">
                                     <span 
                                         class="text-sm" 
@@ -344,6 +349,17 @@
                                     class="question-image"
                                     onerror="this.style.display = 'none'"
                                 />
+                            </template>
+
+                            <template x-if="currentItem.rebusImages && currentItem.rebusImages.length > 0">
+                                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 1.5rem;">
+                                    <template x-for="(img, idx) in currentItem.rebusImages" :key="idx">
+                                        <div style="flex: 1 1 100px; max-width: 150px; aspect-ratio: 1; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--color-border); position: relative;">
+                                            <img :src="img" style="width: 100%; height: 100%; object-fit: cover;" />
+                                            <div style="position: absolute; bottom: 0.25rem; left: 0.25rem; background: rgba(0,0,0,0.6); color: white; padding: 0.05rem 0.3rem; border-radius: 3px; font-weight: 700; font-size: 0.65rem;" x-text="idx + 1"></div>
+                                        </div>
+                                    </template>
+                                </div>
                             </template>
 
                             <!-- VIEW: Multiple Choice -->

@@ -201,5 +201,22 @@ describe('QuizParser Shared Logic', () => {
             expect(result[2].difficulty).toBe(2); // Hard
             expect(result[3].difficulty).toBe(1); // Default Medium
         });
+
+        it('should correctly map rebusImages field', () => {
+            const input = {
+                title: 'Rebus Quiz',
+                questions: [
+                    {
+                        type: 'rebus',
+                        question: 'What is this?',
+                        correctAnswer: 'Rebus Answer',
+                        rebusImages: ['url1', 'url2']
+                    }
+                ]
+            };
+            const result = QuizParser.toFlatSlides(input);
+            expect(result[1].questionType).toBe('SHORT');
+            expect(result[1].rebusImages).toEqual(['url1', 'url2']);
+        });
     });
 });

@@ -398,6 +398,7 @@ window.createHostData = function (firebase, db, auth, analytics) {
                     questionType: this.currentItem.questionType,
                     questionText: this.currentItem.text,
                     questionImage: this.currentItem.image || null,
+                    rebusImages: this.currentItem.rebusImages || null,
                     difficulty: this.currentItem.difficulty !== undefined ? this.currentItem.difficulty : 1,
                     options: this.currentOptions || this.currentItem.options || null,
                     answer: this.answerRevealed ? this.currentItem.answer : null,

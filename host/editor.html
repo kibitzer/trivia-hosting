@@ -450,9 +450,11 @@
                                             <label>Slide Type</label>
                                             <select
                                                 x-model="currentQuiz.questions[selectedQuestionIndex].type"
+                                                @change="if ($event.target.value === 'rebus') $nextTick(() => initRebusSortable())"
                                             >
                                                 <option value="multiple">Multiple Choice</option>
                                                 <option value="short">Short Answer</option>
+                                                <option value="rebus">Rebus</option>
                                                 <option value="true-false">True / False</option>
                                                 <option value="identify">Identify (Picture)</option>
                                                 <option value="round-title">
@@ -581,7 +583,7 @@
 
                                     <div
                                         class="input-group"
-                                        x-show="currentQuiz.questions[selectedQuestionIndex].type !== 'round-title'"
+                                        x-show="currentQuiz.questions[selectedQuestionIndex].type !== 'round-title' && currentQuiz.questions[selectedQuestionIndex].type !== 'rebus'"
                                     >
                                         <label>Image URL (Optional)</label>
                                         <div style="display: flex; gap: 0.75rem">
@@ -604,6 +606,42 @@
                                                 accept="image/*"
                                                 @change="uploadImage($event, 'image')"
                                             />
+                                        </div>
+                                    </div>
+
+                                    <!-- Rebus Image Manager -->
+                                    <div 
+                                        x-show="currentQuiz.questions[selectedQuestionIndex].type === 'rebus'"
+                                        style="margin-bottom: 2rem; background: #f8fafc; padding: 1.5rem; border-radius: var(--radius-lg); border: 1px solid var(--color-border);"
+                                    >
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                            <label style="margin: 0; color: var(--color-primary); font-size: 1rem;">Rebus Images (Order Matters)</label>
+                                            <div style="display: flex; gap: 0.5rem;">
+                                                <button class="btn btn-primary text-sm" @click="$refs.rebusFile.click()">+ Upload Image</button>
+                                                <input type="file" x-ref="rebusFile" style="display: none" accept="image/*" @change="uploadRebusImage($event)">
+                                            </div>
+                                        </div>
+
+                                        <div class="rebus-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem;" id="rebus-sortable-list">
+                                            <template x-for="(imgUrl, idx) in (currentQuiz.questions[selectedQuestionIndex].rebusImages || [])" :key="idx">
+                                                <div class="rebus-item" style="position: relative; aspect-ratio: 1; background: white; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--color-border); cursor: grab;">
+                                                    <img :src="imgUrl" style="width: 100%; height: 100%; object-fit: cover;">
+                                                    <button 
+                                                        @click="removeRebusImage(idx)"
+                                                        style="position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(220, 38, 38, 0.9); color: white; border: none; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.875rem;"
+                                                        title="Remove Image"
+                                                    >
+                                                        &times;
+                                                    </button>
+                                                    <div style="position: absolute; bottom: 0.5rem; left: 0.5rem; background: rgba(0,0,0,0.6); color: white; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700;" x-text="idx + 1"></div>
+                                                </div>
+                                            </template>
+                                            <div 
+                                                x-show="(!currentQuiz.questions[selectedQuestionIndex].rebusImages || currentQuiz.questions[selectedQuestionIndex].rebusImages.length === 0)"
+                                                style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--color-text-muted); border: 2px dashed var(--color-border); border-radius: var(--radius-md);"
+                                            >
+                                                No images yet. Click "Upload Image" to add some.
+                                            </div>
                                         </div>
                                     </div>
 
