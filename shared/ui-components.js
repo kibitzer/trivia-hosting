@@ -81,4 +81,32 @@ window.TriviaUI = {
             minute: '2-digit',
         });
     },
+
+    /**
+     * Utility: Get Difficulty Label
+     * @param {number} value - 0, 1, or 2
+     * @returns {string}
+     */
+    getDifficultyLabel(value) {
+        const labels = {
+            0: 'Easy',
+            1: 'Medium',
+            2: 'Hard'
+        };
+        return labels[value] || 'N/A';
+    },
+
+    /**
+     * Utility: Get Difficulty Colour
+     * @param {number} value - 0, 1, or 2
+     * @returns {string}
+     */
+    getDifficultyColor(value) {
+        const colors = {
+            0: '#16a34a', // Success (Green)
+            1: '#ca8a04', // Warning (Yellow/Gold)
+            2: '#dc2626'  // Danger (Red)
+        };
+        return colors[value] || 'var(--color-text-muted)';
+    }
 };

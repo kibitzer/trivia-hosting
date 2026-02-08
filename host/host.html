@@ -181,6 +181,13 @@
                                         <span class="question-number"
                                             >QUESTION <span x-text="currentItem.questionNumber"></span
                                         ></span>
+                                        <template x-if="currentItem.difficulty !== undefined">
+                                            <span 
+                                                class="text-sm" 
+                                                :style="'background: ' + TriviaUI.getDifficultyColor(currentItem.difficulty) + '15; color: ' + TriviaUI.getDifficultyColor(currentItem.difficulty) + '; padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-weight: 800; border: 1px solid ' + TriviaUI.getDifficultyColor(currentItem.difficulty) + '30;'"
+                                                x-text="TriviaUI.getDifficultyLabel(currentItem.difficulty)"
+                                            ></span>
+                                        </template>
                                         <template x-if="currentItem.factCheckingRequired">
                                             <span 
                                                 class="text-sm" 

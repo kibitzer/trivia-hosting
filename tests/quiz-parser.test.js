@@ -169,5 +169,37 @@ describe('QuizParser Shared Logic', () => {
             expect(result[1].factCheckingRequired).toBe(true);
             expect(result[1].factCheckingSource).toBe('http://verified.com');
         });
+
+        it('should correctly map difficulty field', () => {
+            const input = {
+                title: 'Difficulty Quiz',
+                questions: [
+                    {
+                        type: 'multiple',
+                        question: 'Easy Q',
+                        options: ['A'],
+                        correctAnswer: 'A',
+                        difficulty: 0
+                    },
+                    {
+                        type: 'short',
+                        question: 'Hard Q',
+                        options: ['A'],
+                        correctAnswer: 'A',
+                        difficulty: 2
+                    },
+                    {
+                        type: 'short',
+                        question: 'Medium Q',
+                        options: ['A'],
+                        correctAnswer: 'A'
+                    }
+                ]
+            };
+            const result = QuizParser.toFlatSlides(input);
+            expect(result[1].difficulty).toBe(0); // Easy
+            expect(result[2].difficulty).toBe(2); // Hard
+            expect(result[3].difficulty).toBe(1); // Default Medium
+        });
     });
 });

@@ -261,6 +261,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
                         options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
                         correctAnswer: 'Option 1',
                         timer: 30,
+                        difficulty: 1,
                         tags: [],
                         factCheckingRequired: false,
                         factCheckingSource: '',
@@ -320,6 +321,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
                     // Fact checking migration
                     if (q.factCheckingRequired === undefined) q.factCheckingRequired = false;
                     if (q.factCheckingSource === undefined) q.factCheckingSource = '';
+                    if (q.difficulty === undefined) q.difficulty = 1;
 
                     // Normalize question content
                     q.question = this._normalizeString(q.question);
@@ -452,6 +454,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
                 options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
                 correctAnswer: 'Option 1',
                 timer: 30,
+                difficulty: 1,
                 notes: '',
                 tags: [],
                 factCheckingRequired: false,
