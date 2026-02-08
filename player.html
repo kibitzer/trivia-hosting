@@ -457,7 +457,7 @@
                     letter-spacing: 0.05em;
                 "
             >
-                TRIVIA PLAYER <span id="player-version"></span>
+                TRIVIA PLAYER <span class="font-weight-bold" x-text="'v' + appVersion"></span>
             </div>
         </div>
 
@@ -471,7 +471,7 @@
         <script src="player-alpine.js?v=1.3"></script>
         <script>
             document.addEventListener('DOMContentLoaded', () => {
-                if (typeof displayVersion === 'function') displayVersion('player-version');
+                // Version handled by Alpine appVersion
             });
 
             if ('serviceWorker' in navigator) {

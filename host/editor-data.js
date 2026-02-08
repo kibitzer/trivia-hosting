@@ -36,6 +36,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
             showQuestionNumbers: true,
         },
         waitingForAuth: true,
+        appVersion: window.TRIVIA_VERSION || '0.0.0',
 
         // Placeholder for Alpine magic properties
         $watch: () => {},

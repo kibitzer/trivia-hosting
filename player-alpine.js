@@ -27,6 +27,7 @@
             streak: 0,
             showFeedback: false, // For the color flash
             isCorrect: false,
+            appVersion: window.TRIVIA_VERSION || '0.0.0',
 
             errorMsg:
                 !hasFirebase || !hasConfig

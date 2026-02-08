@@ -52,7 +52,7 @@
         </div>
         
         <div style="text-align: center; margin-top: 1rem;">
-            <span id="app-version" class="text-muted" style="font-size: 0.75rem; font-weight: 700;"></span>
+            <span class="text-muted" style="font-size: 0.75rem; font-weight: 700;" x-text="'v' + appVersion"></span>
         </div>
     </div>
 
@@ -76,6 +76,7 @@
                 password: '',
                 loading: false,
                 errorMsg: '',
+                appVersion: window.TRIVIA_VERSION || '0.0.0',
 
                 init() {
                     fb.auth.onAuthStateChanged(user => {
@@ -123,7 +124,6 @@
                             window.location.replace(safeRedirect);
                         }
                     });
-                    if (typeof displayVersion === 'function') displayVersion('app-version');
                 },
 
                 async login() {

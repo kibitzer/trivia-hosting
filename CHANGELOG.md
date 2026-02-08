@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.9] - 2026-02-08
+
+### Fixed
+
+- **Version Display**: Fixed a bug where the version number was missing from the Editor.
+- **Consistency**: Refactored version display across all pages (Host, Player, Editor, Dashboard, Login) to use Alpine.js reactivity, ensuring consistent visibility and resolving timing issues with `DOMContentLoaded`.
+
 ## [0.7.8] - 2026-02-08
 
 ### Changed

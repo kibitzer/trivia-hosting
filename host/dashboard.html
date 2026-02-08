@@ -52,7 +52,7 @@
                 <div>
                     <h1>Dashboard</h1>
                     <p class="text-muted">Welcome back, <span x-text="userEmail" class="font-weight-bold"></span></p>
-                    <span id="app-version" class="text-muted" style="font-size: 0.75rem; font-weight: 700;"></span>
+                    <span class="text-muted" style="font-size: 0.75rem; font-weight: 700;" x-text="'v' + appVersion"></span>
                 </div>
                 <div style="display: flex; gap: 0.75rem;">
                     <button @click="logout" class="btn btn-secondary">Logout</button>

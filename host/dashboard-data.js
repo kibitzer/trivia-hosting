@@ -7,6 +7,7 @@ window.createDashboardData = function (firebase, db, auth) {
         loading: true,
         waitingForAuth: true,
         sortConfig: { column: 'updatedAt', direction: 'desc' },
+        appVersion: window.TRIVIA_VERSION || '0.0.0',
 
         init() {
             if (auth)
@@ -36,7 +37,6 @@ window.createDashboardData = function (firebase, db, auth) {
                         }, 1000);
                     }
                 });
-            if (typeof window.displayVersion === 'function') window.displayVersion('app-version');
         },
 
         get sortedQuizzes() {

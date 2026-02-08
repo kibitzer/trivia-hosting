@@ -35,6 +35,7 @@ window.createHostData = function (firebase, db, auth, analytics) {
         countdownInterval: null,
         autoRevealTimeout: null,
         waitingForAuth: true,
+        appVersion: window.TRIVIA_VERSION || '0.0.0',
 
         // --- Computed Properties ---
         get playerList() {

@@ -338,7 +338,7 @@
                                         onfocus="this.style.background = 'white'; this.style.boxShadow = 'var(--shadow-sm)'"
                                         onblur="this.style.background = 'transparent'; this.style.boxShadow = 'none'"
                                     />
-                                    <span id="app-version-editor" class="text-muted" style="font-size: 0.65rem; font-weight: 700; margin-left: 0.5rem"></span>
+                                    <span class="text-muted" style="font-size: 0.65rem; font-weight: 700; margin-left: 0.5rem" x-text="'v' + appVersion"></span>
                                 </div>
                             </div>
                             <div style="display: flex; gap: 1rem; align-items: center">
@@ -988,9 +988,7 @@
             });
 
             document.addEventListener('DOMContentLoaded', () => {
-                if (typeof displayVersion === 'function') {
-                    displayVersion('app-version-editor');
-                }
+                // Version handled by Alpine appVersion
             });
         </script>
     </body>

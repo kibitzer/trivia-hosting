@@ -420,7 +420,7 @@
                             letter-spacing: 0.05em;
                         "
                     >
-                        TRIVIA HOST <span id="app-version"></span>
+                        TRIVIA HOST <span class="font-weight-bold" x-text="'v' + appVersion"></span>
                     </div>
                 </div>
             </div>
@@ -454,7 +454,7 @@
         <script>
             // Initialize Version
             document.addEventListener('DOMContentLoaded', () => {
-                if (typeof displayVersion === 'function') displayVersion('app-version');
+                // Version handled by Alpine appVersion
             });
 
             if ('serviceWorker' in navigator) {
