@@ -256,7 +256,7 @@
                                         x-text="currentItem.answer"
                                     ></div>
                                 </div>
-                                <div class="host-notes" style="background: #eff6ff; border-color: var(--color-primary);" x-show="currentItem.factCheckingRequired && answerRevealed">
+                                <div class="host-notes" style="background: #eff6ff; border-color: var(--color-primary);" x-show="(currentItem.factCheckingRequired || currentItem.factCheckingSource) && answerRevealed">
                                     <h4 style="font-size: 0.875rem; margin-bottom: 0.25rem; color: var(--color-primary)">🔍 FACT CHECKING</h4>
                                     <div class="text-sm" style="white-space: pre-wrap;" x-text="currentItem.factCheckingSource || 'No verification source or explanation provided.'"></div>
                                 </div>
