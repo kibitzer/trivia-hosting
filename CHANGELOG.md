@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.12] - 2026-02-08
+
+### Fixed
+
+- **Version Display**: Ensured `TRIVIA_VERSION` is explicitly attached to the `window` object, allowing Alpine.js components to correctly display the version number across all screens.
+
 ## [0.7.11] - 2026-02-08
 
 ### Fixed
