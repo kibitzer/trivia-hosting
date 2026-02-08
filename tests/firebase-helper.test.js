@@ -28,12 +28,14 @@ describe('Firebase Helper', () => {
         vi.spyOn(console, 'log').mockImplementation(() => {});
         const mockDb = { ref: vi.fn() };
         const mockAuth = vi.fn();
+        const mockPerf = vi.fn();
         
         global.firebase = {
             apps: [],
             initializeApp: vi.fn(),
             database: vi.fn(() => mockDb),
             auth: vi.fn(() => mockAuth),
+            performance: vi.fn(() => mockPerf),
         };
         global.firebaseConfig = { apiKey: 'test' };
 
@@ -42,6 +44,7 @@ describe('Firebase Helper', () => {
         expect(firebase.initializeApp).toHaveBeenCalledWith(global.firebaseConfig);
         expect(result.db).toBe(mockDb);
         expect(result.auth).toBe(mockAuth);
+        expect(result.performance).toBe(mockPerf);
     });
 
     it('should not re-initialize if already initialized', () => {
