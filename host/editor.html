@@ -389,7 +389,7 @@
                                         <div
                                             class="text-muted"
                                             style="margin-top: auto; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em"
-                                            x-text="currentQuiz.questions[index].type === 'multiple' ? 'Multiple Choice' : (currentQuiz.questions[index].type === 'short' ? 'Short Answer' : (currentQuiz.questions[index].type === 'true-false' ? 'True / False' : (currentQuiz.questions[index].type === 'identify' ? 'Identify' : 'Round Intro')))"
+                                            x-text="currentQuiz.questions[index].type === 'multiple' ? 'Multiple Choice' : (currentQuiz.questions[index].type === 'short' ? 'Short Answer' : (currentQuiz.questions[index].type === 'rebus' ? 'Rebus' : (currentQuiz.questions[index].type === 'true-false' ? 'True / False' : (currentQuiz.questions[index].type === 'identify' ? 'Identify' : 'Round Intro'))))"
                                         ></div>
                                     </div>
                                 </template>
@@ -719,7 +719,7 @@
 
                                     <!-- Options for Short Answer -->
                                     <div
-                                        x-show="['short', 'identify'].includes(currentQuiz.questions[selectedQuestionIndex].type)"
+                                        x-show="['short', 'identify', 'rebus'].includes(currentQuiz.questions[selectedQuestionIndex].type)"
                                     >
                                         <label>Accepted Answers (Comma separated)</label>
                                         <input

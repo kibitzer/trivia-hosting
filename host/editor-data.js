@@ -165,6 +165,9 @@ window.createEditorData = function (firebase, db, auth, storage) {
                         if (q.type === 'identify' && (!q.question || q.question === 'New Question?')) {
                             q.question = 'Identify this picture:';
                         }
+                        if (q.type === 'rebus' && (!q.question || q.question === 'New Question?')) {
+                            q.question = 'Examine the pictures to discover a word or phrase';
+                        }
                     }
                 },
                 { deep: true }
@@ -804,10 +807,11 @@ window.createEditorData = function (firebase, db, auth, storage) {
             if (!file || !storage) return;
 
             if (file.size > 2 * 1024 * 1024) {
-                alert('File is too large! Please choose an image under 2MB.');
+                Swal.fire('File Too Large', 'Please choose an image under 2MB.', 'warning');
                 return;
             }
 
+            this.loading = true;
             this.statusMsg = 'Uploading...';
 
             try {
@@ -820,14 +824,17 @@ window.createEditorData = function (firebase, db, auth, storage) {
 
                 const q = this.currentQuiz.questions[this.selectedQuestionIndex];
                 if (!q.rebusImages) q.rebusImages = [];
-                q.rebusImages.push(downloadURL);
+                // Use spread to ensure Alpine reactivity
+                q.rebusImages = [...q.rebusImages, downloadURL];
                 
                 this.statusMsg = '✓ Uploaded';
                 this.triggerAutosave();
             } catch (e) {
                 console.error('Rebus upload failed', e);
                 this.statusMsg = '❌ Upload failed';
+                Swal.fire('Upload Failed', 'There was an error uploading your image. Please try again.', 'error');
             } finally {
+                this.loading = false;
                 event.target.value = '';
             }
         },

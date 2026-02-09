@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.13] - 2026-02-09
+
+### Fixed
+
+- **Rebus Questions**: Improved image upload feedback with loading states and reactivity fixes.
+- **Rebus Questions**: Added default question text ("Examine the pictures to discover a word or phrase") when switching to Rebus type.
+- **Rebus Questions**: Correctly displayed the "Rebus" badge in the editor sidebar.
+- **Rebus Questions**: Enabled multiple accepted answers (comma-separated) for Rebus questions, consistent with Short Answer questions.
+
 ## [0.7.12] - 2026-02-08
 
 ### Fixed
