@@ -10,7 +10,7 @@
         "version": "node scripts/sync-version.js && git add shared/version.js CHANGELOG.md",
         "lint": "eslint .",
         "format": "prettier --check .",
-        "format:fix": "prettier --write ."
+        "format:fix": "prettier --write .",
         "serve": "http-server"
     },
     "repository": {
