@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.14] - 2026-02-09
+
+### Changed
+
+- **Images**: Switched to Base64 encoding for image "uploads" to support the Firebase Free (Spark) plan and resolve CORS issues on localhost and GitHub Pages.
+- **Rebus Questions**: Now uses Base64 by default for rebus images.
+
+### Removed
+
+- **Config**: Removed `cors.json` as it is no longer required for image handling.
+
 ## [0.7.13] - 2026-02-09
 
 ### Fixed

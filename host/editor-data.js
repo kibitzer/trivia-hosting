@@ -211,7 +211,25 @@ window.createEditorData = function (firebase, db, auth, storage) {
 
         async uploadImage(event, targetField) {
             const file = event.target.files[0];
-            if (!file || !storage) return;
+            if (!file) return;
+
+            // If storage is not available, or we want to bypass CORS/Blaze (Localhost or GH Pages without config)
+            const useBase64 = !storage || window.location.hostname === 'localhost' || window.location.hostname.includes('github.io');
+
+            if (useBase64) {
+                if (file.size > 1 * 1024 * 1024) {
+                    Swal.fire('File too large', 'For free/Base64 hosting, please use images under 1MB to keep the database fast.', 'warning');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.currentQuiz.questions[this.selectedQuestionIndex][targetField] = e.target.result;
+                    this.statusMsg = '✓ Saved (Local)';
+                    this.triggerAutosave();
+                };
+                reader.readAsDataURL(file);
+                return;
+            }
 
             if (file.size > 2 * 1024 * 1024) {
                 alert('File is too large! Please choose an image under 2MB.');
@@ -612,6 +630,13 @@ window.createEditorData = function (firebase, db, auth, storage) {
 
             if (validationError) {
                 this.statusMsg = '⚠️ ' + validationError;
+                
+                // CRITICAL: Update the local cache even on validation failure
+                // This ensures the UI doesn't "revert" to old data while the user is still fixing it
+                const localCopy = JSON.parse(JSON.stringify(this.currentQuiz));
+                localCopy.updatedAt = Date.now();
+                this.quizzes[this.editingQuizId] = localCopy;
+
                 // Keep the error visible for a while
                 setTimeout(() => {
                     if (this.statusMsg.includes('⚠️')) {
@@ -804,39 +829,30 @@ window.createEditorData = function (firebase, db, auth, storage) {
 
         async uploadRebusImage(event) {
             const file = event.target.files[0];
-            if (!file || !storage) return;
-
-            if (file.size > 2 * 1024 * 1024) {
-                Swal.fire('File Too Large', 'Please choose an image under 2MB.', 'warning');
+            if (!file) return;
+            
+            // Rebus images are best kept as Base64 for hobby projects to avoid Blaze/CORS complexity
+            if (file.size > 0.5 * 1024 * 1024) {
+                Swal.fire('File Too Large', 'Rebus images should be small (under 500KB) to keep the database fast.', 'warning');
                 return;
             }
 
-            this.loading = true;
-            this.statusMsg = 'Uploading...';
+            this.statusMsg = 'Processing...';
 
-            try {
-                const extension = file.name.split('.').pop();
-                const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${extension}`;
-                const storageRef = storage.ref(`rebus_images/${fileName}`);
-
-                const snapshot = await storageRef.put(file);
-                const downloadURL = await snapshot.ref.getDownloadURL();
-
+            const reader = new FileReader();
+            reader.onload = (e) => {
                 const q = this.currentQuiz.questions[this.selectedQuestionIndex];
                 if (!q.rebusImages) q.rebusImages = [];
                 // Use spread to ensure Alpine reactivity
-                q.rebusImages = [...q.rebusImages, downloadURL];
+                q.rebusImages = [...q.rebusImages, e.target.result];
                 
-                this.statusMsg = '✓ Uploaded';
-                this.triggerAutosave();
-            } catch (e) {
-                console.error('Rebus upload failed', e);
-                this.statusMsg = '❌ Upload failed';
-                Swal.fire('Upload Failed', 'There was an error uploading your image. Please try again.', 'error');
-            } finally {
-                this.loading = false;
-                event.target.value = '';
-            }
+                this.statusMsg = '✓ Added';
+                setTimeout(() => {
+                    this.triggerAutosave();
+                }, 500);
+            };
+            reader.readAsDataURL(file);
+            event.target.value = '';
         },
 
         removeRebusImage(index) {
