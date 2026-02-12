@@ -44,5 +44,46 @@ window.TriviaDataService = {
 
     async updatePlayerScore(id, score) {
         return this.playerRef(id).child('score').set(score);
+    },
+
+    // --- Utilities ---
+
+    /**
+     * Mild normalization for storage: trims and removes legacy prefixes like 'A) ', '1. ', etc.
+     * Preserves casing and internal punctuation.
+     */
+    normalizeString(s) {
+        if (typeof s !== 'string') return s;
+        return s.trim()
+            .replace(/^[A-Fa-f0-9][).]\s*/, '')
+            .trim();
+    },
+
+    /**
+     * Aggressive normalization for comparison: lower case, remove punctuation, collapse whitespace.
+     */
+    normalizeForComparison(s) {
+        const mild = this.normalizeString(s);
+        return mild.toLowerCase()
+            .replace(/[^\w\s]|_/g, '') // Remove punctuation
+            .replace(/\s+/g, ' ')      // Collapse whitespace
+            .trim();
+    },
+
+    /**
+     * Checks if a player's answer matches the correct answer, accounting for variations.
+     */
+    checkAnswer(playerAnswer, correctAnswer, acceptedAnswers = []) {
+        const normPlayer = this.normalizeForComparison(playerAnswer || '');
+        
+        // Direct match
+        if (normPlayer === this.normalizeForComparison(correctAnswer || '')) return true;
+
+        // Check accepted variations (for short answer)
+        if (acceptedAnswers && acceptedAnswers.length > 0) {
+            return acceptedAnswers.some(a => this.normalizeForComparison(a || '') === normPlayer);
+        }
+
+        return false;
     }
 };

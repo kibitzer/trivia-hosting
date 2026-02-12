@@ -2,6 +2,7 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect } from 'vitest';
+import '../shared/data-service.js';
 import '../shared/quiz-parser.js';
 
 describe('QuizParser Shared Logic', () => {

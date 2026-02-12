@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Trivia Night</title>
-    <link rel="icon" type="image/svg+xml" href="../images/favicon.svg" />
-    <link rel="stylesheet" href="../shared/styles.css?v=1.6">
+    
+    <!-- Shared Head Helper (Dependencies) -->
+    <script src="../shared/head-helper.js"></script>
+
     <style>
         body {
             display: flex;
@@ -56,16 +58,6 @@
         </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="../shared/version.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-performance-compat.js"></script>
-    <script src="../config/firebase-config.js"></script>
-    <script src="../shared/firebase-helper.js"></script>
-    
     <script>
         document.addEventListener('alpine:init', () => {
             const fb = TriviaFirebase.init();
@@ -139,6 +131,5 @@
             }));
         });
     </script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </body>
 </html>

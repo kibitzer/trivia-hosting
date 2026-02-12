@@ -35,6 +35,7 @@ window.createHostData = function (firebase, db, auth, analytics) {
         countdownInterval: null,
         autoRevealTimeout: null,
         waitingForAuth: true,
+        _syncTimeout: null,
         appVersion: window.TRIVIA_VERSION || '0.0.0',
 
         // --- Computed Properties ---
@@ -327,7 +328,9 @@ window.createHostData = function (firebase, db, auth, analytics) {
                     }
 
                     const currentScore = this.players[pid]?.score || 0;
-                    TriviaDataService.updatePlayerScore(pid, currentScore + totalPoints);
+                    TriviaDataService.updatePlayerScore(pid, currentScore + totalPoints).catch((err) =>
+                        console.error('[Host] Score update failed:', err)
+                    );
                 } else {
                     if (
                         typeof questionStartTime === 'number' &&
@@ -352,60 +355,53 @@ window.createHostData = function (firebase, db, auth, analytics) {
         },
         checkCorrectness(ans) {
             if (!this.currentItem) return false;
-            const correct = this.currentItem.answer;
-            if (this.currentItem.questionType === 'MC') return ans === correct;
-
-            // Normalise: lower case, remove punctuation, collapse whitespace, trim
-            const normalize = (s) =>
-                (s || '')
-                    .toLowerCase()
-                    .replace(/[^\w\s]|_/g, '')
-                    .replace(/\s+/g, ' ')
-                    .trim();
-
-            const normalizedAns = normalize(ans);
-            const normalizedCorrect = normalize(correct);
-            const normalizedAccepted = (this.currentItem.acceptedAnswers || []).map(normalize);
-
-            return (
-                normalizedAccepted.includes(normalizedAns) || normalizedAns === normalizedCorrect
+            return TriviaDataService.checkAnswer(
+                ans, 
+                this.currentItem.answer, 
+                this.currentItem.acceptedAnswers
             );
         },
         syncGameState() {
-            if (!this.currentItem) return;
+            if (this._syncTimeout) clearTimeout(this._syncTimeout);
+            this._syncTimeout = setTimeout(() => {
+                if (!this.currentItem) return;
 
-            const base = {
-                currentIndex: this.currentIndex,
-                status: 'active',
-                answerRevealed: !!this.answerRevealed,
-                timerValue: this.timerValue,
-                timerStatus: this.timerStatus,
-                continuousScoreboard: !!this.continuousScoreboard,
-                showScoreboard: this.continuousScoreboard || this.showScoreboard,
-                timestamp: firebase.database.ServerValue.TIMESTAMP,
-            };
+                const base = {
+                    currentIndex: this.currentIndex,
+                    status: 'active',
+                    answerRevealed: !!this.answerRevealed,
+                    timerValue: this.timerValue,
+                    timerStatus: this.timerStatus,
+                    continuousScoreboard: !!this.continuousScoreboard,
+                    showScoreboard: this.continuousScoreboard || this.showScoreboard,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                };
 
-            if (this.currentItem.type === 'round-title')
-                Object.assign(base, {
-                    type: 'round-title',
-                    roundNumber: this.currentItem.roundNumber,
-                    roundTitle: this.currentItem.title,
-                    image: this.currentItem.image || null,
+                if (this.currentItem.type === 'round-title')
+                    Object.assign(base, {
+                        type: 'round-title',
+                        roundNumber: this.currentItem.roundNumber,
+                        roundTitle: this.currentItem.title,
+                        image: this.currentItem.image || null,
+                    });
+                else
+                    Object.assign(base, {
+                        type: 'question',
+                        questionNumber: this.currentItem.questionNumber,
+                        questionType: this.currentItem.questionType,
+                        questionText: this.currentItem.text,
+                        questionImage: this.currentItem.image || null,
+                        rebusImages: this.currentItem.rebusImages || null,
+                        difficulty: this.currentItem.difficulty !== undefined ? this.currentItem.difficulty : 1,
+                        options: this.currentOptions || this.currentItem.options || null,
+                        answer: this.answerRevealed ? this.currentItem.answer : null,
+                    });
+
+                TriviaDataService.setGameState(base).catch((err) => {
+                    console.error('[Host] Sync failed:', err);
+                    TriviaUI.notifyError('Sync Failed', 'Could not update game state in Firebase.');
                 });
-            else
-                Object.assign(base, {
-                    type: 'question',
-                    questionNumber: this.currentItem.questionNumber,
-                    questionType: this.currentItem.questionType,
-                    questionText: this.currentItem.text,
-                    questionImage: this.currentItem.image || null,
-                    rebusImages: this.currentItem.rebusImages || null,
-                    difficulty: this.currentItem.difficulty !== undefined ? this.currentItem.difficulty : 1,
-                    options: this.currentOptions || this.currentItem.options || null,
-                    answer: this.answerRevealed ? this.currentItem.answer : null,
-                });
-            
-            TriviaDataService.setGameState(base);
+            }, 50);
         },
         async removePlayer(pid) {
             const result = await Swal.fire({

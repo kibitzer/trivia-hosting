@@ -227,8 +227,7 @@
             // --- UI Helpers ---
             isCorrectOption(opt) {
                 if (!opt || !this.gameState.answerRevealed) return false;
-                const correct = this.gameState.answer;
-                return correct === opt || (correct && correct.startsWith(opt.charAt(0) + ')'));
+                return TriviaDataService.checkAnswer(opt, this.gameState.answer);
             },
 
             isMyWrongOption(opt) {

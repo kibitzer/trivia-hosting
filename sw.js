@@ -1,6 +1,24 @@
 // sw.js - Basic Service Worker for PWA
-const CACHE_NAME = 'trivia-v1';
-const ASSETS = ['./player.html', './host/host.html', './shared/styles.css', './manifest.json'];
+const CACHE_NAME = 'trivia-v1.1';
+const ASSETS = [
+    './',
+    './player.html',
+    './host/host.html',
+    './host/dashboard.html',
+    './host/editor.html',
+    './host/login.html',
+    './shared/styles.css',
+    './shared/head-helper.js',
+    './shared/version.js',
+    './shared/ui-components.js',
+    './shared/data-service.js',
+    './shared/firebase-helper.js',
+    './shared/quiz-parser.js',
+    './shared/ai-helper.js',
+    './config/firebase-config.js',
+    './manifest.json',
+    './images/favicon.svg'
+];
 
 self.addEventListener('install', (event) => {
     event.waitUntil(

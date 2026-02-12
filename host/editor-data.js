@@ -48,11 +48,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
         },
 
         _normalizeString(s) {
-            if (typeof s !== 'string') return s;
-            // Trim and strip legacy prefixes like 'A) ', 'a) ', '1. ', etc.
-            return s.trim()
-                .replace(/^[A-Fa-f0-9][).]\s*/, '')
-                .trim();
+            return TriviaDataService.normalizeString(s);
         },
 
         // --- Computed ---
@@ -659,8 +655,11 @@ window.createEditorData = function (firebase, db, auth, storage) {
                 this.quizzes[this.editingQuizId] = localCopy;
 
                 this.statusMsg = '✓ Saved';
-            } catch {
+                TriviaUI.notifySuccess('Quiz saved successfully');
+            } catch (err) {
+                console.error('[Editor] Save failed:', err);
                 this.statusMsg = '❌ Save failed';
+                TriviaUI.notifyError('Save Failed', 'Could not save the quiz to Firebase.');
             }
         },
 
@@ -676,7 +675,8 @@ window.createEditorData = function (firebase, db, auth, storage) {
             });
 
             if (result.isConfirmed) {
-                TriviaDataService.quizRef(id).remove();
+                await TriviaDataService.quizRef(id).remove();
+                TriviaUI.notifySuccess('Quiz deleted');
                 if (this.editingQuizId === id) this.closeEditor();
             }
         },

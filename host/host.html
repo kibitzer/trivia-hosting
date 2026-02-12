@@ -4,12 +4,10 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Trivia Host Control Panel</title>
-        <link rel="icon" type="image/svg+xml" href="../images/favicon.svg" />
-        <link rel="manifest" href="../manifest.json" />
-        <meta name="theme-color" content="#1565c0" />
 
-        <!-- Cache Busting for CSS -->
-        <link rel="stylesheet" href="../shared/styles.css?v=1.6" />
+        <!-- Shared Head Helper (Dependencies) -->
+        <script src="../shared/head-helper.js"></script>
+
         <style>
             .container {
                 display: grid;
@@ -426,30 +424,9 @@
             </div>
         </div>
 
-        <!-- SCRIPT LOADING (CRITICAL ORDER) -->
-        <!-- 0. Version Info -->
-        <script src="../shared/version.js"></script>
-        <script src="../shared/ui-components.js"></script>
-        <script src="../shared/data-service.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <!-- 1. Firebase Compat Libraries -->
-        <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-performance-compat.js"></script>
-
-        <!-- 2. Firebase Configuration & Helper -->
-        <script src="../config/firebase-config.js?v=cachebust-fix"></script>
-        <script src="../shared/firebase-helper.js"></script>
-        <script src="../shared/quiz-parser.js"></script>
-
-        <!-- 3. Application Logic (No Module, No Defer) -->
+        <!-- Application Logic (No Module, No Defer) -->
         <script src="host-data.js?v=1.5"></script>
         <script src="host-alpine.js?v=1.5"></script>
-
-        <!-- 4. Alpine.js (Defer ensures it waits for the scripts above to register listeners) -->
-        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
         <script>
             // Initialize Version

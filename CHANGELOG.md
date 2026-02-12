@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.15] - 2026-02-12
+
+### Added
+
+- **Architecture**: Introduced `shared/head-helper.js` to modularise and centralise dependency loading (Firebase, Alpine.js, SweetAlert2) across all views.
+- **UI Components**: Added `TriviaUI.notifyError` and `TriviaUI.notifySuccess` for standardised user feedback via SweetAlert2.
+- **Data Service**: Added aggressive and mild normalization utilities to `TriviaDataService` to unify answer checking and string cleaning.
+
+### Changed
+
+- **Performance**: Debounced game state synchronisation in the Host Control Panel (50ms) to batch Firebase writes.
+- **Error Handling**: Implemented comprehensive error boundaries for Firebase operations with user-facing notifications.
+- **Service Worker**: Expanded the precache list in `sw.js` to include all application pages and shared helpers for better offline reliability.
+
+### Removed
+
+- **Tech Debt**: Deleted the unused and orphaned `data.ts` TypeScript interface file.
+- **Redundancy**: Removed hundreds of lines of duplicate script and meta tags from across all HTML files.
+
 ## [0.7.14] - 2026-02-09
 
 ### Changed

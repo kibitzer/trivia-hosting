@@ -4,26 +4,15 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Trivia Night - Play!</title>
-        <link rel="icon" type="image/svg+xml" href="images/favicon.svg" />
 
-        <link rel="manifest" href="manifest.json" />
-        <meta name="theme-color" content="#1565c0" />
         <link
             rel="apple-touch-icon"
             href="https://cdn-icons-png.flaticon.com/512/3407/3407024.png"
         />
 
-        <!-- Firebase -->
-        <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-performance-compat.js"></script>
+        <!-- Shared Head Helper (Dependencies) -->
+        <script src="shared/head-helper.js"></script>
 
-        <!-- Alpine.js -->
-        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-        <link rel="stylesheet" href="shared/styles.css?v=1.6" />
         <style>
             .container {
                 max-width: 500px;
@@ -461,12 +450,6 @@
             </div>
         </div>
 
-        <!-- Shared Logic -->
-        <script src="shared/version.js"></script>
-        <script src="shared/ui-components.js"></script>
-        <script src="shared/data-service.js"></script>
-        <script src="config/firebase-config.js?v=cachebust-fix"></script>
-        <script src="shared/firebase-helper.js"></script>
         <!-- Application Logic -->
         <script src="player-alpine.js?v=1.3"></script>
         <script>

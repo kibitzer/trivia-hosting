@@ -2,6 +2,7 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import '../shared/ui-components.js';
 import '../shared/data-service.js';
 import '../host/editor-data.js';
 

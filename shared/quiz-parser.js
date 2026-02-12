@@ -79,18 +79,16 @@ window.QuizParser = {
 
                 if (newQ.questionType === 'MC') {
                     const rawOptions = item.options || [];
-                    newQ.options = rawOptions.map((o) => o.replace(/^[A-D]\)\s*/, ''));
+                    newQ.options = rawOptions.map((o) => TriviaDataService.normalizeString(o));
 
                     let correct = item.correctAnswer || item.answer;
-                    if (correct && typeof correct === 'string')
-                        correct = correct.replace(/^[A-D]\)\s*/, '');
-                    newQ.answer = correct;
+                    newQ.answer = TriviaDataService.normalizeString(correct);
                 } else {
                     newQ.answer = Array.isArray(item.correctAnswer)
                         ? item.correctAnswer[0]
                         : item.correctAnswer;
                     newQ.acceptedAnswers = Array.isArray(item.correctAnswer)
-                        ? item.correctAnswer.map((a) => a.toLowerCase())
+                        ? item.correctAnswer.map((a) => String(a || '').toLowerCase())
                         : [String(item.correctAnswer || '').toLowerCase()];
                 }
                 slides.push(newQ);
@@ -181,18 +179,15 @@ window.QuizParser = {
 
                 if (newQ.questionType === 'MC') {
                     const rawOptions = item.options || [];
-                    newQ.options = rawOptions.map((o) => o.replace(/^[A-D]\)\s*/, ''));
+                    newQ.options = rawOptions.map((o) => TriviaDataService.normalizeString(o));
                     let correct = item.correctAnswer || item.answer;
-                    // If answer is index (0-3) or string?
-                    if (correct && typeof correct === 'string')
-                        correct = correct.replace(/^[A-D]\)\s*/, '');
-                    newQ.answer = correct;
+                    newQ.answer = TriviaDataService.normalizeString(correct);
                 } else {
                     newQ.answer = Array.isArray(item.correctAnswer)
                         ? item.correctAnswer[0]
                         : item.correctAnswer;
                     newQ.acceptedAnswers = Array.isArray(item.correctAnswer)
-                        ? item.correctAnswer.map((a) => a.toLowerCase())
+                        ? item.correctAnswer.map((a) => String(a || '').toLowerCase())
                         : [String(item.correctAnswer || '').toLowerCase()];
                 }
                 questions.push(newQ);

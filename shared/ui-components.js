@@ -94,5 +94,34 @@ window.TriviaUI = {
             'Hard': '#dc2626'  // Danger (Red)
         };
         return colors[value] || 'var(--color-text-muted)';
+    },
+
+    /**
+     * Component: Error Notification
+     */
+    notifyError(title, message) {
+        if (typeof Swal === 'undefined') return console.error(title, message);
+        return Swal.fire({
+            icon: 'error',
+            title: title || 'Error',
+            text: message || 'An unexpected error occurred.',
+            confirmButtonColor: 'var(--color-primary)'
+        });
+    },
+
+    /**
+     * Component: Success Toast
+     */
+    notifySuccess(message) {
+        if (typeof Swal === 'undefined') return console.log('Success:', message);
+        return Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: message,
+            timer: 2000,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
     }
 };
