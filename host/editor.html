@@ -396,20 +396,29 @@
                                     </div>
                                 </template>
                             </div>
-                            <div style="display: flex; gap: 0.5rem; margin-top: 1rem; position: sticky; bottom: 0; background: var(--color-bg); padding-top: 0.5rem">
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; position: sticky; bottom: 0; background: var(--color-bg); padding-top: 0.5rem">
+                                <div style="display: flex; gap: 0.5rem">
+                                    <button
+                                        @click="addQuestion()"
+                                        class="btn btn-primary"
+                                        style="flex: 1"
+                                    >
+                                        + Question
+                                    </button>
+                                    <button
+                                        @click="addRound()"
+                                        class="btn btn-secondary"
+                                        style="flex: 1"
+                                    >
+                                        + Round
+                                    </button>
+                                </div>
                                 <button
-                                    @click="addQuestion()"
-                                    class="btn btn-primary"
-                                    style="flex: 1"
-                                >
-                                    + Question
-                                </button>
-                                <button
-                                    @click="addRound()"
+                                    @click="showQuestionBank = true"
                                     class="btn btn-secondary"
-                                    style="flex: 1"
+                                    style="width: 100%; border-style: dashed; border-color: var(--color-primary); color: var(--color-primary)"
                                 >
-                                    + Round
+                                    📂 Question Bank
                                 </button>
                             </div>
                         </div>
@@ -899,6 +908,67 @@
                 <!-- Closing wrapper and template -->
                     </div>
                 </template>
+            </div>
+
+            <!-- Question Bank Modal -->
+            <div
+                class="modal-backdrop"
+                x-show="showQuestionBank"
+                x-cloak
+                @click.self="showQuestionBank = false"
+            >
+                <div class="modal-content" style="max-width: 800px; height: 80vh; display: flex; flex-direction: column; padding: 2rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem">
+                        <h2 style="margin: 0; color: var(--color-primary)">📂 Question Bank</h2>
+                        <button @click="showQuestionBank = false" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+                    </div>
+
+                    <div class="input-group" style="margin-bottom: 1.5rem">
+                        <input 
+                            type="text" 
+                            x-model="bankSearchQuery" 
+                            placeholder="Search by question text or tags..." 
+                            style="font-size: 1rem; padding: 0.75rem 1rem;"
+                        >
+                    </div>
+
+                    <div style="flex: 1; overflow-y: auto; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-bg);">
+                        <template x-if="filteredBankQuestions.length === 0">
+                            <div style="padding: 3rem; text-align: center; color: var(--color-text-muted);">
+                                No questions found matching your search.
+                            </div>
+                        </template>
+                        <template x-for="q in filteredBankQuestions" :key="q.id">
+                            <div 
+                                style="padding: 1rem; border-bottom: 1px solid var(--color-border); background: white; display: flex; justify-content: space-between; align-items: start; gap: 1rem;"
+                            >
+                                <div style="flex: 1">
+                                    <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem">
+                                        <span class="text-xs" style="background: #e2e8f0; padding: 0.1rem 0.5rem; border-radius: 4px; font-weight: 700; text-transform: uppercase;" x-text="q.type"></span>
+                                        <span class="text-xs" style="background: #f1f5f9; padding: 0.1rem 0.5rem; border-radius: 4px; font-weight: 700;" x-text="q.difficulty"></span>
+                                    </div>
+                                    <div style="font-weight: 600; margin-bottom: 0.5rem" x-text="q.question"></div>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 0.25rem">
+                                        <template x-for="tag in (q.tags || [])" :key="tag">
+                                            <span class="text-xs" style="color: var(--color-primary); font-weight: 700;" x-text="'#' + tag"></span>
+                                        </template>
+                                    </div>
+                                </div>
+                                <button 
+                                    @click="addQuestionFromBank(q.id)" 
+                                    class="btn btn-primary btn-sm"
+                                    style="white-space: nowrap"
+                                >
+                                    + Add to Quiz
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div style="margin-top: 1.5rem; text-align: right">
+                        <button @click="showQuestionBank = false" class="btn btn-secondary">Close</button>
+                    </div>
+                </div>
             </div>
 
             <!-- Settings Modal -->

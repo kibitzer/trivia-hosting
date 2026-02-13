@@ -12,6 +12,13 @@
                 ".validate": "newData.hasChildren(['title', 'questions'])"
             }
         },
+        "questions": {
+            ".read": "auth != null",
+            ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",
+            "$questionId": {
+                ".validate": "newData.hasChildren(['question', 'type', 'correctAnswer'])"
+            }
+        },
         "players": {
             ".read": "auth != null",
             ".write": "auth != null && auth.token.firebase.sign_in_provider != 'anonymous'",

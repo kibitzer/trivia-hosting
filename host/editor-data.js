@@ -4,6 +4,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
         loading: false,
         dataLoaded: false,
         quizzes: {},
+        globalQuestions: {}, // New: Pool for the question bank
         editingQuizId: null,
         // Initialize with safe defaults to prevent Alpine crash
         currentQuiz: {
@@ -27,6 +28,8 @@ window.createEditorData = function (firebase, db, auth, storage) {
         autosaveTimeout: null,
         showSettings: false,
         showGameOptions: false,
+        showQuestionBank: false, // New: UI state
+        bankSearchQuery: '', // New: UI state
         sortConfig: {
             column: 'updatedAt',
             direction: 'desc',
@@ -58,7 +61,24 @@ window.createEditorData = function (firebase, db, auth, storage) {
             this.currentQuiz.questions.forEach(q => {
                 if (q && q.tags) q.tags.forEach(t => tags.add(t));
             });
+            // Also include tags from global pool for suggestions
+            Object.values(this.globalQuestions).forEach(q => {
+                if (q && q.tags) q.tags.forEach(t => tags.add(t));
+            });
             return Array.from(tags).sort();
+        },
+
+        get filteredBankQuestions() {
+            const query = this.bankSearchQuery.toLowerCase().trim();
+            const list = Object.entries(this.globalQuestions).map(([id, data]) => ({ id, ...data }));
+            
+            if (!query) return list;
+            
+            return list.filter(q => {
+                const text = (q.question || '').toLowerCase();
+                const tags = (q.tags || []).join(' ').toLowerCase();
+                return text.includes(query) || tags.includes(query);
+            });
         },
 
         get sortedQuizzes() {
@@ -102,20 +122,53 @@ window.createEditorData = function (firebase, db, auth, storage) {
             auth.onAuthStateChanged((user) => {
                 if (user && !user.isAnonymous) {
                     this.isAuthenticated = true;
+                    
+                    // Load global questions pool
+                    TriviaDataService.questionsRef.on('value', (snap) => {
+                        this.globalQuestions = snap.val() || {};
+                    });
+
                     const urlParams = new URLSearchParams(window.location.search);
                     const quizId = urlParams.get('quizId');
                     console.log('[Editor] Auth confirmed, quizId:', quizId);
                     
                     if (quizId) {
-                        TriviaDataService.quizRef(quizId).on('value', (snap) => {
+                        TriviaDataService.quizRef(quizId).on('value', async (snap) => {
                             const data = snap.val();
                             console.log('[Editor] Quiz data loaded:', { quizId, dataExists: !!data });
                             
                             if (data) {
-                                this.quizzes[quizId] = data;
-                                
-                                if (!this.editingQuizId) {
-                                    this.editQuiz(quizId);
+                                // Resolve string IDs to objects from the pool we are already listening to
+                                if (data.questions && data.questions.some(q => typeof q === 'string')) {
+                                    // We might need to wait for globalQuestions to be populated
+                                    // but usually it's fast. Let's make it robust.
+                                    const resolve = () => {
+                                        data.questions = data.questions.map(q => {
+                                            if (typeof q === 'string') {
+                                                return this.globalQuestions[q] ? { id: q, ...this.globalQuestions[q] } : q;
+                                            }
+                                            return q;
+                                        });
+                                        this.quizzes[quizId] = data;
+                                        if (!this.editingQuizId) {
+                                            this.editQuiz(quizId);
+                                        }
+                                    };
+
+                                    if (Object.keys(this.globalQuestions).length === 0) {
+                                        // Wait once for global questions if they haven't arrived yet
+                                        TriviaDataService.questionsRef.once('value', (qSnap) => {
+                                            this.globalQuestions = qSnap.val() || {};
+                                            resolve();
+                                        });
+                                    } else {
+                                        resolve();
+                                    }
+                                } else {
+                                    this.quizzes[quizId] = data;
+                                    if (!this.editingQuizId) {
+                                        this.editQuiz(quizId);
+                                    }
                                 }
                                 this.waitingForAuth = false;
                             } else {
@@ -517,6 +570,21 @@ window.createEditorData = function (firebase, db, auth, storage) {
             this.triggerAutosave();
         },
 
+        addQuestionFromBank(id) {
+            const globalQ = this.globalQuestions[id];
+            if (!globalQ) return;
+            
+            // Clone the question to avoid accidental side effects during editing
+            const newQ = JSON.parse(JSON.stringify(globalQ));
+            newQ.id = id; // Ensure ID is preserved
+            
+            this.currentQuiz.questions.push(newQ);
+            this.renumberSlides();
+            this.selectedQuestionIndex = this.currentQuiz.questions.length - 1;
+            this.showQuestionBank = false;
+            this.triggerAutosave();
+        },
+
         async removeQuestion(index) {
             const result = await Swal.fire({
                 title: 'Remove Question?',
@@ -547,54 +615,62 @@ window.createEditorData = function (firebase, db, auth, storage) {
             this.renumberSlides();
             let validationError = null;
 
-            this.currentQuiz.questions.forEach((q) => {
+            // Prepare a copy of the quiz for saving, where questions are replaced by IDs
+            const quizToSave = JSON.parse(JSON.stringify(this.currentQuiz));
+            
+            // Ensure settings exist on the saved object
+            if (!quizToSave.settings) {
+                quizToSave.settings = {
+                    speedScoring: true,
+                    autoReveal: true,
+                    defaultTimer: 20,
+                    continuousScoreboard: true,
+                    randomizeOptions: false,
+                    enableCountdown: true,
+                    countdownDuration: 3,
+                };
+            }
+            
+            const questionsPoolUpdates = {};
+
+            this.currentQuiz.questions.forEach((q, index) => {
                 if (q.type === 'round-title') {
                     const normTitle = this._normalizeString(q.title);
                     if (q.title !== normTitle) q.title = normTitle;
                     
-                    delete q.question;
-                    delete q.options;
-                    delete q.correctAnswer;
-                    // Do not delete notes, they might be used in the future or by custom themes
-                    delete q.timer;
-                    delete q.tags;
-                    delete q.category;
-                    delete q.factCheckingRequired;
-                    delete q.factCheckingSource;
-                } else {
-                    delete q.category; // Ensure legacy field is removed
+                    const qCopy = JSON.parse(JSON.stringify(q));
+                    delete qCopy.question;
+                    delete qCopy.options;
+                    delete qCopy.correctAnswer;
+                    delete qCopy.timer;
+                    delete qCopy.tags;
+                    delete qCopy.category;
+                    delete qCopy.factCheckingRequired;
+                    delete qCopy.factCheckingSource;
                     
-                    // Final normalization pass without redundant assignments to avoid Alpine re-renders
+                    quizToSave.questions[index] = qCopy;
+                } else {
+                    // Standard question: prepare for global pool
                     const normQ = this._normalizeString(q.question);
                     if (q.question !== normQ) q.question = normQ;
 
                     if (q.options) {
-                        const normOptions = q.options.map(o => this._normalizeString(o));
-                        // Check if options actually changed before replacing the array
-                        if (JSON.stringify(q.options) !== JSON.stringify(normOptions)) {
-                            q.options = normOptions;
-                        }
+                        q.options = q.options.map(o => this._normalizeString(o));
                     }
 
                     if (q.correctAnswer && typeof q.correctAnswer === 'string') {
-                        const normCA = this._normalizeString(q.correctAnswer);
-                        if (q.correctAnswer !== normCA) q.correctAnswer = normCA;
+                        q.correctAnswer = this._normalizeString(q.correctAnswer);
                     } else if (Array.isArray(q.correctAnswer)) {
-                        // Filter out empty strings for short answers
-                        const normCA = q.correctAnswer
+                        q.correctAnswer = q.correctAnswer
                             .map(a => this._normalizeString(a))
                             .filter(a => a && a.trim() !== '');
-                        if (JSON.stringify(q.correctAnswer) !== JSON.stringify(normCA)) {
-                            q.correctAnswer = normCA;
-                        }
                     }
 
-                    // Normalize fact checking source
                     if (q.factCheckingSource !== undefined) {
                         q.factCheckingSource = String(q.factCheckingSource).trim();
                     }
 
-                    // Validation: Must have a correct answer
+                    // Validation
                     const hasAnswer =
                         q.correctAnswer !== undefined &&
                         q.correctAnswer !== null &&
@@ -605,51 +681,56 @@ window.createEditorData = function (firebase, db, auth, storage) {
                     if (!hasAnswer) {
                         validationError = `Question ${q.questionNumber || 'unknown'} is missing a correct answer.`;
                     } else if (q.type === 'multiple' && q.options) {
-                        // Check if exact match exists
                         if (!q.options.includes(q.correctAnswer)) {
-                            // SELF-HEALING: Try to find a match via normalization
                             const match = q.options.find(o => this._normalizeString(o) === this._normalizeString(q.correctAnswer));
-                            if (match) {
-                                q.correctAnswer = match;
-                            } else {
-                                console.error('MC Validation Failed:', {
-                                    question: q.questionNumber,
-                                    correctAnswer: q.correctAnswer,
-                                    options: q.options
-                                });
-                                validationError = `Question ${q.questionNumber || 'unknown'}: The correct answer is not in the options list.`;
-                            }
+                            if (match) q.correctAnswer = match;
+                            else validationError = `Question ${q.questionNumber || 'unknown'}: The correct answer is not in the options list.`;
                         }
+                    }
+
+                    if (!validationError) {
+                        // Prepare the question object for the global pool
+                        const globalQ = JSON.parse(JSON.stringify(q));
+                        const qId = globalQ.id || this._generateId();
+                        globalQ.id = qId;
+                        globalQ.updatedAt = firebase.database.ServerValue.TIMESTAMP;
+                        
+                        // Metadata for the quiz only
+                        delete globalQ.questionNumber;
+                        // But we want to keep timer/difficulty/tags in the global object?
+                        // Yes, they are properties of the question itself.
+
+                        questionsPoolUpdates[qId] = globalQ;
+                        quizToSave.questions[index] = qId; // Store ONLY the ID in the quiz
                     }
                 }
             });
 
             if (validationError) {
                 this.statusMsg = '⚠️ ' + validationError;
-                
-                // CRITICAL: Update the local cache even on validation failure
-                // This ensures the UI doesn't "revert" to old data while the user is still fixing it
                 const localCopy = JSON.parse(JSON.stringify(this.currentQuiz));
                 localCopy.updatedAt = Date.now();
                 this.quizzes[this.editingQuizId] = localCopy;
-
-                // Keep the error visible for a while
                 setTimeout(() => {
-                    if (this.statusMsg.includes('⚠️')) {
-                         this.statusMsg = '⚠️ Unsaved - Check slides';
-                    }
+                    if (this.statusMsg.includes('⚠️')) this.statusMsg = '⚠️ Unsaved - Check slides';
                 }, 5000);
                 return;
             }
 
             const now = Date.now();
-            this.currentQuiz.updatedAt = firebase.database.ServerValue.TIMESTAMP;
+            quizToSave.updatedAt = firebase.database.ServerValue.TIMESTAMP;
+            
             try {
-                await TriviaDataService.quizRef(this.editingQuizId).set(this.currentQuiz);
+                // Save questions to pool first (or in parallel)
+                const poolPromises = Object.entries(questionsPoolUpdates).map(([id, data]) => 
+                    TriviaDataService.questionRef(id).set(data)
+                );
+                await Promise.all(poolPromises);
 
-                // CRITICAL: Update the local cache so that slide switching doesn't revert to old data
-                // before the Firebase listener catches up.
-                // We use a numerical timestamp for the local cache to avoid "Invalid Date" in UI
+                // Save the quiz structure
+                await TriviaDataService.quizRef(this.editingQuizId).set(quizToSave);
+
+                // Update local cache
                 const localCopy = JSON.parse(JSON.stringify(this.currentQuiz));
                 localCopy.updatedAt = now;
                 this.quizzes[this.editingQuizId] = localCopy;

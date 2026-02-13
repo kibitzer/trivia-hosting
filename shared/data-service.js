@@ -17,11 +17,13 @@ window.TriviaDataService = {
     get playersRef() { return this.db.ref('players'); },
     get answersRef() { return this.db.ref('answers'); },
     get quizzesRef() { return this.db.ref('quizzes'); },
+    get questionsRef() { return this.db.ref('questions'); },
 
     // --- Specific Refs ---
 
     playerRef(id) { return this.db.ref(`players/${id}`); },
     quizRef(id) { return this.db.ref(`quizzes/${id}`); },
+    questionRef(id) { return this.db.ref(`questions/${id}`); },
     answersForQuestionRef(qNum) { return this.db.ref(`answers/${qNum}`); },
     
     // --- Operations ---

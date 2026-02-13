@@ -103,9 +103,27 @@ window.createHostData = function (firebase, db, auth, analytics) {
 
                         // Load the specific quiz if ID is provided
                         if (this.selectedQuizId) {
-                            TriviaDataService.quizRef(this.selectedQuizId).once('value', (snap) => {
-                                const data = snap.val();
+                            TriviaDataService.quizRef(this.selectedQuizId).once('value', async (snap) => {
+                                let data = snap.val();
                                 if (data) {
+                                    // Resolve top-level questions if any
+                                    if (data.questions && data.questions.some(q => typeof q === 'string')) {
+                                        const globalQuestionsSnap = await TriviaDataService.questionsRef.once('value');
+                                        const globalQuestions = globalQuestionsSnap.val() || {};
+                                        
+                                        data.questions = data.questions.map(q => {
+                                            if (typeof q === 'string') {
+                                                if (globalQuestions[q]) {
+                                                    return { id: q, ...globalQuestions[q] };
+                                                } else {
+                                                    console.warn(`[Host] Question ${q} not found in global pool`);
+                                                    return { type: 'short', question: '[Missing Question]', correctAnswer: '???' };
+                                                }
+                                            }
+                                            return q;
+                                        });
+                                    }
+
                                     this.quizData = QuizParser.toFlatSlides(data);
                                     
                                     if (data.settings) {
