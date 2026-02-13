@@ -263,7 +263,8 @@ window.createEditorData = function (firebase, db, auth, storage) {
             if (!file) return;
 
             // If storage is not available, or we want to bypass CORS/Blaze (Localhost or GH Pages without config)
-            const useBase64 = !storage || window.location.hostname === 'localhost' || window.location.hostname.includes('github.io');
+            const hostname = window.location.hostname;
+            const useBase64 = !storage || hostname === 'localhost' || hostname === '127.0.0.1' || hostname.endsWith('.github.io');
 
             if (useBase64) {
                 if (file.size > 1 * 1024 * 1024) {
