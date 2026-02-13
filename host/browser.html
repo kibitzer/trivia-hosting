@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Question Browser - Trivia Night</title>
+
+        <!-- Shared Head Helper (Dependencies) -->
+        <script src="../shared/head-helper.js"></script>
+
+        <style>
+            body {
+                background: var(--color-bg);
+            }
+            .browser-layout {
+                display: grid;
+                grid-template-columns: 300px 1fr;
+                gap: 2rem;
+                margin-top: 2rem;
+                height: calc(100vh - 150px);
+            }
+            .sidebar {
+                background: var(--color-surface);
+                padding: 1.5rem;
+                border-radius: var(--radius-lg);
+                border: 1px solid var(--color-border);
+                overflow-y: auto;
+                box-shadow: var(--shadow-sm);
+            }
+            .main-content {
+                display: flex;
+                flex-direction: column;
+                gap: 1.5rem;
+                overflow-y: auto;
+                padding-right: 0.5rem;
+            }
+            .question-card {
+                background: var(--color-surface);
+                padding: 1.5rem;
+                border-radius: var(--radius-lg);
+                border: 1px solid var(--color-border);
+                box-shadow: var(--shadow-sm);
+                transition: transform 0.2s, box-shadow 0.2s;
+                position: relative;
+            }
+            .question-card:hover {
+                box-shadow: var(--shadow-md);
+                border-color: var(--color-primary);
+            }
+            .filter-group {
+                margin-bottom: 2rem;
+            }
+            .filter-label {
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                font-weight: 800;
+                color: var(--color-text-muted);
+                letter-spacing: 0.05em;
+                margin-bottom: 1rem;
+                display: block;
+            }
+            .tag-pill {
+                display: inline-block;
+                padding: 0.25rem 0.75rem;
+                border-radius: var(--radius-full);
+                font-size: 0.875rem;
+                font-weight: 600;
+                background: var(--color-bg);
+                color: var(--color-secondary);
+                cursor: pointer;
+                border: 1px solid transparent;
+                margin: 0.25rem;
+                transition: all 0.2s;
+            }
+            .tag-pill:hover {
+                background: #e2e8f0;
+            }
+            .tag-pill.active {
+                background: var(--color-primary);
+                color: white;
+            }
+            .badge {
+                font-size: 0.7rem;
+                font-weight: 800;
+                text-transform: uppercase;
+                padding: 0.2rem 0.6rem;
+                border-radius: 4px;
+                letter-spacing: 0.05em;
+            }
+            .badge-difficulty { background: #f1f5f9; color: var(--color-secondary); }
+            .badge-type { background: #e0f2fe; color: #0369a1; }
+            
+            .empty-state {
+                text-align: center;
+                padding: 5rem 2rem;
+                background: var(--color-surface);
+                border-radius: var(--radius-lg);
+                border: 2px dashed var(--color-border);
+                color: var(--color-text-muted);
+            }
+        </style>
+    </head>
+    <body x-data="questionBrowser">
+        <div class="container" x-cloak>
+            <!-- Auth Loading -->
+            <div x-show="waitingForAuth" style="text-align: center; padding: 4rem;">
+                <div style="font-size: 3rem; margin-bottom: 1rem; animation: pulse 1.5s infinite;">⏳</div>
+                <p class="text-muted">Verifying Authentication...</p>
+            </div>
+
+            <div x-show="!waitingForAuth">
+                <!-- Header -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <button @click="backToDashboard()" class="btn btn-secondary">← Dashboard</button>
+                        <h1 style="margin: 0;">Question Browser</h1>
+                    </div>
+                    <div class="text-muted text-sm font-bold" x-text="'v' + appVersion"></div>
+                </div>
+
+                <!-- Search Bar -->
+                <div style="position: relative; margin-bottom: 2rem;">
+                    <input 
+                        type="text" 
+                        x-model="searchQuery" 
+                        placeholder="Search questions by text or tags..." 
+                        style="padding: 1rem 1.5rem; font-size: 1.125rem; box-shadow: var(--shadow-sm);"
+                    >
+                </div>
+
+                <div class="browser-layout">
+                    <!-- Sidebar Filters -->
+                    <aside class="sidebar">
+                        <div class="filter-group">
+                            <span class="filter-label">Difficulty</span>
+                            <select x-model="selectedDifficulty">
+                                <option value="All">All Difficulties</option>
+                                <option value="Easy">Easy</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Hard">Hard</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <span class="filter-label">Type</span>
+                            <select x-model="selectedType">
+                                <option value="All">All Types</option>
+                                <option value="multiple">Multiple Choice</option>
+                                <option value="short">Short Answer</option>
+                                <option value="rebus">Rebus</option>
+                                <option value="true-false">True / False</option>
+                                <option value="identify">Identify</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <span class="filter-label">Tags</span>
+                            <div style="margin: -0.25rem;">
+                                <template x-for="tag in allTags" :key="tag">
+                                    <span 
+                                        class="tag-pill" 
+                                        :class="{ 'active': selectedTags.includes(tag) }"
+                                        @click="toggleTag(tag)"
+                                        x-text="tag"
+                                    ></span>
+                                </template>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 2rem; border-top: 1px solid var(--color-border); padding-top: 1rem;">
+                            <p class="text-xs text-muted" style="font-weight: 700;">
+                                <span x-text="filteredQuestions.length"></span> questions found
+                            </p>
+                            <button 
+                                @click="selectedDifficulty = 'All'; selectedType = 'All'; selectedTags = []; searchQuery = ''"
+                                class="btn btn-secondary text-sm"
+                                style="width: 100%; margin-top: 0.5rem;"
+                            >
+                                Clear All Filters
+                            </button>
+                        </div>
+                    </aside>
+
+                    <!-- Main List -->
+                    <main class="main-content">
+                        <template x-if="loading">
+                            <div style="text-align: center; padding: 5rem;">
+                                <div style="font-size: 2rem; animation: spin 2s linear infinite;">🔄</div>
+                                <p class="text-muted">Loading Questions...</p>
+                            </div>
+                        </template>
+
+                        <template x-if="!loading && filteredQuestions.length === 0">
+                            <div class="empty-state">
+                                <div style="font-size: 3rem; margin-bottom: 1.5rem;">🔍</div>
+                                <h2>No questions found</h2>
+                                <p>Try adjusting your search or filters to see more results.</p>
+                            </div>
+                        </template>
+
+                        <template x-for="q in filteredQuestions" :key="q.id">
+                            <div class="question-card">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        <span class="badge badge-type" x-text="q.type === 'multiple' ? 'Multiple Choice' : (q.type === 'short' ? 'Short Answer' : q.type)"></span>
+                                        <span class="badge badge-difficulty" x-text="q.difficulty"></span>
+                                    </div>
+                                    <button @click="deleteQuestion(q.id)" class="btn btn-sm" style="color: var(--color-danger); border: none; padding: 0.25rem;">🗑️</button>
+                                </div>
+
+                                <h3 style="margin: 0 0 1rem 0; font-size: 1.1rem; line-height: 1.5;" x-text="q.question"></h3>
+
+                                <div x-show="q.type === 'multiple'" style="margin-bottom: 1rem; background: var(--color-bg); padding: 1rem; border-radius: var(--radius-md);">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                        <template x-for="opt in (q.options || [])" :key="opt">
+                                            <div style="font-size: 0.875rem; font-weight: 600;" :style="opt === q.correctAnswer ? 'color: var(--color-success)' : 'color: var(--color-text-muted)'">
+                                                <span x-text="opt === q.correctAnswer ? '✓ ' : '• '"></span>
+                                                <span x-text="opt"></span>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <div x-show="q.type !== 'multiple'" style="margin-bottom: 1rem; font-size: 0.875rem;">
+                                    <span class="text-muted" style="font-weight: 700;">Answer:</span>
+                                    <span style="font-weight: 600; color: var(--color-success);" x-text="Array.isArray(q.correctAnswer) ? q.correctAnswer.join(', ') : q.correctAnswer"></span>
+                                </div>
+
+                                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                    <template x-for="tag in (q.tags || [])" :key="tag">
+                                        <span class="badge" style="background: #f1f5f9; color: var(--color-primary); border-radius: var(--radius-full);" x-text="'#' + tag"></span>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </main>
+                </div>
+            </div>
+        </div>
+
+        <script src="browser-data.js"></script>
+        <script>
+            document.addEventListener('alpine:init', () => {
+                const fb = TriviaFirebase.init();
+                if (fb) {
+                    TriviaDataService.init(fb.db);
+                    Alpine.data('questionBrowser', () => 
+                        window.createBrowserData(fb.firebase, fb.db, fb.auth)
+                    );
+                }
+            });
+        </script>
+    </body>
+</html>
