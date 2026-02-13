@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.16] - 2026-02-13
+
+### Fixed
+- Resolved race condition in `head-helper.js` by using `document.write` for deferred scripts to ensure correct execution order.
+- Fixed E2E test failures on the dashboard by removing duplicate Alpine.js script tags.
+
 ## [0.7.15] - 2026-02-12
 
 ### Added

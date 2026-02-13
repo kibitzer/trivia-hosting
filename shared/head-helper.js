@@ -37,20 +37,12 @@
         { src: `${prefix}shared/firebase-helper.js` },
         { src: `${prefix}shared/quiz-parser.js` },
 
-        // Alpine.js (Must be last and defer)
-        { src: 'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js', defer: true },
+        // Alpine.js (Must be last)
+        { src: 'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js' },
     ];
 
     dependencies.forEach((dep) => {
-        const script = document.createElement('script');
-        script.src = dep.src;
-        if (dep.defer) {
-            script.defer = true;
-        } else {
-            script.async = false; // Ensure sequential execution for non-deferred scripts
-        }
-        document.head.appendChild(script);
+        const deferAttr = dep.defer || dep.src.includes('alpine') ? 'defer' : '';
+        document.write(`<script src="${dep.src}" ${deferAttr}></script>`);
     });
-
-    console.log('[HeadHelper] Common dependencies injected');
 })();
