@@ -29,6 +29,10 @@ window.createEditorData = function (firebase, db, auth, storage) {
         showSettings: false,
         showGameOptions: false,
         showQuestionBank: false, // New: UI state
+        showImportModal: false, // New: UI state
+        importInput: '', // New: UI state
+        importError: '', // New: UI state
+        importPreview: [], // New: UI state
         bankSearchQuery: '', // New: UI state
         sortConfig: {
             column: 'updatedAt',
@@ -584,6 +588,51 @@ window.createEditorData = function (firebase, db, auth, storage) {
             this.selectedQuestionIndex = this.currentQuiz.questions.length - 1;
             this.showQuestionBank = false;
             this.triggerAutosave();
+        },
+
+        previewImport() {
+            this.importError = '';
+            try {
+                this.importPreview = QuizParser.parseQuestions(this.importInput);
+                if (this.importPreview.length === 0) {
+                    this.importError = 'No valid questions found in input.';
+                }
+            } catch (e) {
+                this.importError = 'Failed to parse input: ' + e.message;
+            }
+        },
+
+        async performImport() {
+            if (this.importPreview.length === 0) return;
+            
+            this.statusMsg = '📥 Importing...';
+            try {
+                const updates = {};
+                
+                this.importPreview.forEach(q => {
+                    const id = this._generateId();
+                    q.id = id;
+                    q.updatedAt = firebase.database.ServerValue.TIMESTAMP;
+                    updates[id] = q;
+                });
+
+                // Batch save to global pool
+                const promises = Object.entries(updates).map(([id, data]) => 
+                    TriviaDataService.questionRef(id).set(data)
+                );
+                await Promise.all(promises);
+
+                this.statusMsg = `✓ Imported ${this.importPreview.length} questions`;
+                this.showImportModal = false;
+                this.importInput = '';
+                this.importPreview = [];
+                
+                TriviaUI.notifySuccess(`Successfully imported ${Object.keys(updates).length} questions to the bank.`);
+            } catch (err) {
+                console.error('Import failed', err);
+                this.importError = 'Database error: ' + err.message;
+                this.statusMsg = '❌ Import failed';
+            }
         },
 
         async removeQuestion(index) {

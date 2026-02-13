@@ -99,6 +99,67 @@ window.QuizParser = {
     },
 
     /**
+     * Parses a string (JSON or CSV) into an array of normalized question objects.
+     */
+    parseQuestions(input) {
+        if (!input || !input.trim()) return [];
+
+        let rawList = [];
+        const trimmed = input.trim();
+
+        // 1. Try JSON
+        if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+            try {
+                const parsed = JSON.parse(trimmed);
+                rawList = Array.isArray(parsed) ? parsed : (parsed.questions || [parsed]);
+            } catch (e) {
+                console.warn('JSON parse failed, falling back to CSV', e);
+            }
+        }
+
+        // 2. Fallback to CSV-like parsing if JSON failed or wasn't detected
+        if (rawList.length === 0) {
+            const lines = trimmed.split('\n');
+            lines.forEach(line => {
+                if (!line.trim() || line.startsWith('#')) return;
+                
+                // Simple CSV: Question,Type,Options(pipe separated),CorrectAnswer
+                const parts = line.split(',').map(p => p.trim());
+                if (parts.length >= 2) {
+                    rawList.push({
+                        question: parts[0],
+                        type: parts[1].toLowerCase() === 'mc' ? 'multiple' : 'short',
+                        options: parts[2] ? parts[2].split('|').map(o => o.trim()) : [],
+                        correctAnswer: parts[3] || ''
+                    });
+                }
+            });
+        }
+
+        // 3. Normalize each item
+        return rawList.map(item => {
+            // If it's a round-title, we might want to skip it for a general question import, 
+            // but let's allow it if present.
+            if (item.type === 'round-title') return item;
+
+            const isMC = ['multiple', 'MC', 'true-false'].includes(item.type) || item.questionType === 'MC';
+            
+            return {
+                type: isMC ? 'multiple' : 'short',
+                question: item.question || item.text || 'New Question?',
+                options: Array.isArray(item.options) ? item.options : [],
+                correctAnswer: item.correctAnswer || item.answer || '',
+                timer: parseInt(item.timer) || 20,
+                difficulty: item.difficulty || 'Medium',
+                tags: Array.isArray(item.tags) ? item.tags : (item.category ? [item.category] : []),
+                notes: item.notes || '',
+                factCheckingRequired: !!item.factCheckingRequired,
+                factCheckingSource: item.factCheckingSource || ''
+            };
+        });
+    },
+
+    /**
      * Internal: Converts the legacy/flat array format to the standard object format.
      */
     _parseFlatArrayToStructure(data, defaultTitle) {
