@@ -46,15 +46,16 @@ This file tracks planned features, UI improvements, and technical debt.
 - [x] **Fix Flaky Drag-and-Drop**: The current SortableJS implementation is flaky; improve stability and ensure reliable reordering.
 - [x] **Autosave**: Save changes to the current quiz draft automatically after every edit.
 - [x] **AI-Powered Options**: If a multiple choice question has only one option supplied, use Gemini to supply other likely options.
-- [ ] **Auto generate quiz**: Auto-generate a quiz based on heuristics: nbr of rounds, nbr of questions per round, round categories, expected age range of participants
-- [ ] **Question import**: Ability to import questions (just questions, not quizzes) from e.g. a CSV file
-- [x] **Settings**: Ability to save editor settings, such as autosave time
+- [x] **Bulk Question import**: Ability to import questions (just questions, not quizzes) from CSV or JSON files into the global pool.
+- [x] **Pagination**: Implement paging for the question bank and browser to handle large datasets.
+- [ ] **AI Quiz Generation**: Auto-generate a quiz based on heuristics: nbr of rounds, nbr of questions per round, round categories, expected age range of participants.
+- [x] **Editor Settings**: Ability to save editor settings, such as autosave time and UI preferences.
 
 ## Data Structure
 
-- [ ] **Decouple questions**: Questions should be entities on their own so they can be included in multiple quizzes.
-- [ ] **OpenTDB**: Possibility to include OpenTDB questions in database. If pulled in from OpenTDB, there should be an acknowledgement included whenever such a question is shown.
-- [ ] **Selection criteria**: Include selection criteria in each question: category, sub-category, difficulty, expected age range (likely to know answer)
+- [x] **Decoupled questions**: Questions are now entities in a global pool (`questions` node), allowing them to be shared across multiple quizzes.
+- [ ] **OpenTDB Integration**: Import and attribute questions from the Open Trivia Database (OpenTDB).
+- [ ] **Question Metadata**: Expand metadata for the global pool: category, sub-category, difficulty, and target age range.
 
 ## 🧹 Code Health
 
