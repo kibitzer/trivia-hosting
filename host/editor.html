@@ -1163,8 +1163,12 @@
         <script>
             function initRTE(el, field, initialValue) {
                 const data = Alpine.$data(el);
-                const q = data.currentQuiz.questions[data.selectedQuestionIndex];
-                if (!q) return;
+                
+                const updateContent = (val) => {
+                    if (el.content && el.content.innerHTML !== (val || '')) {
+                        el.content.innerHTML = val || '';
+                    }
+                };
 
                 // Clear previous content if any (Pell appends)
                 el.innerHTML = '';
@@ -1172,8 +1176,8 @@
                 const editor = pell.init({
                     element: el,
                     onChange: html => {
-                        // Only save if it actually changed to avoid infinite loops
-                        if (q[field] !== html) {
+                        const q = data.currentQuiz.questions[data.selectedQuestionIndex];
+                        if (q && q[field] !== html) {
                             q[field] = html;
                             data.triggerAutosave();
                         }
@@ -1181,7 +1185,20 @@
                     actions: ['bold', 'italic', 'underline', 'link']
                 });
                 
-                el.content.innerHTML = initialValue || '';
+                updateContent(initialValue);
+
+                // Watch for index changes to refresh content
+                data.$watch('selectedQuestionIndex', () => {
+                    const q = data.currentQuiz.questions[data.selectedQuestionIndex];
+                    if (q) updateContent(q[field]);
+                });
+
+                // Also watch for currentQuiz changes (like when loading a new quiz)
+                data.$watch('currentQuiz', (newVal) => {
+                    if (!newVal) return;
+                    const q = newVal.questions[data.selectedQuestionIndex];
+                    if (q) updateContent(q[field]);
+                });
             }
 
             document.addEventListener('alpine:init', () => {

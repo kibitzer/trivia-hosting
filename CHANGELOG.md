@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.3] - 2026-02-14
+
+### Fixed
+
+- **Editor**: Resolved a reactivity bug where the Rich Text Editor failed to update content when switching between questions in the sidebar.
+- **Editor**: Improved initial load handling for RTE fields to ensure existing data is always visible.
+
+### Added
+
+- **Testing**: Added a new E2E regression test suite (`tests/rte.spec.js`) to verify Rich Text Editor content persistence and navigation.
+
 ## [0.13.2] - 2026-02-14
 
 ### Fixed
