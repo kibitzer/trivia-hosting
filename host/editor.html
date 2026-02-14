@@ -328,8 +328,6 @@
             <div 
                 x-show="!waitingForAuth && editingQuizId" 
                 style="display: flex; flex-direction: column; height: 92vh"
-                @input.stop="triggerAutosave()"
-                @change.stop="triggerAutosave()"
             >
                 <template x-if="dataLoaded">
                     <div style="display: flex; flex-direction: column; height: 100%; width: 100%;">
@@ -486,7 +484,7 @@
                                             <label>Slide Type</label>
                                             <select
                                                 x-model="currentQuiz.questions[selectedQuestionIndex].type"
-                                                @change="if ($event.target.value === 'rebus') $nextTick(() => initRebusSortable())"
+                                                @change="handleTypeChange($event.target.value)"
                                             >
                                                 <option value="multiple">Multiple Choice</option>
                                                 <option value="short">Short Answer</option>

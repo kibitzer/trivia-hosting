@@ -70,25 +70,22 @@ describe('Rebus Editor Logic', () => {
 
     it('should set default rebus question text when switching type', () => {
         const q = editor.currentQuiz.questions[0];
-        q.type = 'rebus';
+        editor.selectedQuestionIndex = 0;
         
-        // Trigger the watcher manually as we mock it
-        if (editor._watchCallbacks['currentQuiz']) {
-            editor._watchCallbacks['currentQuiz'].call(editor, editor.currentQuiz);
-        }
+        q.type = 'rebus';
+        editor.handleTypeChange('rebus');
 
+        expect(q.type).toBe('rebus');
         expect(q.question).toBe('Examine the pictures to discover a word or phrase');
     });
 
     it('should not overwrite custom question text when switching to rebus', () => {
         const q = editor.currentQuiz.questions[0];
         q.question = 'My custom question';
-        q.type = 'rebus';
+        editor.selectedQuestionIndex = 0;
         
-        // Trigger the watcher manually
-        if (editor._watchCallbacks['currentQuiz']) {
-            editor._watchCallbacks['currentQuiz'].call(editor, editor.currentQuiz);
-        }
+        q.type = 'rebus';
+        editor.handleTypeChange('rebus');
 
         expect(q.question).toBe('My custom question');
     });

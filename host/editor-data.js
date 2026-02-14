@@ -238,21 +238,6 @@ window.createEditorData = function (firebase, db, auth, storage) {
                     
                     console.log('[Editor] currentQuiz changed');
                     this.triggerAutosave();
-
-                    // Logic moved from questions watcher to avoid eager evaluation crash
-                    if (value.questions && value.questions[this.selectedQuestionIndex]) {
-                        const q = value.questions[this.selectedQuestionIndex];
-                        if (q.type === 'true-false' && (!q.options || q.options.length !== 2)) {
-                            q.options = ['True', 'False'];
-                            if (!q.correctAnswer) q.correctAnswer = 'True';
-                        }
-                        if (q.type === 'identify' && (!q.question || q.question === 'New Question?')) {
-                            q.question = 'Identify this picture:';
-                        }
-                        if (q.type === 'rebus' && (!q.question || q.question === 'New Question?')) {
-                            q.question = 'Examine the pictures to discover a word or phrase';
-                        }
-                    }
                 },
                 { deep: true }
             );
@@ -510,6 +495,27 @@ window.createEditorData = function (firebase, db, auth, storage) {
             });
         },
 
+        handleTypeChange(newType) {
+            const q = this.currentQuiz.questions[this.selectedQuestionIndex];
+            if (!q) return;
+
+            if (newType === 'true-false' && (!q.options || q.options.length !== 2)) {
+                q.options = ['True', 'False'];
+                if (!q.correctAnswer) q.correctAnswer = 'True';
+            }
+            if (newType === 'identify' && (!q.question || q.question === 'New Question?' || q.question === '')) {
+                q.question = 'Identify this picture:';
+            }
+            if (newType === 'rebus' && (!q.question || q.question === 'New Question?' || q.question === '')) {
+                q.question = 'Examine the pictures to discover a word or phrase';
+            }
+            if (newType === 'rebus') {
+                this.$nextTick(() => this.initRebusSortable());
+            }
+            
+            this.triggerAutosave();
+        },
+
         updateTagSuggestions() {
             const input = this.newTagInput.toLowerCase().trim();
             if (input.length < 2) {
@@ -578,9 +584,11 @@ window.createEditorData = function (firebase, db, auth, storage) {
             let rNum = 1;
             this.currentQuiz.questions.forEach((q) => {
                 if (q.type === 'round-title') {
-                    q.roundNumber = rNum++;
+                    if (q.roundNumber !== rNum) q.roundNumber = rNum;
+                    rNum++;
                 } else {
-                    q.questionNumber = qNum++;
+                    if (q.questionNumber !== qNum) q.questionNumber = qNum;
+                    qNum++;
                 }
             });
         },
@@ -879,11 +887,15 @@ window.createEditorData = function (firebase, db, auth, storage) {
             if (result.isConfirmed) {
                 await TriviaDataService.quizRef(id).remove();
                 TriviaUI.notifySuccess('Quiz deleted');
-                if (this.editingQuizId === id) this.closeEditor();
+                if (this.editingQuizId === id) window.location.href = 'dashboard.html';
             }
         },
 
-        closeEditor() {
+        async closeEditor() {
+            if (this.statusMsg && this.statusMsg.includes('Unsaved')) {
+                if (this.autosaveTimeout) clearTimeout(this.autosaveTimeout);
+                await this.saveQuiz();
+            }
             window.location.href = 'dashboard.html';
         },
 

@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.1] - 2026-02-14
+
+### Fixed
+
+- **Editor**: Optimised the autosave mechanism to prevent an infinite loop between the quiz watcher and the renumbering logic.
+- **Editor**: Moved default value initialization for question types from the global watcher to the specific type-change handler.
+- **Editor**: Removed redundant global input listeners to reduce unnecessary save triggers.
+- **Editor**: Ensured an immediate save occurs when explicitly closing the editor if changes are pending.
+
 ## [0.13.0] - 2026-02-14
 
 ### Added
