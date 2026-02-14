@@ -610,7 +610,7 @@
                                         <label>Question Text</label>
                                         <div 
                                             class="rte-container"
-                                            x-init="initRTE($el, 'question')"
+                                            x-init="initRTE($el, 'question', currentQuiz.questions[selectedQuestionIndex].question)"
                                             :key="'q-rte-' + currentQuiz.questions[selectedQuestionIndex].id"
                                         ></div>
                                     </div>
@@ -778,7 +778,7 @@
                                                                                                                                     <label>Verification Source / Explanation</label>
                                                                                                                                     <div 
                                                                                                                                         class="rte-container"
-                                                                                                                                        x-init="initRTE($el, 'factCheckingSource')"
+                                                                                                                                        x-init="initRTE($el, 'factCheckingSource', currentQuiz.questions[selectedQuestionIndex].factCheckingSource)"
                                                                                                                                         :key="'s-rte-' + currentQuiz.questions[selectedQuestionIndex].id"
                                                                                                                                     ></div>
                                                                                                                                 </div>
@@ -787,7 +787,7 @@
                                                                                                                         <label>Host Notes (Optional)</label>
                                                                                                                         <div 
                                                                                                                             class="rte-container"
-                                                                                                                            x-init="initRTE($el, 'notes')"
+                                                                                                                            x-init="initRTE($el, 'notes', currentQuiz.questions[selectedQuestionIndex].notes)"
                                                                                                                             :key="'n-rte-' + currentQuiz.questions[selectedQuestionIndex].id"
                                                                                                                         ></div>
                                                                                                                     </div>                                </div>
@@ -1161,20 +1161,27 @@
         <script src="editor-data.js"></script>
 
         <script>
-            function initRTE(el, field) {
+            function initRTE(el, field, initialValue) {
                 const data = Alpine.$data(el);
-                const initialValue = data.currentQuiz.questions[data.selectedQuestionIndex][field] || '';
+                const q = data.currentQuiz.questions[data.selectedQuestionIndex];
+                if (!q) return;
+
+                // Clear previous content if any (Pell appends)
+                el.innerHTML = '';
                 
                 const editor = pell.init({
                     element: el,
                     onChange: html => {
-                        data.currentQuiz.questions[data.selectedQuestionIndex][field] = html;
-                        data.triggerAutosave();
+                        // Only save if it actually changed to avoid infinite loops
+                        if (q[field] !== html) {
+                            q[field] = html;
+                            data.triggerAutosave();
+                        }
                     },
                     actions: ['bold', 'italic', 'underline', 'link']
                 });
                 
-                el.content.innerHTML = initialValue;
+                el.content.innerHTML = initialValue || '';
             }
 
             document.addEventListener('alpine:init', () => {
