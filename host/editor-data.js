@@ -62,6 +62,12 @@ window.createEditorData = function (firebase, db, auth, storage) {
             return TriviaDataService.normalizeString(s);
         },
 
+        _getQuestionKey(q) {
+            const text = (q.question || q.text || '').toLowerCase().trim().replace(/[^\w\s]/g, '');
+            const ans = String(q.correctAnswer || q.answer || '').toLowerCase().trim();
+            return `${text}|${ans}`;
+        },
+
         // --- Computed ---
         get allQuizTags() {
             if (!this.currentQuiz || !this.currentQuiz.questions) return [];
@@ -650,27 +656,49 @@ window.createEditorData = function (firebase, db, auth, storage) {
             
             this.statusMsg = '📥 Importing...';
             try {
-                const updates = {};
-                
+                const questionUpdates = {};
+                let reusedCount = 0;
+                let newCount = 0;
+
+                // Build a lookup map for existing questions (Strategy 2: Text + Answer)
+                const existingMap = new Map();
+                Object.entries(this.globalQuestions).forEach(([id, q]) => {
+                    const key = this._getQuestionKey(q);
+                    existingMap.set(key, id);
+                });
+
                 this.importPreview.forEach(q => {
-                    const id = this._generateId();
-                    q.id = id;
-                    q.updatedAt = firebase.database.ServerValue.TIMESTAMP;
-                    updates[id] = q;
+                    if (q.type === 'round-title') return;
+
+                    const key = this._getQuestionKey(q);
+                    if (existingMap.has(key)) {
+                        reusedCount++;
+                    } else {
+                        const id = this._generateId();
+                        q.id = id;
+                        q.updatedAt = firebase.database.ServerValue.TIMESTAMP;
+                        questionUpdates[id] = q;
+                        
+                        // Update local map to avoid duplicating within the same import
+                        existingMap.set(key, id);
+                        newCount++;
+                    }
                 });
 
                 // Batch save to global pool
-                const promises = Object.entries(updates).map(([id, data]) => 
-                    TriviaDataService.questionRef(id).set(data)
-                );
-                await Promise.all(promises);
+                if (Object.keys(questionUpdates).length > 0) {
+                    const promises = Object.entries(questionUpdates).map(([id, data]) => 
+                        TriviaDataService.questionRef(id).set(data)
+                    );
+                    await Promise.all(promises);
+                }
 
-                this.statusMsg = `✓ Imported ${this.importPreview.length} questions`;
+                this.statusMsg = `✓ Imported ${newCount} new questions`;
                 this.showImportModal = false;
                 this.importInput = '';
                 this.importPreview = [];
                 
-                TriviaUI.notifySuccess(`Successfully imported ${Object.keys(updates).length} questions to the bank.`);
+                TriviaUI.notifySuccess(`Import complete! Created ${newCount} new questions, skipped ${reusedCount} duplicates.`);
             } catch (err) {
                 console.error('Import failed', err);
                 this.importError = 'Database error: ' + err.message;

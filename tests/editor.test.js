@@ -11,6 +11,12 @@ global.Swal = {
     fire: vi.fn(() => Promise.resolve({ isConfirmed: true })),
 };
 
+// Mock TriviaUI
+global.TriviaUI = {
+    notifySuccess: vi.fn(),
+    notifyError: vi.fn(),
+};
+
 const mockRef = {
     on: vi.fn(),
     set: vi.fn(),
@@ -465,6 +471,35 @@ describe('Editor Logic', () => {
             editor.bankPage = 4;
             expect(editor.startBankIndex).toBe(31);
             expect(editor.endBankIndex).toBe(35);
+        });
+    });
+
+    describe('Import & Collision Detection', () => {
+        beforeEach(() => {
+            editor.globalQuestions = {
+                'id1': { question: 'What is 2+2?', correctAnswer: '4', type: 'multiple' }
+            };
+        });
+
+        it('should detect collisions and only import new questions', async () => {
+            editor.importPreview = [
+                { question: 'What is 2+2?', correctAnswer: '4', type: 'multiple' }, // Duplicate
+                { question: 'New Q', correctAnswer: 'New A', type: 'short' }        // New
+            ];
+
+            await editor.performImport();
+
+            // Should have called set for the new question only
+            // TriviaDataService.questionRef(id).set(data)
+            // One set was likely called during beforeEach or other setup? 
+            // Let's check calls to mockRef.set
+            const setCalls = mockRef.set.mock.calls;
+            const newQCall = setCalls.find(c => c[0].question === 'New Q');
+            const dupQCall = setCalls.find(c => c[0].question === 'What is 2+2?');
+            
+            expect(newQCall).toBeDefined();
+            expect(dupQCall).toBeUndefined();
+            expect(TriviaUI.notifySuccess).toHaveBeenCalledWith(expect.stringContaining('Created 1 new questions, skipped 1 duplicates'));
         });
     });
 });
