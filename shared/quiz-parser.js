@@ -99,6 +99,46 @@ window.QuizParser = {
     },
 
     /**
+     * Parses a string (JSON or CSV) into a full quiz object { title, questions }.
+     */
+    parseFullQuiz(input) {
+        if (!input || !input.trim()) return { title: 'Untitled Quiz', questions: [] };
+
+        let title = 'Imported Quiz';
+        let questions = [];
+        const trimmed = input.trim();
+
+        // 1. Try JSON
+        if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+            try {
+                const parsed = JSON.parse(trimmed);
+                if (Array.isArray(parsed)) {
+                    questions = this.parseQuestions(trimmed);
+                    // Try to extract title from first round-title if it exists
+                    const rt = questions.find(q => q.type === 'round-title');
+                    if (rt) title = rt.title;
+                } else {
+                    title = parsed.title || title;
+                    questions = this.parseQuestions(JSON.stringify(parsed.questions || parsed));
+                }
+            } catch (e) {
+                console.warn('JSON quiz parse failed', e);
+            }
+        }
+
+        // 2. Fallback to CSV (treat first line as title if it starts with #)
+        if (questions.length === 0) {
+            const lines = trimmed.split('\n');
+            if (lines[0].startsWith('#')) {
+                title = lines[0].substring(1).trim();
+            }
+            questions = this.parseQuestions(trimmed);
+        }
+
+        return { title, questions };
+    },
+
+    /**
      * Parses a string (JSON or CSV) into an array of normalized question objects.
      */
     parseQuestions(input) {

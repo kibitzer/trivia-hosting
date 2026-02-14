@@ -65,4 +65,36 @@ describe('Question Import Logic', () => {
             expect(QuizParser.parseQuestions('invalid junk')).toEqual([]);
         });
     });
+
+    describe('QuizParser.parseFullQuiz', () => {
+        it('should parse JSON quiz with title', () => {
+            const input = JSON.stringify({
+                title: 'My Custom Quiz',
+                questions: [
+                    { question: 'Q1', type: 'multiple', options: ['A', 'B'], correctAnswer: 'A' }
+                ]
+            });
+            const result = QuizParser.parseFullQuiz(input);
+            expect(result.title).toBe('My Custom Quiz');
+            expect(result.questions.length).toBe(1);
+        });
+
+        it('should extract title from CSV starting with #', () => {
+            const input = '# History Quiz\nQ1, SHORT, , A1';
+            const result = QuizParser.parseFullQuiz(input);
+            expect(result.title).toBe('History Quiz');
+            expect(result.questions.length).toBe(1);
+            expect(result.questions[0].question).toBe('Q1');
+        });
+
+        it('should extract title from round-title in JSON array', () => {
+            const input = JSON.stringify([
+                { type: 'round-title', title: 'Round 1 Title' },
+                { question: 'Q1', type: 'short', correctAnswer: 'A1' }
+            ]);
+            const result = QuizParser.parseFullQuiz(input);
+            expect(result.title).toBe('Round 1 Title');
+            expect(result.questions.length).toBe(2);
+        });
+    });
 });

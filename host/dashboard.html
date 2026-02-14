@@ -59,6 +59,7 @@
                 <div style="display: flex; gap: 0.75rem;">
                     <button @click="logout" class="btn btn-secondary">Logout</button>
                     <a href="browser.html" class="btn btn-secondary">📂 Browse Questions</a>
+                    <button @click="showImportModal = true" class="btn btn-secondary">📥 Import Quiz</button>
                     <button @click="createNewQuiz" class="btn btn-success">+ Create Quiz</button>
                 </div>
             </div>
@@ -75,6 +76,79 @@
                     <a href="host.html" class="btn btn-primary" style="background: #1e40af; border-color: #1e40af;">Resume Game</a>
                 </div>
             </template>
+
+            <!-- Import Quiz Modal -->
+            <div class="modal-backdrop" x-show="showImportModal" x-cloak @click.self="showImportModal = false">
+                <div class="modal-content" style="max-width: 900px; height: 85vh; display: flex; flex-direction: column; padding: 2rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem">
+                        <h2 style="margin: 0; color: var(--color-primary)">📥 Import Full Quiz</h2>
+                        <button @click="showImportModal = false" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 2rem; flex: 1; min-height: 0;">
+                        <!-- Input Section -->
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <div>
+                                <label>Paste JSON or CSV data</label>
+                                <p class="text-xs text-muted">
+                                    Format: JSON Object {title, questions} or CSV.<br>
+                                    CSV tip: Start with #My Quiz Title to set the name.
+                                </p>
+                            </div>
+                            <textarea 
+                                x-model="importInput" 
+                                @input.debounce.500ms="previewImport()"
+                                placeholder='{"title": "My History Quiz", "questions": [...] }'
+                                style="flex: 1; font-family: monospace; font-size: 0.875rem; resize: none;"
+                            ></textarea>
+                            <div x-show="importError" class="text-sm" style="color: var(--color-danger); background: #fef2f2; padding: 0.75rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; font-weight: 600;" x-text="importError"></div>
+                        </div>
+
+                        <!-- Preview Section -->
+                        <div style="display: flex; flex-direction: column; gap: 1rem; border-left: 1px solid var(--color-border); padding-left: 1rem;">
+                            <label>Preview: <span class="font-weight-bold" x-text="importPreview.title"></span> (<span x-text="importPreview.questions.length"></span> items)</label>
+                            <div style="flex: 1; overflow-y: auto; background: var(--color-bg); border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                                <template x-for="(q, idx) in importPreview.questions" :key="idx">
+                                    <div style="padding: 0.75rem; border-bottom: 1px solid var(--color-border); background: white; font-size: 0.875rem;">
+                                        <template x-if="q.type === 'round-title'">
+                                            <div style="font-weight: 800; color: var(--color-primary);" x-text="'ROUND: ' + q.title"></div>
+                                        </template>
+                                        <template x-if="q.type !== 'round-title'">
+                                            <div>
+                                                <div style="display: flex; gap: 0.5rem; margin-bottom: 0.25rem;">
+                                                    <span class="text-xs" style="background: #e2e8f0; padding: 0.05rem 0.4rem; border-radius: 4px; font-weight: 700; text-transform: uppercase;" x-text="q.type"></span>
+                                                    <span class="text-xs" style="background: #f1f5f9; padding: 0.05rem 0.4rem; border-radius: 4px; font-weight: 700;" x-text="q.difficulty"></span>
+                                                </div>
+                                                <div style="font-weight: 700;" x-text="q.question"></div>
+                                                <div class="text-muted" style="font-size: 0.75rem; margin-top: 0.25rem;">
+                                                    Ans: <span x-text="Array.isArray(q.correctAnswer) ? q.correctAnswer.join(', ') : q.correctAnswer"></span>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
+                                <template x-if="importPreview.questions.length === 0">
+                                    <div style="padding: 2rem; text-align: center; color: var(--color-text-muted);">
+                                        Ready to parse input...
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 1rem;">
+                        <button @click="showImportModal = false" class="btn btn-secondary">Cancel</button>
+                        <button 
+                            @click="performImport()" 
+                            class="btn btn-primary" 
+                            :disabled="importPreview.questions.length === 0 || loading"
+                        >
+                            <span x-show="!loading">Import Quiz</span>
+                            <span x-show="loading">Importing...</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
 
             <div class="card" style="padding: 0; overflow: hidden;">
                 <div style="padding: 1.5rem;">
