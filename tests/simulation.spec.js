@@ -67,11 +67,12 @@ test('Trivia Full Simulation', async ({ browser }) => {
 
     await hostPage.click('button[type="submit"]');
 
-    // Wait for Dashboard
-    await expect(hostPage.locator('h1:has-text("Dashboard")')).toBeVisible({ timeout: 10000 });
+    // Wait for Dashboard (Updated for new UI)
+    await expect(hostPage.locator('h1:has-text("Welcome back!")')).toBeVisible({ timeout: 10000 });
     await expect(hostPage.locator('text=/v\\d+\\.\\d+\\.\\d+/')).toBeVisible();
 
     let testQuizId = null;
+    const testQuizTitle = 'Test Simulation Quiz';
 
     try {
         // 2. Host: Seed a quiz into Firebase for testing
@@ -115,22 +116,24 @@ test('Trivia Full Simulation', async ({ browser }) => {
         });
 
         // Verify version in Editor
-        const editBtn = hostPage.locator(`tr:has-text("Test Simulation Quiz") button:has-text("Edit")`);
+        const editBtn = hostPage.locator(`.card:has-text("${testQuizTitle}") button:has-text("Edit")`);
         await expect(editBtn).toBeVisible({ timeout: 10000 });
         await editBtn.click();
         await expect(hostPage).toHaveURL(/editor\.html\?quizId=/);
         await expect(hostPage.locator('text=/v\\d+\\.\\d+\\.\\d+/')).toBeVisible();
+        
+        // Go back to Dashboard
         await hostPage.click('button:has-text("Dashboard")');
-        await expect(hostPage.locator('h1:has-text("Dashboard")')).toBeVisible({ timeout: 10000 });
+        await expect(hostPage.locator('h1:has-text("Welcome back!")')).toBeVisible({ timeout: 10000 });
 
         // Click Launch for the new quiz
-        const launchBtn = hostPage.locator(`tr:has-text("Test Simulation Quiz") button:has-text("Launch")`);
+        const launchBtn = hostPage.locator(`.card:has-text("${testQuizTitle}") button:has-text("Launch")`);
         await expect(launchBtn).toBeVisible({ timeout: 10000 });
         await launchBtn.click();
 
         // Should now be on host.html
         await expect(hostPage).toHaveURL(/host\.html\?quizId=/);
-        await expect(hostPage.locator('h2:has-text("Ready to Start!")')).toBeVisible({ timeout: 10000 });
+        await expect(hostPage.locator('h2:has-text("Ready to Start?")')).toBeVisible({ timeout: 10000 });
         await expect(hostPage.locator('text=/v\\d+\\.\\d+\\.\\d+/')).toBeVisible();
 
         // 3. Setup 3 Players
@@ -146,20 +149,9 @@ test('Trivia Full Simulation', async ({ browser }) => {
             await expect(page.locator('text=/v\\d+\\.\\d+\\.\\d+/')).toBeVisible();
             await page.click('button:has-text("Join Game")');
 
-            // Wait for join section to disappear (indicates screen change)
-            await expect(page.locator('.join-section')).toBeHidden({ timeout: 15000 });
-
-            // Wait for game screen to be active
-
-            await expect(page.locator('.header h1:has-text("Trivia Night")')).toBeVisible({
-                timeout: 15000,
-            });
-
-            // Either we are waiting or we see a question/round (allow both for robustness)
-
-            const gameScreens = page.locator('.waiting-screen, .question-display, .slide-card');
-
-            await expect(gameScreens.filter({ visible: true }).first()).toBeVisible({ timeout: 15000 });
+            // Wait for join section to disappear
+            await expect(page.locator('.card:has-text("Trivia Night")')).toBeVisible({ timeout: 15000 });
+            await expect(page.locator('.player-status-bar')).toBeVisible({ timeout: 15000 });
 
             players.push({ name, page });
         }
@@ -175,7 +167,7 @@ test('Trivia Full Simulation', async ({ browser }) => {
             }
         });
 
-        await hostPage.click('button:has-text("Start Game")');
+        await hostPage.click('button:has-text("Start Live Game")');
 
         // Check if analytics event was captured
         const events = await hostPage.evaluate(() => window.analyticsEvents);
@@ -184,17 +176,17 @@ test('Trivia Full Simulation', async ({ browser }) => {
         expect(startEvent.params.quiz_title).toBeDefined();
 
         // Advance from Title to Question 1
-        await hostPage.click('button:has-text("Next")');
+        await hostPage.click('button:has-text("Next Item")');
 
         // 4. Run through first few questions
         // Question 1: Multiple Choice (Capital of France?)
-        await expect(hostPage.locator('text=QUESTION 1')).toBeVisible();
+        await expect(hostPage.locator('text=Q1')).toBeVisible();
 
         // Players answer
         for (const p of players) {
-            await expect(p.page.locator('text=Question 1')).toBeVisible();
+            await expect(p.page.locator('text=Q1')).toBeVisible();
             await p.page.click('button:has-text("Paris")');
-            await expect(p.page.locator('text=Answer submitted!')).toBeVisible();
+            await expect(p.page.locator('text=Locked In!')).toBeVisible();
         }
 
         // Host reveals answer
@@ -202,26 +194,32 @@ test('Trivia Full Simulation', async ({ browser }) => {
 
         // Verify results on player screens
         for (const p of players) {
-            await expect(p.page.locator('.answer-reveal')).toBeVisible();
-            await expect(p.page.locator('.answer-reveal .answer-text')).toContainText('Paris');
+            await expect(p.page.locator('text=Correct Answer')).toBeVisible();
+            // Use specific locator for the answer reveal text to avoid strict mode violation
+            await expect(p.page.locator('div[x-text="gameState.answer || \'---\'"]')).toHaveText('Paris');
         }
 
         // 5. Host: Move to Question 2 (Short Answer: Gold Symbol)
-        await hostPage.click('button:has-text("Next")');
-        await expect(hostPage.locator('text=QUESTION 2')).toBeVisible();
+        await hostPage.click('button:has-text("Next Item")');
+        await expect(hostPage.locator('text=Q2')).toBeVisible();
 
         // Players answer short answer
         for (const p of players) {
-            await expect(p.page.locator('text=Question 2')).toBeVisible();
-            await p.page.fill('input[x-model="currentAnswer"]', 'Au');
-            await p.page.click('button:has-text("Submit")');
+            await expect(p.page.locator('text=Q2')).toBeVisible();
+            await p.page.fill('input[placeholder="Type your answer..."]', 'Au');
+            await p.page.click('button:has-text("Submit Answer")');
         }
 
         await hostPage.click('button:has-text("Reveal Answer")');
+        
+        // Verify short answer reveal
+        for (const p of players) {
+            await expect(p.page.locator('div[x-text="gameState.answer || \'---\'"]')).toHaveText('Au');
+        }
 
         // 6. Host: Move to Question 3 (Fact Checked: Pluto)
-        await hostPage.click('button:has-text("Next")');
-        await expect(hostPage.locator('text=QUESTION 3')).toBeVisible();
+        await hostPage.click('button:has-text("Next Item")');
+        await expect(hostPage.locator('text=Q3')).toBeVisible();
 
         // Players answer
         for (const p of players) {
@@ -229,6 +227,11 @@ test('Trivia Full Simulation', async ({ browser }) => {
         }
 
         await hostPage.click('button:has-text("Reveal Answer")');
+        
+        // Verify multiple choice answer reveal
+        for (const p of players) {
+            await expect(p.page.locator('div[x-text="gameState.answer || \'---\'"]')).toHaveText('No');
+        }
 
         // VERIFY FACT CHECKING UI on Host
         await expect(hostPage.locator('text=FACT CHECKING')).toBeVisible();
@@ -244,9 +247,11 @@ test('Trivia Full Simulation', async ({ browser }) => {
         }
     } finally {
         // --- Cleanup Step ---
-        // Use the host's existing access to wipe the nodes we used during simulation
         console.log('[TEST] Cleaning up Firebase data...');
-        // We use the hostPage even if it's on host.html now
+        
+        // Navigate away from editor/host to avoid redirect loops during deletion
+        await hostPage.goto(`http://localhost:${PORT}/host/dashboard.html`).catch(() => {});
+
         await hostPage.evaluate((quizId) => {
             const db = firebase.database();
             return Promise.all([

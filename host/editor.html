@@ -9,1147 +9,479 @@
         <script src="../shared/head-helper.js"></script>
 
         <style>
-            body {
-                padding: 0;
+            .editor-container {
+                display: grid;
+                grid-template-columns: 320px 1fr;
+                height: calc(100vh - 64px);
+                overflow: hidden;
                 background: var(--color-bg);
             }
-            .container {
-                max-width: 1400px;
-                margin: 0 auto;
-                padding: 1.5rem;
-            }
-            .quiz-item {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 1rem 0;
-                border-bottom: 1px solid var(--color-border);
-            }
-            .quiz-item:last-child {
-                border-bottom: none;
-            }
-
-            /* Quiz Table Styling */
-            .quiz-table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 1rem;
-            }
-            .quiz-table th {
-                text-align: left;
-                padding: 1rem;
-                background: var(--color-bg);
-                font-size: 0.75rem;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-                font-weight: 800;
-                color: var(--color-text-muted);
-                border-bottom: 2px solid var(--color-border);
-                cursor: pointer;
-                user-select: none;
-            }
-            .quiz-table th:hover {
-                color: var(--color-primary);
-            }
-            .quiz-table th.active-sort {
-                color: var(--color-primary);
-            }
-            .quiz-table td {
-                padding: 1rem;
-                border-bottom: 1px solid var(--color-border);
-                vertical-align: middle;
-            }
-            .quiz-table tr:last-child td {
-                border-bottom: none;
-            }
-            .quiz-table tr:hover {
-                background: #f8fafc;
-            }
-
-            .header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 2rem;
-            }
-
-            /* Editor Layout */
-            .editor-layout {
-                display: flex;
-                height: calc(100vh - 180px);
-                gap: 1.5rem;
-                margin-top: 1.5rem;
-            }
-            .sidebar {
-                width: 300px;
+            
+            /* Navigation Sidebar */
+            .editor-sidebar {
+                background: var(--color-surface);
+                border-right: 1px solid var(--color-border);
                 display: flex;
                 flex-direction: column;
-                gap: 0.75rem;
+                overflow: hidden;
+            }
+            .slide-list {
+                flex: 1;
                 overflow-y: auto;
-                padding-right: 0.5rem;
+                padding: 1.25rem;
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
             }
             .slide-thumb {
-                padding: 1rem;
-                background: var(--color-surface);
-                border: 1px solid var(--color-border);
+                aspect-ratio: 16/9;
+                background: var(--color-bg);
+                border: 2px solid var(--color-border);
                 border-radius: var(--radius-md);
+                padding: 1rem;
                 cursor: pointer;
-                min-height: 100px;
-                transition: all 0.2s;
+                transition: var(--transition);
                 display: flex;
                 flex-direction: column;
+                position: relative;
+                box-shadow: var(--shadow-sm);
+            }
+            .slide-thumb:hover {
+                border-color: var(--color-primary);
+                background: white;
             }
             .slide-thumb.active {
                 border-color: var(--color-primary);
-                background: #f0f7ff;
-                ring: 2px solid rgba(30, 64, 175, 0.1);
+                background: white;
+                box-shadow: 0 0 0 3px var(--color-primary-light);
             }
-            .slide-thumb:hover:not(.active) {
-                border-color: var(--color-primary);
-                background: var(--color-bg);
-            }
-            .slide-number {
-                font-size: 0.75rem;
+            .slide-thumb-number {
+                font-size: 0.65rem;
+                font-weight: 900;
                 color: var(--color-primary);
-                font-weight: 800;
                 margin-bottom: 0.5rem;
-                letter-spacing: 0.05em;
+                letter-spacing: 0.1em;
             }
-            .slide-preview {
-                font-size: 0.875rem;
-                font-weight: 600;
-                color: var(--color-text);
+            .slide-thumb-preview {
+                font-size: 0.8125rem;
+                font-weight: 700;
+                line-height: 1.3;
                 display: -webkit-box;
-                -webkit-line-clamp: 2;
+                -webkit-line-clamp: 3;
                 -webkit-box-orient: vertical;
                 overflow: hidden;
-                line-height: 1.4;
             }
 
-            .main-editor {
-                flex: 1;
+            /* Main Workspace */
+            .editor-workspace {
+                padding: 3rem;
                 overflow-y: auto;
-                padding: 2.5rem;
+                display: flex;
+                justify-content: center;
+            }
+            .editor-canvas {
+                width: 100%;
+                max-width: 900px;
                 background: var(--color-surface);
                 border-radius: var(--radius-lg);
+                box-shadow: var(--shadow-md);
                 border: 1px solid var(--color-border);
-                box-shadow: var(--shadow-sm);
+                padding: 3rem;
+                min-height: fit-content;
             }
 
-            /* Modal Styles */
-            .modal-backdrop {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(15, 23, 42, 0.6);
-                backdrop-filter: blur(4px);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 2000;
-            }
-            .modal-content {
-                background: white;
-                padding: 2.5rem;
-                border-radius: var(--radius-lg);
-                width: 100%;
-                max-width: 440px;
-                box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
-            }
-
-            .input-group {
-                margin-bottom: 1.25rem;
-            }
-            label {
-                display: block;
-                font-weight: 700;
-                font-size: 0.875rem;
-                margin-bottom: 0.5rem;
-                color: var(--color-text);
-            }
-
-            .options-grid {
+            /* MC Options */
+            .mc-options-grid {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
-                gap: 0.75rem;
+                gap: 1rem;
             }
-
-            /* Game Options Panel */
-            .game-options-panel {
-                position: fixed;
-                top: 80px; /* Below header */
-                right: 0;
-                bottom: 0;
-                width: 320px;
-                background: white;
-                border-left: 1px solid var(--color-border);
-                box-shadow: -4px 0 15px rgba(0,0,0,0.05);
-                padding: 1.5rem;
-                overflow-y: auto;
-                z-index: 1000;
-                transform: translateX(0);
-                transition: transform 0.3s ease-in-out;
-            }
-            .game-options-panel[style*="display: none"] {
-                transform: translateX(100%);
-            }
-
-            /* Tag Suggestions */
-            .tag-input-container {
-                position: relative;
-            }
-            .tag-suggestions {
-                position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
-                background: white;
-                border: 1px solid var(--color-border);
-                border-top: none;
-                border-radius: 0 0 var(--radius-md) var(--radius-md);
-                box-shadow: var(--shadow-md);
-                z-index: 100;
-                max-height: 200px;
-                overflow-y: auto;
-                padding: 0.5rem 0;
-            }
-            .tag-suggestion-item {
-                padding: 0.5rem 1rem;
-                cursor: pointer;
-                font-size: 0.875rem;
-                font-weight: 600;
-            }
-            .tag-suggestion-item:hover {
-                background: var(--color-bg);
-                color: var(--color-primary);
-            }
-            .tag-suggestion-item.active {
-                background: var(--color-primary);
-                color: white;
-            }
-
-            /* MC Option Component */
             .mc-option-item {
                 display: flex;
-                gap: 0.75rem;
                 align-items: center;
-                background: var(--color-surface);
-                padding: 0.625rem;
+                gap: 0.75rem;
+                background: var(--color-bg);
+                padding: 0.75rem;
                 border-radius: var(--radius-md);
                 border: 1px solid var(--color-border);
-                transition: all 0.2s ease;
+                transition: var(--transition);
             }
-            .mc-option-item:hover {
-                border-color: var(--color-secondary);
-                box-shadow: var(--shadow-sm);
-            }
-            .mc-option-item.is-correct {
-                border-color: var(--color-success);
-                background: #f0fdf4; /* Green 50 */
-            }
-            .mc-option-check {
-                width: 28px;
-                height: 28px;
-                border-radius: 50%;
-                border: 2px solid var(--color-border);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                flex-shrink: 0;
+            .mc-option-item:focus-within {
+                border-color: var(--color-primary);
                 background: white;
-                transition: all 0.2s;
-                color: transparent;
-                font-weight: 800;
-                font-size: 0.875rem;
             }
-            .mc-option-item.is-correct .mc-option-check {
+            .mc-option-item.correct {
                 border-color: var(--color-success);
-                background: white;
-                color: var(--color-success);
-                box-shadow: inset 0 0 0 2px #f0fdf4;
-            }
-            .mc-option-input {
-                border: none !important;
-                background: transparent !important;
-                padding: 0 !important;
-                font-weight: 600 !important;
-                flex: 1;
-                font-size: 1rem !important;
-                box-shadow: none !important;
-            }
-            .mc-option-delete {
-                background: none;
-                border: none;
-                padding: 0.4rem;
-                cursor: pointer;
-                color: var(--color-secondary);
-                opacity: 0.5;
-                transition: all 0.2s;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                border-radius: var(--radius-md);
-            }
-            .mc-option-delete:hover {
-                opacity: 1;
-                color: var(--color-danger);
-                background: #fef2f2;
+                background: var(--color-success-bg);
             }
 
-            /* RTE Styles */
+            /* Rebus Manager */
+            .rebus-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 1rem;
+                background: var(--color-bg);
+                padding: 1.5rem;
+                border-radius: var(--radius-lg);
+                border: 1px solid var(--color-border);
+            }
+            .rebus-thumb {
+                aspect-ratio: 1;
+                border-radius: var(--radius-md);
+                border: 2px solid var(--color-border);
+                overflow: hidden;
+                position: relative;
+                background: white;
+                cursor: grab;
+            }
+            .rebus-thumb img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            .rebus-delete {
+                position: absolute;
+                top: 0.25rem;
+                right: 0.25rem;
+                background: var(--color-danger);
+                color: white;
+                border: none;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.75rem;
+                cursor: pointer;
+                opacity: 0;
+                transition: var(--transition);
+            }
+            .rebus-thumb:hover .rebus-delete {
+                opacity: 1;
+            }
+
+            /* Settings Bar */
+            .editor-top-bar {
+                background: var(--color-surface);
+                border-bottom: 1px solid var(--color-border);
+                padding: 0.75rem 1.5rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                z-index: 100;
+            }
+
+            /* RTE Styling Override */
             .rte-container {
                 border: 1px solid var(--color-border);
                 border-radius: var(--radius-md);
                 overflow: hidden;
-                background: white;
-            }
-            .pell-content {
-                height: 100px !important;
-                padding: 0.75rem !important;
-                font-size: 1rem !important;
-                outline: none;
             }
             .pell-actionbar {
-                background-color: #f8fafc !important;
+                background-color: var(--color-bg) !important;
                 border-bottom: 1px solid var(--color-border) !important;
+            }
+            .pell-button {
+                background-color: transparent !important;
+                border: none !important;
+                color: var(--color-text-muted) !important;
+                font-weight: 800 !important;
+                width: 32px !important;
+                height: 32px !important;
+            }
+            .pell-button-selected {
+                color: var(--color-primary) !important;
+                background-color: var(--color-primary-light) !important;
+            }
+            .pell-content {
+                padding: 1rem !important;
+                min-height: 100px !important;
+                outline: none !important;
             }
         </style>
     </head>
     <body x-data="quizEditor">
-        <div class="container" x-cloak>
-            <div x-show="waitingForAuth" style="text-align: center; padding: 4rem;">
-                <div style="font-size: 3rem; margin-bottom: 1rem; animation: pulse 1.5s infinite;">⏳</div>
-                <p class="text-muted">Verifying Authentication...</p>
-            </div>
+        <!-- Connectivity Overlay -->
+        <div x-html="TriviaUI.connectivityOverlay()"></div>
 
-            <div 
-                x-show="!waitingForAuth && editingQuizId" 
-                style="display: flex; flex-direction: column; height: 92vh"
-            >
-                <template x-if="dataLoaded">
-                    <div style="display: flex; flex-direction: column; height: 100%; width: 100%;">
-                        <div class="header" style="margin-bottom: 1rem">
-                            <div style="display: flex; align-items: center; gap: 1rem; flex: 1">
-                                <button
-                                    @click="closeEditor()"
-                                    class="btn btn-secondary"
-                                    style="padding: 0.5rem 0.75rem"
-                                >
-                                    ← Dashboard
-                                </button>
-                                <a
-                                    href="browser.html"
-                                    class="btn btn-secondary"
-                                    style="padding: 0.5rem 0.75rem"
-                                >
-                                    📂 Question Browser
-                                </a>
-                                <div style="display: flex; flex-direction: column; flex: 1; max-width: 600px">
-                                    <input
-                                        type="text"
-                                        x-model="currentQuiz.title"
-                                        style="
-                                            font-size: 1.25rem;
-                                            font-weight: 800;
-                                            border: none;
-                                            background: transparent;
-                                            padding: 0.25rem 0.5rem;
-                                            border-radius: var(--radius-md);
-                                            width: 100%;
-                                        "
-                                        onfocus="this.style.background = 'white'; this.style.boxShadow = 'var(--shadow-sm)'"
-                                        onblur="this.style.background = 'transparent'; this.style.boxShadow = 'none'"
-                                    />
-                                    <span class="text-muted" style="font-size: 0.65rem; font-weight: 700; margin-left: 0.5rem" x-text="'v' + appVersion"></span>
-                                </div>
-                            </div>
-                            <div style="display: flex; gap: 1rem; align-items: center">
-                                <div style="display: flex; align-items: center; gap: 0.75rem; min-width: 450px; justify-content: flex-end">
-                                    <div
-                                        x-show="statusMsg"
-                                        class="text-sm"
-                                        style="
-                                            padding: 0.375rem 0.75rem;
-                                            border-radius: var(--radius-md);
-                                            font-weight: 700;
-                                        "
-                                        :style="statusMsg.includes('⚠️') ? 'background: #fff7ed; color: var(--color-warning);' : (statusMsg.includes('❌') ? 'background: #fef2f2; color: var(--color-danger);' : 'background: #f0fdf4; color: var(--color-success);')"
-                                        x-text="statusMsg"
-                                    ></div>
-                                    <button
-                                        @click="showGameOptions = !showGameOptions"
-                                        class="btn"
-                                        :class="showGameOptions ? 'btn-primary' : 'btn-secondary'"
-                                        style="padding: 0.5rem 0.75rem; white-space: nowrap"
-                                    >
-                                        ⚙️ Game Options
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+        <div x-show="waitingForAuth" style="text-align: center; padding: 4rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem; animation: pulse 1.5s infinite;">⏳</div>
+            <p class="text-muted">Verifying Authentication...</p>
+        </div>
 
-                        <div class="editor-layout">
-                        <!-- Sidebar: Question List -->
-                        <div class="sidebar">
-                            <div id="slide-list-container" style="display: flex; flex-direction: column; gap: 0.5rem">
-                                <template x-for="(q, index) in currentQuiz.questions" :key="q.id">
-                                    <div
-                                        class="slide-thumb"
-                                        :data-id="q.id"
-                                        :class="{ 'active': selectedQuestionIndex === index }"
-                                        @click="selectQuestion(index)"
-                                    >
-                                        <div
-                                            class="slide-number"
-                                            x-show="settings.showQuestionNumbers"
-                                            x-text="q.type === 'round-title' ? 'ROUND ' + q.roundNumber : 'QUESTION ' + q.questionNumber"
-                                        ></div>
-                                        <div
-                                            class="slide-preview"
-                                            x-text="q.type === 'round-title' ? q.title : (q.question || '(New Question)')"
-                                        ></div>
-                                        <div
-                                            class="text-muted"
-                                            style="margin-top: auto; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em"
-                                            x-text="currentQuiz.questions[index].type === 'multiple' ? 'Multiple Choice' : (currentQuiz.questions[index].type === 'short' ? 'Short Answer' : (currentQuiz.questions[index].type === 'rebus' ? 'Rebus' : (currentQuiz.questions[index].type === 'true-false' ? 'True / False' : (currentQuiz.questions[index].type === 'identify' ? 'Identify' : 'Round Intro'))))"
-                                        ></div>
+        <div x-show="!waitingForAuth && editingQuizId" class="flex-col" style="height: 100vh;">
+            <!-- Top Navigation Bar -->
+            <header class="editor-top-bar">
+                <div class="flex items-center gap-4">
+                    <button @click="closeEditor()" class="btn btn-secondary btn-sm">← Dashboard</button>
+                    <div style="width: 1px; height: 24px; background: var(--color-border);"></div>
+                    <input
+                        type="text"
+                        x-model="currentQuiz.title"
+                        class="font-extrabold"
+                        style="border: none; background: transparent; font-size: 1.125rem; padding: 0.25rem 0.5rem; width: 400px; box-shadow: none;"
+                        onfocus="this.style.background = 'var(--color-bg)'"
+                        onblur="this.style.background = 'transparent'"
+                    />
+                </div>
+                            <div class="flex items-center gap-4">
+                                <div x-show="statusMsg" class="text-sm font-bold" :class="statusMsg.includes('✅') ? 'text-success' : 'text-primary'" x-text="statusMsg"></div>
+                                <div class="text-xs font-bold text-muted" x-text="'v' + appVersion"></div>
+                                <button @click="showGameOptions = true" class="btn btn-secondary btn-sm">⚙️ Quiz Settings</button>
+                                <button @click="showQuestionBank = true" class="btn btn-primary btn-sm">📂 Question Bank</button>
+                            </div>            </header>
+
+            <div class="editor-container">
+                <!-- Sidebar: Slide Navigator -->
+                <aside class="editor-sidebar">
+                    <div class="slide-list" id="slide-list-container">
+                        <template x-for="(q, index) in currentQuiz.questions" :key="q.id">
+                            <div
+                                class="slide-thumb"
+                                :class="{ 'active': selectedQuestionIndex === index }"
+                                @click="selectQuestion(index)"
+                                :data-id="q.id"
+                            >
+                                <div class="slide-thumb-number" x-text="(q.type === 'round-title' ? 'ROUND ' : 'SLIDE ') + (index + 1)"></div>
+                                <div class="slide-thumb-preview" x-text="q.type === 'round-title' ? q.title : (q.question || '(New Question)')"></div>
+                                <div class="text-xs font-bold text-muted mt-auto" style="text-transform: uppercase;" x-text="q.type.replace('-', ' ')"></div>
+                            </div>
+                        </template>
+                    </div>
+                    
+                    <div class="p-4 border-t flex gap-2">
+                        <button @click="addQuestion()" class="btn btn-primary btn-sm" style="flex: 1;">+ Question</button>
+                        <button @click="addRound()" class="btn btn-secondary btn-sm" style="flex: 1;">+ Round</button>
+                    </div>
+                </aside>
+
+                <!-- Main Workspace: Slide Canvas -->
+                <main class="editor-workspace">
+                    <template x-if="currentQuiz.questions[selectedQuestionIndex]">
+                        <div class="editor-canvas">
+                            <div class="flex justify-between items-center mb-8 pb-4 border-b">
+                                <h2 style="font-size: 1.5rem;" x-text="(currentQuiz.questions[selectedQuestionIndex].type === 'round-title' ? 'Round Introduction' : 'Question Editor')"></h2>
+                                <button @click="removeQuestion(selectedQuestionIndex)" class="btn btn-sm" style="color: var(--color-danger); border: none;">🗑️ Delete Slide</button>
+                            </div>
+
+                            <!-- SLIDE TYPE & BASIC SETTINGS -->
+                            <div class="grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 2.5rem;">
+                                <div class="flex-col gap-2">
+                                    <label class="text-xs font-extrabold text-muted">SLIDE TYPE</label>
+                                    <select x-model="currentQuiz.questions[selectedQuestionIndex].type" @change="handleTypeChange($event.target.value)">
+                                        <option value="multiple">Multiple Choice</option>
+                                        <option value="short">Short Answer</option>
+                                        <option value="rebus">Rebus</option>
+                                        <option value="true-false">True / False</option>
+                                        <option value="identify">Identify Image</option>
+                                        <option value="round-title">Round Title</option>
+                                    </select>
+                                </div>
+                                <template x-if="currentQuiz.questions[selectedQuestionIndex].type !== 'round-title'">
+                                    <div class="flex-col gap-2">
+                                        <label class="text-xs font-extrabold text-muted">TIMER (SECONDS)</label>
+                                        <input type="number" x-model.number="currentQuiz.questions[selectedQuestionIndex].timer" min="5" step="5">
+                                    </div>
+                                </template>
+                                <template x-if="currentQuiz.questions[selectedQuestionIndex].type !== 'round-title'">
+                                    <div class="flex-col gap-2">
+                                        <label class="text-xs font-extrabold text-muted">DIFFICULTY</label>
+                                        <select x-model="currentQuiz.questions[selectedQuestionIndex].difficulty">
+                                            <option value="Easy">Easy</option>
+                                            <option value="Medium">Medium</option>
+                                            <option value="Hard">Hard</option>
+                                        </select>
                                     </div>
                                 </template>
                             </div>
-                            <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; position: sticky; bottom: 0; background: var(--color-bg); padding-top: 0.5rem">
-                                <div style="display: flex; gap: 0.5rem">
-                                    <button
-                                        @click="addQuestion()"
-                                        class="btn btn-primary"
-                                        style="flex: 1"
-                                    >
-                                        + Question
-                                    </button>
-                                    <button
-                                        @click="addRound()"
-                                        class="btn btn-secondary"
-                                        style="flex: 1"
-                                    >
-                                        + Round
-                                    </button>
-                                </div>
-                                <button
-                                    @click="showQuestionBank = true"
-                                    class="btn btn-secondary"
-                                    style="width: 100%; border-style: dashed; border-color: var(--color-primary); color: var(--color-primary)"
-                                >
-                                    📂 Question Bank
-                                </button>
-                            </div>
-                        </div>
 
-                        <!-- Main Area: Current Question Editor -->
-                        <div class="main-editor">
-                            <template x-if="currentQuiz.questions[selectedQuestionIndex]">
-                                <div :key="currentQuiz.questions[selectedQuestionIndex].id">
-                                    <div
-                                        style="
-                                            display: flex;
-                                            justify-content: space-between;
-                                            align-items: center;
-                                            margin-bottom: 2rem;
-                                            padding-bottom: 1rem;
-                                            border-bottom: 1px solid var(--color-border);
-                                        "
-                                    >
-                                        <h2
-                                            style="margin: 0; color: var(--color-primary); font-size: 1.25rem"
-                                            x-text="(currentQuiz.questions[selectedQuestionIndex].type === 'round-title' ? 'Round Intro ' + currentQuiz.questions[selectedQuestionIndex].roundNumber : 'Question ' + currentQuiz.questions[selectedQuestionIndex].questionNumber)"
-                                        ></h2>
-                                        <button
-                                            @click="removeQuestion(selectedQuestionIndex)"
-                                            class="btn btn-secondary"
-                                            style="color: var(--color-danger); border-color: transparent"
-                                        >
-                                            Delete Slide
-                                        </button>
+                            <!-- CONTENT: Round Title -->
+                            <template x-if="currentQuiz.questions[selectedQuestionIndex].type === 'round-title'">
+                                <div class="flex-col gap-6">
+                                    <div class="flex-col gap-2">
+                                        <label class="text-xs font-extrabold text-muted">ROUND TITLE TEXT</label>
+                                        <input type="text" x-model="currentQuiz.questions[selectedQuestionIndex].title" placeholder="e.g. Round 1: History" style="font-size: 1.5rem; font-weight: 800; padding: 1.25rem;">
+                                    </div>
+                                    <div class="flex-col gap-2">
+                                        <label class="text-xs font-extrabold text-muted">BACKGROUND IMAGE URL</label>
+                                        <div class="flex gap-2">
+                                            <input type="text" x-model="currentQuiz.questions[selectedQuestionIndex].image" placeholder="https://...">
+                                            <button class="btn btn-secondary" @click="$refs.roundFile.click()">📁 Upload</button>
+                                            <input type="file" x-ref="roundFile" style="display: none" accept="image/*" @change="uploadImage($event, 'image')">
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <!-- CONTENT: Question -->
+                            <template x-if="currentQuiz.questions[selectedQuestionIndex].type !== 'round-title'">
+                                <div class="flex-col gap-6">
+                                    <div class="flex-col gap-2">
+                                        <label class="text-xs font-extrabold text-muted">QUESTION TEXT</label>
+                                        <div class="rte-container" x-init="initRTE($el, 'question', currentQuiz.questions[selectedQuestionIndex].question)" :key="'q-rte-' + currentQuiz.questions[selectedQuestionIndex].id"></div>
                                     </div>
 
-                                    <div
-                                        style="
-                                            display: grid;
-                                            grid-template-columns: 1fr 1fr 1fr 1fr;
-                                            gap: 1.25rem;
-                                        "
-                                    >
-                                        <div class="input-group">
-                                            <label>Slide Type</label>
-                                            <select
-                                                x-model="currentQuiz.questions[selectedQuestionIndex].type"
-                                                @change="handleTypeChange($event.target.value)"
-                                            >
-                                                <option value="multiple">Multiple Choice</option>
-                                                <option value="short">Short Answer</option>
-                                                <option value="rebus">Rebus</option>
-                                                <option value="true-false">True / False</option>
-                                                <option value="identify">Identify (Picture)</option>
-                                                <option value="round-title">
-                                                    Round Title (Intro)
-                                                </option>
-                                            </select>
-                                        </div>
-                                        <div
-                                            class="input-group"
-                                            x-show="currentQuiz.questions[selectedQuestionIndex].type !== 'round-title'"
-                                        >
-                                            <label>Timer (seconds)</label>
-                                            <input
-                                                type="number"
-                                                x-model="currentQuiz.questions[selectedQuestionIndex].timer"
-                                            />
-                                        </div>
-                                        <div
-                                            class="input-group"
-                                            x-show="currentQuiz.questions[selectedQuestionIndex].type !== 'round-title'"
-                                        >
-                                            <label>Difficulty</label>
-                                            <select x-model="currentQuiz.questions[selectedQuestionIndex].difficulty">
-                                                <option value="Easy">Easy</option>
-                                                <option value="Medium" selected>Medium</option>
-                                                <option value="Hard">Hard</option>
-                                            </select>
-                                        </div>
-                                        <div
-                                            class="input-group"
-                                            x-show="currentQuiz.questions[selectedQuestionIndex].type !== 'round-title'"
-                                        >
-                                            <label>Tags (e.g. Australia, History)</label>
-                                            <div style="display: flex; flex-direction: column; gap: 0.5rem">
-                                                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem">
-                                                    <template x-for="tag in currentQuiz.questions[selectedQuestionIndex].tags" :key="tag">
-                                                        <span 
-                                                            class="text-sm" 
-                                                            style="background: #f1f5f9; padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-weight: 700; color: var(--color-primary); display: flex; align-items: center; gap: 0.5rem;"
-                                                        >
-                                                            <span x-text="tag"></span>
-                                                            <button @click="removeTag(tag)" style="background: none; border: none; padding: 0; cursor: pointer; color: var(--color-danger); font-weight: 800; font-size: 1rem;">×</button>
-                                                        </span>
-                                                    </template>
-                                                </div>
-                                                <div class="tag-input-container">
-                                                    <input
-                                                        type="text"
-                                                        x-model="newTagInput"
-                                                        placeholder="Add a tag and press Enter"
-                                                        @input="updateTagSuggestions()"
-                                                        @keydown.enter.prevent="addTag()"
-                                                        @keydown.arrow-down.prevent="navigateTagSuggestions('down')"
-                                                        @keydown.arrow-up.prevent="navigateTagSuggestions('up')"
-                                                        @keydown.escape="tagSuggestions = []"
-                                                        @blur="setTimeout(() => tagSuggestions = [], 200)"
-                                                    />
-                                                    <div class="tag-suggestions" x-show="tagSuggestions.length > 0">
-                                                        <template x-for="(suggestion, sIdx) in tagSuggestions" :key="suggestion">
-                                                            <div 
-                                                                class="tag-suggestion-item"
-                                                                :class="{ 'active': activeTagSuggestionIndex === sIdx }"
-                                                                x-text="suggestion"
-                                                                @click="selectTag(suggestion)"
-                                                                @mouseenter="activeTagSuggestionIndex = sIdx"
-                                                            ></div>
-                                                        </template>
-                                                    </div>
-                                                </div>
+                                    <template x-if="currentQuiz.questions[selectedQuestionIndex].type !== 'rebus'">
+                                        <div class="flex-col gap-2">
+                                            <label class="text-xs font-extrabold text-muted">SLIDE IMAGE (OPTIONAL)</label>
+                                            <div class="flex gap-2">
+                                                <input type="text" x-model="currentQuiz.questions[selectedQuestionIndex].image" placeholder="https://...">
+                                                <button class="btn btn-secondary" @click="$refs.qFile.click()">📁 Upload</button>
+                                                <input type="file" x-ref="qFile" style="display: none" accept="image/*" @change="uploadImage($event, 'image')">
                                             </div>
                                         </div>
-                                    </div>
-
-                                    <div
-                                        class="input-group"
-                                        x-show="currentQuiz.questions[selectedQuestionIndex].type === 'round-title'"
-                                    >
-                                        <label>Round Title Text</label>
-                                        <input
-                                            type="text"
-                                            x-model="currentQuiz.questions[selectedQuestionIndex].title"
-                                            placeholder="e.g. Round 1: History"
-                                            style="font-size: 1.125rem; font-weight: 700"
-                                        />
-                                    </div>
-
-                                    <div
-                                        class="input-group"
-                                        x-show="currentQuiz.questions[selectedQuestionIndex].type === 'round-title'"
-                                    >
-                                        <label>Background Image URL (Optional)</label>
-                                        <div style="display: flex; gap: 0.75rem">
-                                            <input
-                                                type="text"
-                                                x-model="currentQuiz.questions[selectedQuestionIndex].image"
-                                                placeholder="https://..."
-                                                style="flex: 1"
-                                            />
-                                            <button
-                                                class="btn btn-secondary"
-                                                @click="$refs.roundFile.click()"
-                                            >
-                                                📁 Upload
-                                            </button>
-                                            <input
-                                                type="file"
-                                                x-ref="roundFile"
-                                                style="display: none"
-                                                accept="image/*"
-                                                @change="uploadImage($event, 'image')"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        class="input-group"
-                                        x-show="currentQuiz.questions[selectedQuestionIndex].type !== 'round-title'"
-                                    >
-                                        <label>Question Text</label>
-                                        <div 
-                                            class="rte-container"
-                                            x-init="initRTE($el, 'question', currentQuiz.questions[selectedQuestionIndex].question)"
-                                            :key="'q-rte-' + currentQuiz.questions[selectedQuestionIndex].id"
-                                        ></div>
-                                    </div>
-
-                                    <div
-                                        class="input-group"
-                                        x-show="currentQuiz.questions[selectedQuestionIndex].type !== 'round-title' && currentQuiz.questions[selectedQuestionIndex].type !== 'rebus'"
-                                    >
-                                        <label>Image URL (Optional)</label>
-                                        <div style="display: flex; gap: 0.75rem">
-                                            <input
-                                                type="text"
-                                                x-model="currentQuiz.questions[selectedQuestionIndex].image"
-                                                placeholder="https://..."
-                                                style="flex: 1"
-                                            />
-                                            <button
-                                                class="btn btn-secondary"
-                                                @click="$refs.questionFile.click()"
-                                            >
-                                                📁 Upload
-                                            </button>
-                                            <input
-                                                type="file"
-                                                x-ref="questionFile"
-                                                style="display: none"
-                                                accept="image/*"
-                                                @change="uploadImage($event, 'image')"
-                                            />
-                                        </div>
-                                    </div>
+                                    </template>
 
                                     <!-- Rebus Image Manager -->
-                                    <div 
-                                        x-show="currentQuiz.questions[selectedQuestionIndex].type === 'rebus'"
-                                        style="margin-bottom: 2rem; background: #f8fafc; padding: 1.5rem; border-radius: var(--radius-lg); border: 1px solid var(--color-border);"
-                                    >
-                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                                            <label style="margin: 0; color: var(--color-primary); font-size: 1rem;">Rebus Images (Order Matters)</label>
-                                            <div style="display: flex; gap: 0.5rem;">
-                                                <button class="btn btn-primary text-sm" @click="$refs.rebusFile.click()">+ Upload Image</button>
+                                    <template x-if="currentQuiz.questions[selectedQuestionIndex].type === 'rebus'">
+                                        <div class="flex-col gap-4">
+                                            <div class="flex justify-between items-center">
+                                                <label class="text-xs font-extrabold text-muted">REBUS IMAGES (ORDER MATTERS)</label>
+                                                <button class="btn btn-secondary btn-sm" @click="$refs.rebusFile.click()">+ Add Image</button>
                                                 <input type="file" x-ref="rebusFile" style="display: none" accept="image/*" @change="uploadRebusImage($event)">
                                             </div>
-                                        </div>
-
-                                        <div class="rebus-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem;" id="rebus-sortable-list">
-                                            <template x-for="(imgUrl, idx) in (currentQuiz.questions[selectedQuestionIndex].rebusImages || [])" :key="idx">
-                                                <div class="rebus-item" style="position: relative; aspect-ratio: 1; background: white; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--color-border); cursor: grab;">
-                                                    <img :src="imgUrl" style="width: 100%; height: 100%; object-fit: cover;">
-                                                    <button 
-                                                        @click="removeRebusImage(idx)"
-                                                        style="position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(220, 38, 38, 0.9); color: white; border: none; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.875rem;"
-                                                        title="Remove Image"
-                                                    >
-                                                        &times;
-                                                    </button>
-                                                    <div style="position: absolute; bottom: 0.5rem; left: 0.5rem; background: rgba(0,0,0,0.6); color: white; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700;" x-text="idx + 1"></div>
-                                                </div>
-                                            </template>
-                                            <div 
-                                                x-show="(!currentQuiz.questions[selectedQuestionIndex].rebusImages || currentQuiz.questions[selectedQuestionIndex].rebusImages.length === 0)"
-                                                style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--color-text-muted); border: 2px dashed var(--color-border); border-radius: var(--radius-md);"
-                                            >
-                                                No images yet. Click "Upload Image" to add some.
+                                            <div class="rebus-grid" id="rebus-sortable-list">
+                                                <template x-for="(img, idx) in currentQuiz.questions[selectedQuestionIndex].rebusImages" :key="idx">
+                                                    <div class="rebus-thumb">
+                                                        <img :src="img">
+                                                        <button class="rebus-delete" @click="removeRebusImage(idx)">&times;</button>
+                                                        <div style="position: absolute; bottom: 0.25rem; left: 0.25rem; background: rgba(0,0,0,0.6); color: white; padding: 0.1rem 0.3rem; border-radius: 4px; font-size: 0.65rem; font-weight: 900;" x-text="idx + 1"></div>
+                                                    </div>
+                                                </template>
                                             </div>
                                         </div>
-                                    </div>
+                                    </template>
 
-                                    <!-- Options for Multiple Choice -->
-                                    <div
-                                        x-show="currentQuiz.questions[selectedQuestionIndex].type === 'multiple'"
-                                        style="margin-bottom: 1.5rem"
-                                    >
-                                        <div
-                                            style="
-                                                display: flex;
-                                                justify-content: space-between;
-                                                align-items: center;
-                                                margin-bottom: 0.75rem;
-                                            "
-                                        >
-                                            <label style="margin: 0"
-                                                >Options & Correct Answer</label
-                                            >
-                                            <button
-                                                @click="autoGenerateOptions()"
-                                                class="btn btn-secondary text-sm"
-                                                style="padding: 0.25rem 0.75rem; border-color: #9333ea; color: #9333ea"
-                                            >
-                                                ✨ AI Generate Options
-                                            </button>
+                                    <!-- Answers: Multiple Choice -->
+                                    <template x-if="currentQuiz.questions[selectedQuestionIndex].type === 'multiple'">
+                                        <div class="flex-col gap-4">
+                                            <div class="flex justify-between items-center">
+                                                <label class="text-xs font-extrabold text-muted">OPTIONS & CORRECT ANSWER</label>
+                                                <button @click="autoGenerateOptions()" class="btn btn-secondary btn-sm" style="border-color: #9333ea; color: #9333ea;">✨ AI Generate</button>
+                                            </div>
+                                            <div class="mc-options-grid">
+                                                <template x-for="(opt, oIdx) in currentQuiz.questions[selectedQuestionIndex].options" :key="oIdx">
+                                                    <div class="mc-option-item" :class="{ 'correct': currentQuiz.questions[selectedQuestionIndex].correctAnswer === opt }">
+                                                        <input type="radio" :name="'correct-' + selectedQuestionIndex" :checked="currentQuiz.questions[selectedQuestionIndex].correctAnswer === opt" @change="currentQuiz.questions[selectedQuestionIndex].correctAnswer = opt">
+                                                        <input type="text" x-model="currentQuiz.questions[selectedQuestionIndex].options[oIdx]" class="font-bold" style="border: none; background: transparent; padding: 0; box-shadow: none;">
+                                                        <button @click="removeOption(oIdx)" class="text-muted hover:text-danger" style="background: none; border: none; cursor: pointer;">🗑️</button>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                            <button @click="addOption()" class="btn btn-secondary btn-sm" style="border-style: dashed;">+ Add Option</button>
                                         </div>
-                                        <div class="options-grid">
-                                            <template
-                                                x-for="(opt, oIdx) in currentQuiz.questions[selectedQuestionIndex].options"
-                                                :key="oIdx"
-                                            >
-                                                <div
-                                                    class="mc-option-item"
-                                                    :class="{ 'is-correct': currentQuiz.questions[selectedQuestionIndex].correctAnswer === currentQuiz.questions[selectedQuestionIndex].options[oIdx] }"
-                                                >
-                                                    <button
-                                                        type="button"
-                                                        class="mc-option-check"
-                                                        @click="currentQuiz.questions[selectedQuestionIndex].correctAnswer = currentQuiz.questions[selectedQuestionIndex].options[oIdx]"
-                                                        title="Set as correct answer"
-                                                    >
-                                                        ✓
-                                                    </button>
-                                                    <input
-                                                        type="text"
-                                                        class="mc-option-input"
-                                                        :value="currentQuiz.questions[selectedQuestionIndex].options[oIdx]"
-                                                        @input="
-                                                            const newVal = $el.value;
-                                                            const q = currentQuiz.questions[selectedQuestionIndex];
-                                                            const oldVal = q.options[oIdx];
-                                                            q.options[oIdx] = newVal;
-                                                            if (q.type === 'multiple' && q.correctAnswer === oldVal) {
-                                                                q.correctAnswer = newVal;
-                                                            }
-                                                        "
-                                                        placeholder="Option Text"
-                                                    />
-                                                    <button 
-                                                        type="button"
-                                                        class="mc-option-delete"
-                                                        @click="removeOption(oIdx)"
-                                                        title="Remove Option"
-                                                    >
-                                                        🗑️
-                                                    </button>
-                                                </div>
-                                            </template>
+                                    </template>
+
+                                    <!-- Answers: Short Answer / Rebus -->
+                                    <template x-if="['short', 'rebus', 'identify', 'true-false'].includes(currentQuiz.questions[selectedQuestionIndex].type)">
+                                        <div class="flex-col gap-2">
+                                            <label class="text-xs font-extrabold text-muted">ACCEPTED ANSWERS (COMMA SEPARATED)</label>
+                                            <input type="text" :value="Array.isArray(currentQuiz.questions[selectedQuestionIndex].correctAnswer) ? currentQuiz.questions[selectedQuestionIndex].correctAnswer.join(', ') : currentQuiz.questions[selectedQuestionIndex].correctAnswer" @input="currentQuiz.questions[selectedQuestionIndex].correctAnswer = $event.target.value.split(',').map(s => s.trim())">
                                         </div>
-                                        <div style="margin-top: 1rem">
-                                            <button @click="addOption()" class="btn btn-secondary text-sm" style="width: 100%; border-style: dashed">+ Add Option</button>
+                                    </template>
+
+                                    <!-- Host Tools -->
+                                    <div class="grid mt-8 pt-8 border-t" style="grid-template-columns: 1fr 1fr; gap: 2rem;">
+                                        <div class="flex-col gap-4">
+                                            <label class="flex items-center gap-2 cursor-pointer">
+                                                <input type="checkbox" x-model="currentQuiz.questions[selectedQuestionIndex].factCheckingRequired" style="width: 1.25rem; height: 1.25rem;">
+                                                <span class="text-xs font-extrabold text-muted">FACT CHECK REQUIRED</span>
+                                            </label>
+                                            <div class="rte-container" x-init="initRTE($el, 'factCheckingSource', currentQuiz.questions[selectedQuestionIndex].factCheckingSource)" :key="'s-rte-' + currentQuiz.questions[selectedQuestionIndex].id" style="height: 120px;"></div>
+                                        </div>
+                                        <div class="flex-col gap-4">
+                                            <label class="text-xs font-extrabold text-muted">HOST NOTES</label>
+                                            <div class="rte-container" x-init="initRTE($el, 'notes', currentQuiz.questions[selectedQuestionIndex].notes)" :key="'n-rte-' + currentQuiz.questions[selectedQuestionIndex].id" style="height: 120px;"></div>
                                         </div>
                                     </div>
-
-                                    <!-- Options for Short Answer -->
-                                    <div
-                                        x-show="['short', 'identify', 'rebus'].includes(currentQuiz.questions[selectedQuestionIndex].type)"
-                                    >
-                                        <label>Accepted Answers (Comma separated)</label>
-                                        <input
-                                            type="text"
-                                            placeholder="e.g. Answer 1, Answer 2"
-                                            :value="Array.isArray(currentQuiz.questions[selectedQuestionIndex].correctAnswer) ? currentQuiz.questions[selectedQuestionIndex].correctAnswer.join(', ') : currentQuiz.questions[selectedQuestionIndex].correctAnswer"
-                                            @input="currentQuiz.questions[selectedQuestionIndex].correctAnswer = $event.target.value.split(',').map(s => s.trim())"
-                                        />
-                                    </div>
-
-                                                                            <div class="input-group" style="margin-top: 2rem" x-show="currentQuiz.questions[selectedQuestionIndex].type !== 'round-title'">
-                                                                                <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; margin-bottom: 1rem;">
-                                                                                    <input
-                                                                                        type="checkbox"
-                                                                                        x-model="currentQuiz.questions[selectedQuestionIndex].factCheckingRequired"
-                                                                                        style="width: 1.25rem; height: 1.25rem;"
-                                                                                    />
-                                                                                    <span style="font-weight: 700;">Fact Checking Required</span>
-                                                                                </label>
-                                                                                
-                                                                                                                                <div style="margin-top: 1rem;">
-                                                                                                                                    <label>Verification Source / Explanation</label>
-                                                                                                                                    <div 
-                                                                                                                                        class="rte-container"
-                                                                                                                                        x-init="initRTE($el, 'factCheckingSource', currentQuiz.questions[selectedQuestionIndex].factCheckingSource)"
-                                                                                                                                        :key="'s-rte-' + currentQuiz.questions[selectedQuestionIndex].id"
-                                                                                                                                    ></div>
-                                                                                                                                </div>
-                                                                                                                            </div>
-                                                                                                                    <div class="input-group" style="margin-top: 2rem" x-show="currentQuiz.questions[selectedQuestionIndex].type !== 'round-title'">
-                                                                                                                        <label>Host Notes (Optional)</label>
-                                                                                                                        <div 
-                                                                                                                            class="rte-container"
-                                                                                                                            x-init="initRTE($el, 'notes', currentQuiz.questions[selectedQuestionIndex].notes)"
-                                                                                                                            :key="'n-rte-' + currentQuiz.questions[selectedQuestionIndex].id"
-                                                                                                                        ></div>
-                                                                                                                    </div>                                </div>
-                            </template>
-                            <template x-if="!currentQuiz.questions[selectedQuestionIndex]">
-                                <div style="text-align: center; padding: 5rem">
-                                    <div style="font-size: 3rem; margin-bottom: 1rem">👈</div>
-                                    <h3 class="text-muted">Select a slide to start editing</h3>
                                 </div>
                             </template>
                         </div>
-                    </div>
-                <!-- Old template end removed -->
-
-                <!-- Game Options Side Panel -->
-                <div 
-                    class="game-options-panel" 
-                    x-show="showGameOptions"
-                    x-transition:enter="transition ease-out duration-300"
-                    x-transition:enter-start="translate-x-full"
-                    x-transition:enter-end="translate-x-0"
-                    x-transition:leave="transition ease-in duration-300"
-                    x-transition:leave-start="translate-x-0"
-                    x-transition:leave-end="translate-x-full"
-                >
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem">
-                        <h3 style="margin: 0">Game Options</h3>
-                        <button @click="showGameOptions = false" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-text-muted)">&times;</button>
-                    </div>
-
-                    <p class="text-muted text-sm" style="margin-bottom: 1.5rem">
-                        These settings apply to this specific quiz when hosted.
-                    </p>
-
-                    <div class="input-group">
-                        <label>Default Timer (seconds)</label>
-                        <input
-                            type="number"
-                            x-model.number="currentQuiz.settings.defaultTimer"
-                            min="5"
-                            step="5"
-                        />
-                        <p class="text-muted text-sm" style="margin-top: 0.25rem">
-                            Fallback for slides with no specific timer.
-                        </p>
-                    </div>
-
-                    <div class="card" style="background: var(--color-bg); margin-bottom: 1rem; border: none;">
-                        <label style="display: flex; gap: 0.75rem; align-items: start; cursor: pointer; margin: 0;">
-                            <input
-                                type="checkbox"
-                                x-model="currentQuiz.settings.speedScoring"
-                                style="width: 1.25rem; height: 1.25rem; margin-top: 0.1rem;"
-                            />
-                            <div>
-                                <span style="font-weight: 700; display: block;">Speed Scoring</span>
-                                <span class="text-muted text-sm" style="font-weight: 400; line-height: 1.3; display: block; margin-top: 0.25rem;">
-                                    Award bonus points for faster answers.
-                                </span>
-                            </div>
-                        </label>
-                    </div>
-
-                    <div class="card" style="background: var(--color-bg); margin-bottom: 1rem; border: none;">
-                        <label style="display: flex; gap: 0.75rem; align-items: start; cursor: pointer; margin: 0;">
-                            <input
-                                type="checkbox"
-                                x-model="currentQuiz.settings.autoReveal"
-                                style="width: 1.25rem; height: 1.25rem; margin-top: 0.1rem;"
-                            />
-                            <div>
-                                <span style="font-weight: 700; display: block;">Auto-Reveal</span>
-                                <span class="text-muted text-sm" style="font-weight: 400; line-height: 1.3; display: block; margin-top: 0.25rem;">
-                                    Automatically show answers when everyone has answered.
-                                </span>
-                            </div>
-                        </label>
-                    </div>
-
-                    <div class="card" style="background: var(--color-bg); margin-bottom: 1rem; border: none;">
-                        <label style="display: flex; gap: 0.75rem; align-items: start; cursor: pointer; margin: 0;">
-                            <input
-                                type="checkbox"
-                                x-model="currentQuiz.settings.continuousScoreboard"
-                                style="width: 1.25rem; height: 1.25rem; margin-top: 0.1rem;"
-                            />
-                            <div>
-                                <span style="font-weight: 700; display: block;">Continuous Scoreboard</span>
-                                <span class="text-muted text-sm" style="font-weight: 400; line-height: 1.3; display: block; margin-top: 0.25rem;">
-                                    If off, the scoreboard is only visible to players when you choose to show it.
-                                </span>
-                            </div>
-                        </label>
-                    </div>
-
-                    <div class="card" style="background: var(--color-bg); margin-bottom: 1rem; border: none;">
-                        <label style="display: flex; gap: 0.75rem; align-items: start; cursor: pointer; margin: 0;">
-                            <input
-                                type="checkbox"
-                                x-model="currentQuiz.settings.randomizeOptions"
-                                style="width: 1.25rem; height: 1.25rem; margin-top: 0.1rem;"
-                            />
-                            <div>
-                                <span style="font-weight: 700; display: block;">Randomise MC Options</span>
-                                <span class="text-muted text-sm" style="font-weight: 400; line-height: 1.3; display: block; margin-top: 0.25rem;">
-                                    If on, the multiple choice answers will appear in a random order for every player.
-                                </span>
-                            </div>
-                        </label>
-                    </div>
-
-                    <div class="card" style="background: var(--color-bg); margin-bottom: 1rem; border: none;">
-                        <label style="display: flex; gap: 0.75rem; align-items: start; cursor: pointer; margin: 0;">
-                            <input
-                                type="checkbox"
-                                x-model="currentQuiz.settings.enableCountdown"
-                                style="width: 1.25rem; height: 1.25rem; margin-top: 0.1rem;"
-                            />
-                            <div>
-                                <span style="font-weight: 700; display: block;">Enable Countdown</span>
-                                <span class="text-muted text-sm" style="font-weight: 400; line-height: 1.3; display: block; margin-top: 0.25rem;">
-                                    Show a short countdown before each question starts.
-                                </span>
-                            </div>
-                        </label>
-                        <div x-show="currentQuiz.settings.enableCountdown" style="margin-top: 1rem; padding-left: 2rem;">
-                            <label class="text-sm" style="font-weight: 600; margin-bottom: 0.25rem; display: block;">Duration (seconds)</label>
-                            <input
-                                type="number"
-                                x-model.number="currentQuiz.settings.countdownDuration"
-                                min="1"
-                                max="7"
-                                style="width: 80px; padding: 0.4rem;"
-                            />
-                        </div>
-                    </div>
-                </div>
-                <!-- Closing wrapper and template -->
-                    </div>
-                </template>
+                    </template>
+                </main>
             </div>
+        </div>
 
-            <!-- Question Bank Modal -->
-            <div
-                class="modal-backdrop"
-                x-show="showQuestionBank"
-                x-cloak
-                @click.self="showQuestionBank = false"
-            >
-                <div class="modal-content" style="max-width: 800px; height: 80vh; display: flex; flex-direction: column; padding: 2rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem">
-                        <h2 style="margin: 0; color: var(--color-primary)">📂 Question Bank</h2>
-                        <div style="display: flex; gap: 0.75rem; align-items: center;">
-                            <button @click="showImportModal = true" class="btn btn-secondary btn-sm">📥 Import Questions</button>
-                            <button @click="showQuestionBank = false" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
-                        </div>
-                    </div>
+        <!-- Question Bank Modal (Slide-out style) -->
+        <div class="modal-backdrop" x-show="showQuestionBank" x-cloak @click.self="showQuestionBank = false" style="justify-content: flex-end; z-index: 10000;">
+            <div x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0" class="card" style="width: 600px; height: 100vh; border-radius: 0; margin: 0; display: flex; flex-direction: column;">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 style="color: var(--color-primary)">📂 Question Bank</h2>
+                    <button @click="showQuestionBank = false" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+                </div>
 
-                    <div class="input-group" style="margin-bottom: 1.5rem">
-                        <input 
-                            type="text" 
-                            x-model="bankSearchQuery" 
-                            placeholder="Search by question text or tags..." 
-                            style="font-size: 1rem; padding: 0.75rem 1rem;"
-                        >
-                    </div>
+                <div class="mb-4">
+                    <input type="text" x-model="bankSearchQuery" placeholder="Search by text or tags..." style="padding: 0.75rem 1rem;">
+                </div>
 
-                    <div style="flex: 1; overflow-y: auto; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-bg);">
-                        <template x-if="filteredBankQuestions.length === 0">
-                            <div style="padding: 3rem; text-align: center; color: var(--color-text-muted);">
-                                No questions found matching your search.
-                            </div>
-                        </template>
-                        <template x-for="q in paginatedBankQuestions" :key="q.id">
-                            <div 
-                                style="padding: 1rem; border-bottom: 1px solid var(--color-border); background: white; display: flex; justify-content: space-between; align-items: start; gap: 1rem;"
-                            >
-                                <div style="flex: 1">
-                                    <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem">
-                                        <span class="text-xs" style="background: #e2e8f0; padding: 0.1rem 0.5rem; border-radius: 4px; font-weight: 700; text-transform: uppercase;" x-text="q.type"></span>
-                                        <span class="text-xs" style="background: #f1f5f9; padding: 0.1rem 0.5rem; border-radius: 4px; font-weight: 700;" x-text="q.difficulty"></span>
-                                    </div>
-                                    <div style="font-weight: 600; margin-bottom: 0.5rem" x-text="q.question"></div>
-                                    <div style="display: flex; flex-wrap: wrap; gap: 0.25rem">
-                                        <template x-for="tag in (q.tags || [])" :key="tag">
-                                            <span class="text-xs" style="color: var(--color-primary); font-weight: 700;" x-text="'#' + tag"></span>
-                                        </template>
-                                    </div>
+                <div style="flex: 1; overflow-y: auto; background: var(--color-bg); border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                    <template x-for="q in paginatedBankQuestions" :key="q.id">
+                        <div class="p-4 border-b bg-white flex justify-between items-start gap-4">
+                            <div class="flex-col gap-1">
+                                <div class="text-xs font-extrabold text-muted" x-text="q.type.toUpperCase() + ' • ' + q.difficulty.toUpperCase()"></div>
+                                <div class="font-bold text-sm" x-text="q.question"></div>
+                                <div class="flex flex-wrap gap-1 mt-1">
+                                    <template x-for="tag in (q.tags || [])" :key="tag">
+                                        <span class="text-xs font-bold text-primary" x-text="'#' + tag"></span>
+                                    </template>
                                 </div>
-                                <button 
-                                    @click="addQuestionFromBank(q.id)" 
-                                    class="btn btn-primary btn-sm"
-                                    style="white-space: nowrap"
-                                >
-                                    + Add to Quiz
-                                </button>
                             </div>
-                        </template>
-                    </div>
-
-                    <!-- Bank Pagination Controls -->
-                    <div x-show="filteredBankQuestions.length > 0" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 0.5rem; border-top: 1px solid var(--color-border);">
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <span class="text-xs text-muted">Page Size:</span>
-                            <select :value="bankPageSize" @change="setBankPageSize($event.target.value)" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                            </select>
+                            <button @click="addQuestionFromBank(q.id)" class="btn btn-primary btn-sm">+ Add</button>
                         </div>
+                    </template>
+                </div>
 
-                        <div class="text-xs font-bold text-muted">
-                            <span x-text="startBankIndex"></span> - <span x-text="endBankIndex"></span> of <span x-text="filteredBankQuestions.length"></span>
-                        </div>
-
-                        <div style="display: flex; gap: 0.25rem;">
-                            <button 
-                                @click="prevBankPage()" 
-                                :disabled="bankPage === 1" 
-                                class="btn btn-sm btn-secondary"
-                                style="padding: 0.25rem 0.5rem; font-size: 0.75rem;"
-                                :style="bankPage === 1 ? 'opacity: 0.5; cursor: not-allowed;' : ''"
-                            >Prev</button>
-                            <button 
-                                @click="nextBankPage()" 
-                                :disabled="bankPage === totalBankPages" 
-                                class="btn btn-sm btn-secondary"
-                                style="padding: 0.25rem 0.5rem; font-size: 0.75rem;"
-                                :style="bankPage === totalBankPages ? 'opacity: 0.5; cursor: not-allowed;' : ''"
-                            >Next</button>
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 1.5rem; text-align: right">
-                        <button @click="showQuestionBank = false" class="btn btn-secondary">Close</button>
+                <div class="flex justify-between items-center mt-4 pt-4 border-t">
+                    <span class="text-xs font-bold text-muted" x-text="'Page ' + bankPage + ' of ' + totalBankPages"></span>
+                    <div class="flex gap-2">
+                        <button @click="prevBankPage()" :disabled="bankPage === 1" class="btn btn-secondary btn-sm">Prev</button>
+                        <button @click="nextBankPage()" :disabled="bankPage === totalBankPages" class="btn btn-secondary btn-sm">Next</button>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Import Questions Modal -->
-            <div
-                class="modal-backdrop"
-                x-show="showImportModal"
-                x-cloak
-                @click.self="showImportModal = false"
-            >
-                <div class="modal-content" style="max-width: 900px; height: 85vh; display: flex; flex-direction: column; padding: 2rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem">
-                        <h2 style="margin: 0; color: var(--color-primary)">📥 Import Questions</h2>
-                        <button @click="showImportModal = false" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+        <!-- Quiz Settings Modal -->
+        <div class="modal-backdrop" x-show="showGameOptions" x-cloak @click.self="showGameOptions = false" style="z-index: 10000;">
+            <div class="card" style="width: 440px;">
+                <h2 class="mb-6" style="color: var(--color-primary)">⚙️ Quiz Settings</h2>
+                
+                <div class="flex-col gap-6">
+                    <div class="flex-col gap-2">
+                        <label class="text-xs font-extrabold text-muted">DEFAULT TIMER (SECONDS)</label>
+                        <input type="number" x-model.number="currentQuiz.settings.defaultTimer" min="5" step="5">
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 2rem; flex: 1; min-height: 0;">
-                        <!-- Input Section -->
-                        <div style="display: flex; flex-direction: column; gap: 1rem;">
-                            <div>
-                                <label>Paste JSON or CSV data</label>
-                                <p class="text-xs text-muted">
-                                    Format: JSON Array or CSV (Question, Type, Options, CorrectAnswer)<br>
-                                    Example CSV: What is 2+2?, MC, 3|4|5, 4
-                                </p>
+                    <div class="flex-col gap-4">
+                        <label class="flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" x-model="currentQuiz.settings.speedScoring" style="width: 1.25rem; height: 1.25rem; margin-top: 0.1rem;">
+                            <div class="flex-col">
+                                <span class="font-bold">Speed Scoring</span>
+                                <span class="text-xs text-muted">Bonus points for faster answers.</span>
                             </div>
-                            <textarea 
-                                x-model="importInput" 
-                                @input.debounce.500ms="previewImport()"
-                                placeholder='[{"question": "How many states in Australia?", "type": "multiple", "options": ["5", "6", "7", "8"], "correctAnswer": "6"}]'
-                                style="flex: 1; font-family: monospace; font-size: 0.875rem; resize: none;"
-                            ></textarea>
-                            <div x-show="importError" class="text-sm" style="color: var(--color-danger); background: #fef2f2; padding: 0.75rem; border-radius: var(--radius-md); font-weight: 600;" x-text="importError"></div>
-                        </div>
+                        </label>
 
-                        <!-- Preview Section -->
-                        <div style="display: flex; flex-direction: column; gap: 1rem; border-left: 1px solid var(--color-border); padding-left: 1rem;">
-                            <label>Preview (<span x-text="importPreview.length"></span> questions detected)</label>
-                            <div style="flex: 1; overflow-y: auto; background: var(--color-bg); border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-                                <template x-for="(q, idx) in importPreview" :key="idx">
-                                    <div style="padding: 0.75rem; border-bottom: 1px solid var(--color-border); background: white; font-size: 0.875rem;">
-                                        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.25rem;">
-                                            <span class="text-xs" style="background: #e2e8f0; padding: 0.05rem 0.4rem; border-radius: 4px; font-weight: 700; text-transform: uppercase;" x-text="q.type"></span>
-                                            <span class="text-xs" style="background: #f1f5f9; padding: 0.05rem 0.4rem; border-radius: 4px; font-weight: 700;" x-text="q.difficulty"></span>
-                                        </div>
-                                        <div style="font-weight: 700;" x-text="q.question"></div>
-                                        <div class="text-muted" style="font-size: 0.75rem; margin-top: 0.25rem;">
-                                            Ans: <span x-text="Array.isArray(q.correctAnswer) ? q.correctAnswer.join(', ') : q.correctAnswer"></span>
-                                        </div>
-                                    </div>
-                                </template>
-                                <template x-if="importPreview.length === 0">
-                                    <div style="padding: 2rem; text-align: center; color: var(--color-text-muted);">
-                                        Ready to parse input...
-                                    </div>
-                                </template>
+                        <label class="flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" x-model="currentQuiz.settings.randomizeOptions" style="width: 1.25rem; height: 1.25rem; margin-top: 0.1rem;">
+                            <div class="flex-col">
+                                <span class="font-bold">Randomise MC Options</span>
+                                <span class="text-xs text-muted">Shuffle answers for every player.</span>
                             </div>
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 1rem;">
-                        <button @click="showImportModal = false" class="btn btn-secondary">Cancel</button>
-                        <button 
-                            @click="performImport()" 
-                            class="btn btn-primary" 
-                            :disabled="importPreview.length === 0"
-                        >
-                            Import to Bank
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Settings Modal -->
-            <div
-                class="modal-backdrop"
-                x-show="showSettings"
-                x-cloak
-                @click.self="showSettings = false"
-            >
-                <div class="modal-content">
-                    <h2 style="margin-top: 0; color: var(--color-primary); margin-bottom: 1.5rem">⚙️ Editor Settings</h2>
-
-                    <div class="input-group">
-                        <label>Autosave Delay (ms)</label>
-                        <input
-                            type="number"
-                            x-model.number="settings.autosaveDelay"
-                            min="500"
-                            step="500"
-                        />
-                        <p class="text-muted text-sm" style="margin-top: 0.5rem">
-                            Time to wait after typing before saving.
-                        </p>
-                    </div>
-
-                    <div class="input-group">
-                        <label
-                            style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer"
-                        >
-                            <input
-                                type="checkbox"
-                                x-model="settings.showQuestionNumbers"
-                                style="width: 1.25rem; height: 1.25rem"
-                            />
-                            <span>Show Slide Numbers in Sidebar</span>
+                        </label>
+                        
+                        <label class="flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" x-model="currentQuiz.settings.autoReveal" style="width: 1.25rem; height: 1.25rem; margin-top: 0.1rem;">
+                            <div class="flex-col">
+                                <span class="font-bold">Auto-Reveal</span>
+                                <span class="text-xs text-muted">Show answer when everyone submitted.</span>
+                            </div>
                         </label>
                     </div>
+                </div>
 
-                    <div style="display: flex; gap: 0.75rem; margin-top: 2rem">
-                        <button
-                            @click="saveSettings()"
-                            class="btn btn-primary"
-                            style="flex: 1"
-                        >
-                            Save Settings
-                        </button>
-                        <button
-                            @click="showSettings = false"
-                            class="btn btn-secondary"
-                            style="flex: 1"
-                        >
-                            Cancel
-                        </button>
-                    </div>
+                <div class="mt-8">
+                    <button @click="showGameOptions = false" class="btn btn-primary w-full" style="width: 100%;">Close Settings</button>
                 </div>
             </div>
         </div>
@@ -1170,7 +502,6 @@
                     }
                 };
 
-                // Clear previous content if any (Pell appends)
                 el.innerHTML = '';
                 
                 const editor = pell.init({
@@ -1187,13 +518,11 @@
                 
                 updateContent(initialValue);
 
-                // Watch for index changes to refresh content
                 data.$watch('selectedQuestionIndex', () => {
                     const q = data.currentQuiz.questions[data.selectedQuestionIndex];
                     if (q) updateContent(q[field]);
                 });
 
-                // Also watch for currentQuiz changes (like when loading a new quiz)
                 data.$watch('currentQuiz', (newVal) => {
                     if (!newVal) return;
                     const q = newVal.questions[data.selectedQuestionIndex];
@@ -1208,13 +537,7 @@
                     Alpine.data('quizEditor', () =>
                         window.createEditorData(fb.firebase, fb.db, fb.auth, fb.storage)
                     );
-                } else {
-                    console.error('Firebase init failed in editor');
                 }
-            });
-
-            document.addEventListener('DOMContentLoaded', () => {
-                // Version handled by Alpine appVersion
             });
         </script>
     </body>

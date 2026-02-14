@@ -3,6 +3,7 @@ window.createBrowserData = function (firebase, db, auth) {
         isAuthenticated: false,
         waitingForAuth: true,
         loading: true,
+        isConnected: false,
         questions: {},
         
         // Filters
@@ -80,6 +81,11 @@ window.createBrowserData = function (firebase, db, auth) {
 
         // --- Methods ---
         init() {
+            // Connection Status
+            TriviaDataService.connectedRef.on('value', (snap) => {
+                this.isConnected = snap.val() === true;
+            });
+
             // Watch filters to reset pagination
             this.$watch('searchQuery', () => this.currentPage = 1);
             this.$watch('selectedDifficulty', () => this.currentPage = 1);

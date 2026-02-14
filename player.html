@@ -13,445 +13,389 @@
         <!-- Shared Head Helper (Dependencies) -->
         <script src="shared/head-helper.js"></script>
 
-        <style>
-            .container {
-                max-width: 500px;
-            }
+    <style>
+        .player-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-            /* Join */
-            .join-section {
-                text-align: center;
-                padding: 2rem 0;
-            }
-            .join-section input {
-                margin-bottom: 1rem;
-            }
-            .join-section button {
-                width: 100%;
-                padding: 1rem;
-                font-size: 1.125rem;
-            }
+        /* Join Screen */
+        .join-hero {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+        .join-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            animation: bounce 2s infinite;
+        }
 
-            /* Header override/addition */
-            .player-badge {
-                background: var(--color-primary);
-                color: white;
-                padding: 1rem;
-                border-radius: var(--radius-md);
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 1.5rem;
-            }
+        /* Player Header */
+        .player-status-bar {
+            background: var(--color-primary);
+            color: white;
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-md);
+        }
+        .streak-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 800;
+            margin-left: 0.5rem;
+        }
 
-            /* Waiting */
-            .waiting-screen {
-                text-align: center;
-                padding: 3rem 1rem;
-            }
-            .spinner {
-                font-size: 3rem;
-                animation: bounce 1s infinite;
-                display: inline-block;
-                margin-bottom: 1.5rem;
-            }
+        /* Waiting Screen */
+        .waiting-hero {
+            text-align: center;
+            padding: 4rem 1rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .waiting-icon {
+            font-size: 4rem;
+            margin-bottom: 2rem;
+            animation: pulse 2s infinite;
+        }
 
-            .round-number {
-                font-weight: 800;
-                color: rgba(255, 255, 255, 0.8);
-                font-size: 0.875rem;
-                letter-spacing: 0.1em;
-                margin-bottom: 0.5rem;
-            }
+        /* Question View */
+        .question-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            line-height: 1.3;
+            color: var(--color-text);
+        }
+        .question-image-container {
+            width: 100%;
+            max-height: 250px;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            background: white;
+            border: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .question-image {
+            max-width: 100%;
+            max-height: 250px;
+            object-fit: contain;
+        }
 
-            /* Question */
-            .question-display {
-                text-align: center;
-            }
-            /* .question-number is in shared now */
+        /* Options */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .option-btn {
+            background: white;
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-lg);
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--color-text);
+            text-align: left;
+            border: 2px solid var(--color-border);
+            width: 100%;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--color-primary);
+            background: var(--color-primary-light);
+        }
+        .option-btn.selected {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-md);
+        }
+        .option-btn.correct {
+            background: var(--color-success-bg);
+            color: var(--color-success);
+            border-color: var(--color-success);
+        }
+        .option-btn.incorrect {
+            background: var(--color-danger-bg);
+            color: var(--color-danger);
+            border-color: var(--color-danger);
+        }
 
-            .question-text {
-                font-size: 1.5rem;
-                font-weight: 700;
-                margin-bottom: 1.5rem;
-                line-height: 1.3;
-            }
-            .question-image {
-                width: 100%;
-                max-height: 220px;
-                object-fit: contain;
-                border-radius: var(--radius-md);
-                margin-bottom: 1.5rem;
-                background: var(--color-bg);
-            }
+        /* Feedback Flash Overlay */
+        .feedback-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10000;
+            pointer-events: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(4px);
+        }
+        .feedback-overlay.active {
+            opacity: 1;
+        }
+        .feedback-overlay.correct {
+            background: rgba(22, 163, 74, 0.85);
+        }
+        .feedback-overlay.incorrect {
+            background: rgba(220, 38, 38, 0.85);
+        }
+        .feedback-content {
+            color: white;
+            text-align: center;
+            transform: scale(0.8);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .feedback-overlay.active .feedback-content {
+            transform: scale(1);
+        }
 
-            /* Options */
-            .options-list {
-                display: flex;
-                flex-direction: column;
-                gap: 0.75rem;
-                margin-bottom: 1.5rem;
-            }
-            .option-btn {
-                background: var(--color-bg);
-                padding: 1rem 1.25rem;
-                border-radius: var(--radius-md);
-                font-size: 1.0625rem;
-                font-weight: 600;
-                color: var(--color-text);
-                text-align: left;
-                border: 1px solid var(--color-border);
-                width: 100%;
-                transition: all 0.2s ease;
-            }
-            .option-btn.selected {
-                background: var(--color-primary);
-                color: white;
-                border-color: var(--color-primary);
-            }
-            .option-btn.correct {
-                background: #f0fdf4;
-                color: var(--color-success);
-                border-color: var(--color-success);
-            }
-            .option-btn.incorrect {
-                background: #fef2f2;
-                color: var(--color-danger);
-                border-color: var(--color-danger);
-            }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+    </style>
+</head>
+<body x-data="triviaPlayer">
+    <!-- Connectivity Overlay -->
+    <div x-html="TriviaUI.connectivityOverlay()"></div>
 
-            /* Short Answer */
-            .answer-input-group {
-                display: flex;
-                gap: 0.75rem;
-                margin-bottom: 1.5rem;
-            }
-            .answer-input-group input {
-                flex: 1;
-            }
-
-            /* Feedback */
-            .submitted-message {
-                background: #f0f9ff;
-                border: 1px solid #bae6fd;
-                border-radius: var(--radius-md);
-                padding: 1.5rem;
-                text-align: center;
-                color: #0369a1;
-                margin-top: 1rem;
-            }
-            .answer-reveal {
-                background: #f0fdf4;
-                border: 2px solid var(--color-success);
-                border-radius: var(--radius-lg);
-                padding: 1.5rem;
-                text-align: center;
-                margin-top: 1rem;
-            }
-            .answer-reveal h3 {
-                color: var(--color-success);
-                font-size: 0.875rem;
-                margin-bottom: 0.5rem;
-            }
-            .answer-reveal .answer-text {
-                font-size: 1.75rem;
-                color: var(--color-success);
-                font-weight: 800;
-            }
-
-            /* Feedback Flash Overlay */
-            .feedback-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                z-index: 1000;
-                pointer-events: none;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                opacity: 0;
-                transition: opacity 0.3s ease;
-            }
-            .feedback-overlay.active {
-                opacity: 1;
-            }
-            .feedback-overlay.correct {
-                background: rgba(22, 163, 74, 0.9);
-            }
-            .feedback-overlay.incorrect {
-                background: rgba(220, 38, 38, 0.9);
-            }
-            .feedback-content {
-                color: white;
-                text-align: center;
-                transform: scale(0.8);
-                transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            }
-            .feedback-overlay.active .feedback-content {
-                transform: scale(1);
-            }
-            .feedback-content h1 {
-                color: white;
-                font-size: 3rem;
-                text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            }
-        </style>
-    </head>
-    <body x-data="triviaPlayer">
-        <!-- Connectivity Overlay -->
-        <div x-html="TriviaUI.connectivityOverlay()"></div>
-
-        <!-- Feedback Flash -->
-        <div
-            class="feedback-overlay"
-            :class="{'active': showFeedback, 'correct': isCorrect, 'incorrect': !isCorrect}"
-            x-show="showFeedback"
-            x-cloak
-        >
-            <div class="feedback-content">
-                <h1 x-text="isCorrect ? '✅ CORRECT!' : '❌ WRONG'"></h1>
-                <div style="font-size: 5rem" x-text="isCorrect ? '🎉' : '😢'"></div>
-                <template x-if="isCorrect && streak >= 3">
-                    <div style="font-size: 2rem; font-weight: bold; margin-top: 10px">
-                        🔥 <span x-text="streak"></span> STREAK!
-                    </div>
-                </template>
-            </div>
+    <!-- Feedback Flash -->
+    <div
+        class="feedback-overlay"
+        :class="{'active': showFeedback, 'correct': isCorrect, 'incorrect': !isCorrect}"
+        x-show="showFeedback"
+        x-cloak
+    >
+        <div class="feedback-content">
+            <h1 style="color: white; font-size: 3.5rem; margin-bottom: 1rem;" x-text="isCorrect ? '✅ CORRECT!' : '❌ WRONG'"></h1>
+            <div style="font-size: 6rem" x-text="isCorrect ? '🎉' : '😢'"></div>
+            <template x-if="isCorrect && streak >= 3">
+                <div style="font-size: 2.5rem; font-weight: 900; margin-top: 1.5rem; text-shadow: 0 4px 10px rgba(0,0,0,0.3)">
+                    🔥 <span x-text="streak"></span> STREAK!
+                </div>
+            </template>
         </div>
+    </div>
 
-        <div class="container">
-            <!-- Join Section -->
-            <div class="card" x-show="screen === 'join'">
-                <div class="join-section">
-                    <div style="font-size: 3rem; margin-bottom: 1.5rem">🎯</div>
-                    <h1 style="margin-bottom: 0.5rem">Trivia Night</h1>
-                    <p class="text-muted" style="margin-bottom: 2rem">Enter your name to join the game!</p>
+    <div class="player-container">
+        <!-- Join Section -->
+        <div class="card" x-show="screen === 'join'" style="margin-top: auto; margin-bottom: auto;">
+            <div class="join-hero">
+                <span class="join-icon">🎯</span>
+                <h1 style="font-size: 2.25rem; margin-bottom: 0.5rem">Trivia Night</h1>
+                <p class="text-muted" style="margin-bottom: 2.5rem; font-weight: 600;">Ready to show off your knowledge?</p>
 
-                    <div
-                        x-show="errorMsg"
-                        style="
-                            color: var(--color-danger);
-                            background: #fef2f2;
-                            padding: 0.75rem;
-                            border-radius: var(--radius-md);
-                            margin-bottom: 1.5rem;
-                            font-weight: 600;
-                        "
-                        x-text="errorMsg"
-                    ></div>
+                <div
+                    x-show="errorMsg"
+                    class="mb-4"
+                    style="
+                        color: var(--color-danger);
+                        background: var(--color-danger-bg);
+                        padding: 1rem;
+                        border-radius: var(--radius-md);
+                        font-weight: 700;
+                        border: 1px solid var(--color-danger);
+                    "
+                    x-text="errorMsg"
+                ></div>
 
+                <div class="flex-col gap-4">
                     <input
                         type="text"
                         x-model="playerName"
-                        placeholder="Your display name"
+                        placeholder="Enter your name..."
                         maxlength="20"
+                        style="font-size: 1.125rem; padding: 1rem; text-align: center;"
                         @keyup.enter="joinGame()"
                         :disabled="!!errorMsg"
                     />
-                    <button class="btn btn-primary" @click="joinGame()" :disabled="!!errorMsg">Join Game 🎉</button>
+                    <button class="btn btn-primary" style="font-size: 1.25rem; padding: 1rem;" @click="joinGame()" :disabled="!!errorMsg">
+                        Join Game 🎉
+                    </button>
                 </div>
             </div>
+        </div>
 
-            <!-- Game Section -->
-            <div x-show="screen === 'game'">
-                <div 
-                    :key="currentItem.currentIndex" 
-                    x-transition:enter="fade-enter-active" 
-                    x-transition:enter-start="fade-enter" 
-                    x-transition:enter-end="fade-enter-to"
-                    x-show="gameState.continuousScoreboard || !gameState.showScoreboard"
-                >
-                    <div class="card">
-                        <div class="header">
-                        <h1 style="font-size: 1.25rem">🎯 Trivia Night</h1>
-                        <div x-html="TriviaUI.connectionStatus()"></div>
+        <!-- Game Section -->
+        <div x-show="screen === 'game'" class="flex-col" style="flex: 1;">
+            <div 
+                :key="currentItem.currentIndex" 
+                x-transition:enter="fade-enter-active" 
+                x-transition:enter-start="fade-enter-from" 
+                x-transition:enter-end="fade-enter-to"
+                x-show="gameState.continuousScoreboard || !gameState.showScoreboard"
+                class="flex-col"
+                style="flex: 1;"
+            >
+                <div class="player-status-bar">
+                    <div class="flex items-center">
+                        <span style="font-weight: 800; font-size: 1.25rem" x-text="playerName"></span>
+                        <template x-if="streak >= 3">
+                            <span class="streak-badge" x-text="'🔥 ' + streak"></span>
+                        </template>
                     </div>
-
-                    <div class="player-badge">
-                        <div style="display: flex; align-items: center">
-                            <span style="font-weight: 700; font-size: 1.125rem" x-text="playerName"></span>
-                            <template x-if="streak >= 3">
-                                <span class="streak-badge" x-text="'🔥 ' + streak"></span>
-                            </template>
-                        </div>
-                        <span style="font-weight: 800; font-size: 1.125rem" x-text="score + ' pts'"></span>
+                    <div class="flex items-center gap-2">
+                        <span style="font-weight: 900; font-size: 1.25rem" x-text="score"></span>
+                        <span class="text-xs font-extrabold" style="opacity: 0.8; letter-spacing: 0.05em;">PTS</span>
                     </div>
+                </div>
 
-                    <!-- WAITING SCREEN -->
-                    <div class="waiting-screen" x-show="isWaiting">
-                        <div class="spinner">⏳</div>
-                        <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem">Waiting for Host</h2>
-                        <p class="text-muted">The quiz will begin shortly. Get ready!</p>
-                    </div>
+                <!-- WAITING SCREEN -->
+                <div class="waiting-hero" x-show="isWaiting">
+                    <div class="waiting-icon">⏳</div>
+                    <h2 style="font-size: 2rem; margin-bottom: 0.75rem">Waiting for Host</h2>
+                    <p class="text-muted text-lg" style="font-weight: 600;">The next round will begin shortly. Get ready!</p>
+                </div>
 
-                    <!-- ROUND TITLE -->
-                    <template x-if="currentItem.type === 'round-title'">
-                        <div class="slide-card" x-transition:enter="fade-enter-active" x-transition:enter-start="fade-enter" x-transition:enter-end="fade-enter-to">
-                            <template x-if="currentItem.image">
-                                <div
-                                    class="slide-card-bg"
-                                    :style="`background-image: url('${currentItem.image}')`"
-                                ></div>
-                            </template>
-                            <div class="slide-card-content">
-                                <div
-                                    class="round-number"
-                                    x-text="'ROUND ' + currentItem.roundNumber"
-                                ></div>
-                                <h2 x-text="currentItem.roundTitle"></h2>
+                <!-- ROUND TITLE -->
+                <template x-if="currentItem.type === 'round-title'">
+                    <div class="slide-card" x-transition:enter="fade-enter-active" x-transition:enter-start="fade-enter-from" x-transition:enter-end="fade-enter-to">
+                        <template x-if="currentItem.image">
+                            <div class="slide-card-bg" :style="`background-image: url('${currentItem.image}')`"></div>
+                        </template>
+                        <div class="slide-card-content">
+                            <div class="text-sm font-extrabold" style="opacity: 0.9; letter-spacing: 0.2em; margin-bottom: 1rem;">
+                                ROUND <span x-text="currentItem.roundNumber"></span>
                             </div>
+                            <h2 x-text="currentItem.roundTitle"></h2>
                         </div>
-                    </template>
+                    </div>
+                </template>
 
-                    <!-- QUESTION DISPLAY -->
-                        <div class="question-display" x-transition:enter="fade-enter-active" x-transition:enter-start="fade-enter" x-transition:enter-end="fade-enter-to">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <span
-                                        class="question-number"
-                                        x-text="'QUESTION ' + currentItem.questionNumber"
-                                    ></span>
-                                    <template x-if="currentItem.rebusImages">
-                                        <span class="text-xs" style="background: var(--color-primary); color: white; padding: 0.15rem 0.5rem; border-radius: var(--radius-full); font-weight: 800;">REBUS</span>
-                                    </template>
-                                </div>
-                            </div>
-
-                            <!-- Timer -->
-                            <div x-html="TriviaUI.timer()"></div>
-
-                            <!-- Content -->
-                            <div class="question-text" x-html="currentItem.questionText"></div>
-
-                            <template x-if="currentItem.questionImage">
-                                <img
-                                    :src="currentItem.questionImage"
-                                    class="question-image"
-                                    onerror="this.style.display = 'none'"
-                                />
-                            </template>
-
-                            <template x-if="currentItem.rebusImages && currentItem.rebusImages.length > 0">
-                                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 1.5rem;">
-                                    <template x-for="(img, idx) in currentItem.rebusImages" :key="idx">
-                                        <div style="flex: 1 1 100px; max-width: 150px; aspect-ratio: 1; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--color-border); position: relative;">
-                                            <img :src="img" style="width: 100%; height: 100%; object-fit: cover;" />
-                                            <div style="position: absolute; bottom: 0.25rem; left: 0.25rem; background: rgba(0,0,0,0.6); color: white; padding: 0.05rem 0.3rem; border-radius: 3px; font-weight: 700; font-size: 0.65rem;" x-text="idx + 1"></div>
-                                        </div>
-                                    </template>
-                                </div>
-                            </template>
-
-                            <!-- VIEW: Multiple Choice -->
-                            <div class="options-list" x-show="currentItem.questionType === 'MC' && timerStatus !== 'countdown'">
-                                <template x-for="opt in currentItem.options">
-                                    <button
-                                        class="option-btn"
-                                        x-text="opt"
-                                        :class="{
-                                            'selected': currentAnswer === opt,
-                                            'correct': isCorrectOption(opt),
-                                            'incorrect': isMyWrongOption(opt)
-                                        }"
-                                        :disabled="hasSubmitted || timerStatus === 'revealed'"
-                                        @click="selectOption(opt)"
-                                    ></button>
+                <!-- QUESTION DISPLAY -->
+                <div x-show="currentItem.type === 'question'" class="flex-col" style="flex: 1;">
+                    <div class="card" style="flex: 1; display: flex; flex-direction: column;">
+                        <div class="question-header">
+                            <div class="flex items-center gap-2">
+                                <span class="question-number">Q<span x-text="currentItem.questionNumber"></span></span>
+                                <template x-if="currentItem.rebusImages">
+                                    <span class="text-xs font-extrabold" style="background: var(--color-primary); color: white; padding: 0.2rem 0.6rem; border-radius: var(--radius-full);">REBUS</span>
                                 </template>
                             </div>
+                            <div x-html="TriviaUI.timer()"></div>
+                        </div>
 
-                            <!-- VIEW: Short Answer -->
-                            <div
-                                x-show="currentItem.questionType === 'SHORT' && timerStatus !== 'countdown' && !hasSubmitted && !gameState.answerRevealed"
-                            >
-                                <div class="answer-input-group">
-                                    <input
-                                        type="text"
-                                        x-model="currentAnswer"
-                                        placeholder="Type your answer..."
-                                        @keyup.enter="submitShortAnswer()"
-                                    />
-                                    <button class="btn btn-primary" @click="submitShortAnswer()">Submit</button>
-                                </div>
+                        <div class="question-text" x-html="currentItem.questionText"></div>
+
+                        <template x-if="currentItem.questionImage">
+                            <div class="question-image-container">
+                                <img :src="currentItem.questionImage" class="question-image" onerror="this.parentElement.style.display = 'none'" />
                             </div>
+                        </template>
 
-                            <!-- Submitted Feedback (Hidden if answer is revealed) -->
-                            <div
-                                class="submitted-message"
-                                x-show="hasSubmitted && !gameState.answerRevealed"
-                            >
-                                <p style="font-weight: 700; margin-bottom: 0.25rem">✅ Answer submitted!</p>
-                                <p class="text-sm" x-text="'Your answer: ' + currentAnswer"></p>
+                        <template x-if="currentItem.rebusImages && currentItem.rebusImages.length > 0">
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1.5rem;">
+                                <template x-for="(img, idx) in currentItem.rebusImages" :key="idx">
+                                    <div style="aspect-ratio: 1; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--color-border); position: relative; background: white;">
+                                        <img :src="img" style="width: 100%; height: 100%; object-fit: cover;" />
+                                        <div style="position: absolute; bottom: 0.4rem; left: 0.4rem; background: rgba(0,0,0,0.6); color: white; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 800; font-size: 0.75rem;" x-text="idx + 1"></div>
+                                    </div>
+                                </template>
                             </div>
+                        </template>
 
-                            <!-- Answer Reveal -->
-                            <div class="answer-reveal" x-show="gameState.answerRevealed">
-                                <h3>CORRECT ANSWER</h3>
-                                <div class="answer-text" x-text="gameState.answer || '---'"></div>
+                        <!-- VIEW: Multiple Choice -->
+                        <div class="options-list" x-show="currentItem.questionType === 'MC' && timerStatus !== 'countdown'">
+                            <template x-for="opt in currentItem.options">
+                                <button
+                                    class="option-btn"
+                                    x-html="opt"
+                                    :class="{
+                                        'selected': currentAnswer === opt,
+                                        'correct': isCorrectOption(opt),
+                                        'incorrect': isMyWrongOption(opt)
+                                    }"
+                                    :disabled="hasSubmitted || timerStatus === 'revealed'"
+                                    @click="selectOption(opt)"
+                                ></button>
+                            </template>
+                        </div>
 
-                                <!-- Show user answer if Short Answer mode -->
-                                <div
-                                    x-show="currentItem.questionType === 'SHORT' && currentAnswer"
-                                    class="text-sm"
-                                    style="margin-top: 1rem; font-weight: 600; color: var(--color-text-muted)"
-                                >
-                                    Your answer:
-                                    <span x-text="currentAnswer" style="color: var(--color-text)"></span>
-                                </div>
+                        <!-- VIEW: Short Answer -->
+                        <div x-show="currentItem.questionType === 'SHORT' && timerStatus !== 'countdown' && !hasSubmitted && !gameState.answerRevealed" class="flex-col gap-4">
+                            <input
+                                type="text"
+                                x-model="currentAnswer"
+                                placeholder="Type your answer..."
+                                style="font-size: 1.125rem; padding: 1rem;"
+                                @keyup.enter="submitShortAnswer()"
+                            />
+                            <button class="btn btn-primary" style="padding: 1rem; font-size: 1.125rem;" @click="submitShortAnswer()">Submit Answer</button>
+                        </div>
+
+                        <!-- Submitted Feedback -->
+                        <div class="card" x-show="hasSubmitted && !gameState.answerRevealed" style="background: var(--color-primary-light); border-color: var(--color-primary); text-align: center; padding: 1.25rem; margin-top: auto;">
+                            <p style="font-weight: 800; color: var(--color-primary); font-size: 1.125rem; margin-bottom: 0.25rem;">✅ Locked In!</p>
+                            <p class="text-sm font-bold text-muted" x-text="'Your answer: ' + currentAnswer"></p>
+                        </div>
+
+                        <!-- Answer Reveal -->
+                        <div x-show="gameState.answerRevealed" style="margin-top: auto;">
+                            <div class="card" style="background: var(--color-success-bg); border: 2px solid var(--color-success); text-align: center; padding: 1.5rem; margin-bottom: 0;">
+                                <h3 style="color: var(--color-success); font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Correct Answer</h3>
+                                <div style="font-size: 2rem; color: var(--color-success); font-weight: 900; line-height: 1.2;" x-text="gameState.answer || '---'"></div>
+                            </div>
+                            <div x-show="currentItem.questionType === 'SHORT' && currentAnswer" class="text-center mt-4">
+                                <span class="text-sm font-bold text-muted">You guessed: </span>
+                                <span class="text-sm font-extrabold" x-text="currentAnswer"></span>
                             </div>
                         </div>
-                    </template>
+                    </div>
                 </div>
             </div>
 
             <!-- Scoreboard -->
-            <div class="card" x-show="gameState.showScoreboard">
-                    <div class="scoreboard-section">
-                        <h3 style="font-size: 1rem; margin-bottom: 1rem">🏆 Scoreboard</h3>
-                        <div class="score-list">
-                            <template x-for="(player, index) in scoreboard" :key="player.id">
-                                <div
-                                    class="score-item"
-                                    :class="{'leader': index === 0 && player.score > 0, 'me': player.isMe}"
-                                >
-                                    <span class="score-item-name">
-                                        <span x-show="index === 0 && player.score > 0">👑 </span>
-                                        <span
-                                            x-text="player.name + (player.isMe ? ' (You)' : '')"
-                                        ></span>
-                                    </span>
-                                    <span class="score-item-score" x-text="player.score"></span>
-                                </div>
-                            </template>
-                            <p
-                                x-show="scoreboard.length === 0"
-                                class="text-muted text-sm"
-                                style="text-align: center; padding: 1rem"
-                            >
-                                No scores yet.
-                            </p>
+            <div class="card" x-show="gameState.showScoreboard" style="flex: 1;">
+                <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem; text-align: center;">🏆 Leaderboard</h2>
+                <div class="score-list">
+                    <template x-for="(player, index) in scoreboard" :key="player.id">
+                        <div class="score-item" :class="{'leader': index === 0 && player.score > 0, 'me': player.isMe}">
+                            <div class="score-item-name">
+                                <span x-show="index === 0 && player.score > 0" style="margin-right: 0.5rem;">👑</span>
+                                <span x-text="player.name + (player.isMe ? ' (You)' : '')"></span>
+                            </div>
+                            <span class="score-item-score" x-text="player.score"></span>
                         </div>
-                    </div>
+                    </template>
                 </div>
-            </div>
-
-            <div
-                class="text-muted"
-                style="
-                    text-align: center;
-                    margin-top: 2rem;
-                    font-size: 0.75rem;
-                    font-weight: 600;
-                    letter-spacing: 0.05em;
-                "
-            >
-                TRIVIA PLAYER <span class="font-weight-bold" x-text="'v' + appVersion"></span>
+                <div x-show="scoreboard.length === 0" class="waiting-hero" style="padding: 2rem;">
+                    <p class="text-muted font-bold">No scores recorded yet.</p>
+                </div>
             </div>
         </div>
 
-        <!-- Application Logic -->
-        <script src="player-alpine.js?v=1.3"></script>
+        <!-- Footer -->
+        <div class="text-center py-4 mt-auto">
+            <span class="text-xs font-extrabold text-muted" style="letter-spacing: 0.1em;" x-text="'TRIVIA PLAYER v' + appVersion"></span>
+        </div>
+    </div>
+
+    <!-- Application Logic -->
+    <script src="player-alpine.js?v=1.3"></script>
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 // Version handled by Alpine appVersion

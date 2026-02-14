@@ -9,421 +9,266 @@
         <script src="../shared/head-helper.js"></script>
 
         <style>
-            .container {
-                display: grid;
-                grid-template-columns: 1fr 340px;
-                gap: 1.5rem;
-            }
-            .sidebar {
-                display: flex;
-                flex-direction: column;
-                gap: 1.5rem;
-            }
-            .quiz-selector {
-                background: var(--color-bg);
-                border: 1px solid var(--color-border);
-                border-radius: var(--radius-md);
-                padding: 1rem;
-                display: flex;
-                gap: 0.75rem;
-                align-items: center;
-                flex-wrap: wrap;
-                margin-bottom: 1.5rem;
-            }
-            .question-text {
-                font-size: 1.75rem;
-                font-weight: 700;
-                margin-bottom: 1.5rem;
-                line-height: 1.3;
-            }
-            .question-image {
-                max-height: 280px;
-                width: 100%;
-                object-fit: contain;
-                border-radius: var(--radius-md);
-                margin-bottom: 1.5rem;
-                background: var(--color-bg);
-            }
-            .options-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 1rem;
-                margin-bottom: 1.5rem;
-            }
-            .option {
-                background: var(--color-bg);
-                padding: 1rem;
-                border-radius: var(--radius-md);
-                border: 1px solid var(--color-border);
-                font-weight: 600;
-            }
-            .option.correct {
-                background: #f0fdf4;
-                color: var(--color-success);
-                border-color: var(--color-success);
-            }
-            .answer-box {
-                background: #f0fdf4;
-                border: 2px solid var(--color-success);
-                padding: 1.5rem;
-                border-radius: var(--radius-lg);
-                text-align: center;
-                margin-top: 1.5rem;
-            }
-            .host-notes {
-                background: #fff7ed;
-                border-left: 4px solid var(--color-warning);
-                padding: 1rem;
-                margin-top: 1.5rem;
-                border-radius: 0 var(--radius-md) var(--radius-md) 0;
-            }
-            .progress-bar {
-                height: 6px;
-                background: var(--color-border);
-                border-radius: var(--radius-full);
-                overflow: hidden;
-                margin-top: 0.75rem;
-            }
-            .progress-fill {
-                height: 100%;
-                background: var(--color-primary);
-                transition: width 0.3s;
-            }
-        </style>
-    </head>
+        .host-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 2rem;
+            height: calc(100vh - 40px);
+            overflow: hidden;
+        }
+        .main-stage {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+        .control-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            overflow-y: auto;
+        }
 
-    <body x-data="triviaHost">
-        <!-- Connectivity Overlay -->
-        <div x-html="TriviaUI.connectivityOverlay()"></div>
+        /* Audience Preview */
+        .audience-preview-label {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-text-muted);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
-        <div class="container">
-            <div class="card main-panel">
-                <div class="header">
-                    <h1>🎯 Trivia Night</h1>
-                    <p class="text-muted">Host Control Panel</p>
-                    <div
-                        style="
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                            gap: 1rem;
-                            margin-top: 1rem;
-                        "
-                    >
-                        <div x-html="TriviaUI.connectionStatus()"></div>
-                        <a href="dashboard.html" class="btn btn-secondary text-sm" style="text-decoration: none">Dashboard</a>
+        .question-text {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            line-height: 1.2;
+            color: var(--color-text);
+        }
+        .question-image {
+            max-height: 320px;
+            width: 100%;
+            object-fit: contain;
+            border-radius: var(--radius-lg);
+            margin-bottom: 1.5rem;
+            background: white;
+            border: 1px solid var(--color-border);
+        }
+
+        /* Action Bar */
+        .host-action-bar {
+            position: sticky;
+            bottom: 0;
+            background: var(--color-surface);
+            padding: 1.5rem;
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            box-shadow: 0 -10px 15px -3px rgb(0 0 0 / 0.05);
+            z-index: 100;
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        }
+        .btn-xl {
+            padding: 1rem 2rem;
+            font-size: 1.125rem;
+            font-weight: 800;
+        }
+
+        /* Answer Stats */
+        .answer-stats-badge {
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body x-data="triviaHost">
+    <!-- Connectivity Overlay -->
+    <div x-html="TriviaUI.connectivityOverlay()"></div>
+
+    <div class="container" style="max-width: 1440px;">
+        <!-- Header / Navigation -->
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center gap-4">
+                <a href="dashboard.html" class="btn btn-secondary">← Dashboard</a>
+                <h1 style="font-size: 1.5rem;">🎯 Host Panel</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <div x-html="TriviaUI.connectionStatus()"></div>
+                <span class="text-xs font-extrabold text-muted" x-text="'v' + appVersion"></span>
+            </div>
+        </div>
+
+        <!-- VIEW: Loading -->
+        <div x-show="waitingForAuth || loading || !quizData.length" class="card text-center" style="padding: 10rem 2rem;">
+            <div class="timer-display timer-running">⏳</div>
+            <p class="text-muted text-lg font-bold" x-text="waitingForAuth ? 'Verifying Authentication...' : (loading ? 'Loading Quiz...' : 'Preparing Host Panel...')"></p>
+        </div>
+
+        <!-- VIEW: Main Host Layout -->
+        <div class="host-layout" x-show="!waitingForAuth && isAuthenticated && quizData.length > 0">
+            <!-- Left: Main Stage (What the audience sees) -->
+            <div class="main-stage">
+                <!-- SETUP VIEW -->
+                <div x-show="currentView === 'setup'" class="card text-center" style="padding: 6rem 2rem;">
+                    <div style="font-size: 4rem; margin-bottom: 2rem;">🚀</div>
+                    <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Ready to Start?</h2>
+                    <p class="text-muted text-lg mb-8" style="font-weight: 600;">
+                        <span class="text-primary" x-text="quizData.length"></span> items loaded &bull; 
+                        <span class="text-success" x-text="playerCount"></span> players waiting in lobby.
+                    </p>
+                    <button class="btn btn-primary btn-xl" @click="startGame()">Start Live Game</button>
+                </div>
+
+                <!-- GAME VIEW -->
+                <div x-show="currentView === 'game'" class="flex-col" style="flex: 1;">
+                    <div class="audience-preview-label">
+                        <span>📺 Audience Preview</span>
+                        <div style="flex: 1; height: 1px; background: var(--color-border);"></div>
+                        <span x-text="'ITEM ' + (currentIndex + 1) + ' / ' + quizData.length"></span>
                     </div>
-                </div>
 
-                <!-- VIEW: Loading/Redirecting -->
-                <div x-show="waitingForAuth || loading || !quizData.length" style="text-align: center; padding: 4rem">
-                    <div class="timer-display">⏳</div>
-                    <p class="text-muted" x-text="waitingForAuth ? 'Verifying Authentication...' : (loading ? 'Loading Quiz...' : 'Preparing Host Panel...')"></p>
-                </div>
+                    <div class="card" style="flex: 1; position: relative; padding: 2.5rem;">
+                        <div :key="currentIndex" x-transition:enter="fade-enter-active" x-transition:enter-start="fade-enter-from" x-transition:enter-end="fade-enter-to">
+                            <!-- ROUND INTRO PREVIEW -->
+                            <template x-if="currentItem && currentItem.type === 'round-title'">
+                                <div class="slide-card" style="min-height: 400px; margin-bottom: 0;">
+                                    <template x-if="currentItem.image">
+                                        <div class="slide-card-bg" :style="`background-image: url('${currentItem.image}')`"></div>
+                                    </template>
+                                    <div class="slide-card-content">
+                                        <div class="text-sm font-extrabold" style="opacity: 0.9; letter-spacing: 0.2em; margin-bottom: 1rem;">ROUND <span x-text="currentItem.roundNumber"></span></div>
+                                        <h2 x-text="currentItem.title" style="font-size: 3rem;"></h2>
+                                    </div>
+                                </div>
+                            </template>
 
-                <!-- VIEW: Setup/Lobby -->
-                <div x-show="!waitingForAuth && isAuthenticated && currentView === 'setup' && quizData.length > 0">
-                    <div x-show="errorMsg" style="color: var(--color-danger); background: #fef2f2; padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1rem; font-weight: 600;" x-text="errorMsg"></div>
-                    <div x-show="successMsg" style="color: var(--color-success); background: #f0fdf4; padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1rem; font-weight: 600;" x-text="successMsg"></div>
-                    
-                    <div style="text-align: center; padding: 2rem">
-                        <h2 style="font-size: 2rem; margin-bottom: 0.5rem">Ready to Start!</h2>
-                        <p class="text-muted" style="margin-bottom: 2rem">
-                            <strong x-text="quizData.length"></strong> items loaded &bull; 
-                            <strong x-text="playerCount"></strong> players connected.
-                        </p>
-                        <button
-                            class="btn btn-primary"
-                            style="font-size: 1.25rem; padding: 1rem 3rem"
-                            @click="startGame()"
-                        >
-                            🚀 Start Game
-                        </button>
-                    </div>
-                </div>
+                            <!-- QUESTION PREVIEW -->
+                            <template x-if="currentItem && currentItem.type === 'question'">
+                                <div class="flex-col">
+                                    <div class="flex justify-between items-center mb-6">
+                                        <div class="flex items-center gap-3">
+                                            <span class="question-number">Q<span x-text="currentItem.questionNumber"></span></span>
+                                            <template x-if="currentItem.difficulty">
+                                                <span class="text-xs font-extrabold" :style="'color: ' + TriviaUI.getDifficultyColor(currentItem.difficulty)" x-text="currentItem.difficulty.toUpperCase()"></span>
+                                            </template>
+                                        </div>
+                                        <div x-html="TriviaUI.timer()"></div>
+                                    </div>
 
-                <!-- VIEW: Settings -->
-                <!-- Removed: Settings now handled in Editor -->
+                                    <div class="question-text" x-html="currentItem.text"></div>
 
-                <!-- VIEW: Game -->
-                <div x-show="!waitingForAuth && isAuthenticated && currentView === 'game'">
-                    <div :key="currentIndex" x-transition:enter="fade-enter-active" x-transition:enter-start="fade-enter" x-transition:enter-end="fade-enter-to">
-                        <div class="text-muted text-sm" style="text-align: center; font-weight: 600">
-                            ITEM <span x-text="currentIndex + 1"></span> OF
-                            <span x-text="quizData.length"></span>
+                                    <template x-if="currentItem.image">
+                                        <img :src="currentItem.image" class="question-image" onerror="this.style.display = 'none'" />
+                                    </template>
+
+                                    <!-- Correct Answer Reveal (Host View) -->
+                                    <div x-show="answerRevealed" class="card" style="background: var(--color-success-bg); border: 2px solid var(--color-success); text-align: center; margin-top: 1rem;">
+                                        <div class="text-xs font-extrabold text-success mb-2" style="letter-spacing: 0.1em;">CORRECT ANSWER</div>
+                                        <div style="font-size: 2.5rem; font-weight: 900; color: var(--color-success);" x-text="currentItem.answer"></div>
+                                    </div>
+
+                                    <!-- Fact Checking Info -->
+                                    <div x-show="currentItem.factCheckingSource && answerRevealed" class="mt-4 p-4" style="background: var(--color-primary-light); border-left: 4px solid var(--color-primary); border-radius: var(--radius-md);">
+                                        <div class="text-xs font-extrabold text-primary mb-1">FACT CHECKING</div>
+                                        <div class="text-sm font-bold" x-html="currentItem.factCheckingSource"></div>
+                                    </div>
+                                    
+                                    <!-- Host Notes -->
+                                    <div x-show="currentItem.notes && answerRevealed" class="mt-4 p-4" style="background: var(--color-warning-bg); border-left: 4px solid var(--color-warning); border-radius: var(--radius-md);">
+                                        <div class="text-xs font-extrabold text-warning mb-1">HOST NOTES</div>
+                                        <div class="text-sm font-bold" x-html="currentItem.notes"></div>
+                                    </div>
+                                </div>
+                            </template>
                         </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" :style="`width: ${progressPercent}%`"></div>
-                        </div>
-                        <br />
-                        <template x-if="currentItem && currentItem.type === 'round-title'">
-                            <div class="slide-card" x-transition:enter="fade-enter-active" x-transition:enter-start="fade-enter" x-transition:enter-end="fade-enter-to">
-                                <template x-if="currentItem.image">
-                                    <div
-                                        class="slide-card-bg"
-                                        :style="`background-image: url('${currentItem.image}')`"
-                                    ></div>
-                                </template>
-                                <div class="slide-card-content">
-                                    <div style="opacity: 0.8; font-size: 1.1rem; font-weight: 800; letter-spacing: 0.1em">
-                                        ROUND <span x-text="currentItem.roundNumber"></span>
-                                    </div>
-                                    <h2 x-text="currentItem.title" style="margin-top: 0.5rem"></h2>
-                                </div>
-                            </div>
-                        </template>
-                        <template x-if="currentItem && currentItem.type === 'question'">
-                            <div x-transition:enter="fade-enter-active" x-transition:enter-start="fade-enter" x-transition:enter-end="fade-enter-to">
-                                <div class="question-header">
-                                    <div style="display: flex; gap: 0.75rem; align-items: center;">
-                                        <span class="question-number"
-                                            >QUESTION <span x-text="currentItem.questionNumber"></span
-                                        ></span>
-                                        <template x-if="currentItem.difficulty !== undefined">
-                                            <span 
-                                                class="text-sm" 
-                                                :style="'background: ' + TriviaUI.getDifficultyColor(currentItem.difficulty) + '15; color: ' + TriviaUI.getDifficultyColor(currentItem.difficulty) + '; padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-weight: 800; border: 1px solid ' + TriviaUI.getDifficultyColor(currentItem.difficulty) + '30;'"
-                                                x-text="currentItem.difficulty"
-                                            ></span>
-                                        </template>
-                                        <template x-if="currentItem.factCheckingRequired">
-                                            <span 
-                                                class="text-sm" 
-                                                style="background: #fff7ed; color: var(--color-warning); padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-weight: 800; border: 1px solid #fed7aa;"
-                                            >
-                                                ⚠️ FACT CHECK REQUIRED
-                                            </span>
-                                        </template>
-                                    </div>
-                                    <span
-                                        class="text-muted text-sm"
-                                        style="font-weight: 700"
-                                        x-text="currentItem.questionType === 'MC' ? 'MULTIPLE CHOICE' : (currentItem.rebusImages ? 'REBUS' : 'SHORT ANSWER')"
-                                    ></span>
-                                </div>
-                                <div x-html="TriviaUI.timer()"></div>
-                                <div class="question-text" x-html="currentItem.text"></div>
-                                <template x-if="currentItem.image">
-                                    <img
-                                        :src="currentItem.image"
-                                        class="question-image"
-                                        onerror="this.style.display = 'none'"
-                                    />
-                                </template>
-                                <template x-if="currentItem.rebusImages && currentItem.rebusImages.length > 0">
-                                    <div style="display: flex; gap: 0.5rem; overflow-x: auto; padding: 1rem 0; margin-bottom: 1rem;">
-                                        <template x-for="(img, idx) in currentItem.rebusImages" :key="idx">
-                                            <div style="flex: 0 0 auto; width: 200px; height: 200px; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--color-border); position: relative;">
-                                                <img :src="img" style="width: 100%; height: 100%; object-fit: cover;" />
-                                                <div style="position: absolute; bottom: 0.5rem; left: 0.5rem; background: rgba(0,0,0,0.6); color: white; padding: 0.1rem 0.5rem; border-radius: 4px; font-weight: 700; font-size: 0.875rem;" x-text="idx + 1"></div>
-                                            </div>
-                                        </template>
-                                    </div>
-                                </template>
-                                <template x-if="currentItem.questionType === 'MC'">
-                                    <div class="options-grid" x-show="timerStatus !== 'countdown'">
-                                        <template x-for="opt in (currentOptions || currentItem.options)">
-                                            <div
-                                                class="option"
-                                                x-text="opt"
-                                                :class="{ 'correct': answerRevealed && currentItem.answer.includes(opt) }"
-                                            ></div>
-                                        </template>
-                                    </div>
-                                </template>
-                                <template x-if="currentItem.questionType === 'SHORT'">
-                                    <div
-                                        class="text-muted"
-                                        x-show="timerStatus !== 'countdown'"
-                                        style="
-                                            text-align: center;
-                                            padding: 1.5rem;
-                                            background: var(--color-bg);
-                                            border-radius: var(--radius-md);
-                                            margin-bottom: 1.5rem;
-                                            font-weight: 600;
-                                        "
-                                    >
-                                        📝 Short Answer Question
-                                    </div>
-                                </template>
-                                <div class="answer-box" x-show="answerRevealed">
-                                    <h3 style="color: var(--color-success); font-size: 1rem; margin-bottom: 0.5rem">✅ CORRECT ANSWER</h3>
-                                    <div
-                                        style="font-size: 2.25rem; font-weight: 800; color: var(--color-success)"
-                                        x-text="currentItem.answer"
-                                    ></div>
-                                </div>
-                                <div class="host-notes" style="background: #eff6ff; border-color: var(--color-primary);" x-show="(currentItem.factCheckingRequired || currentItem.factCheckingSource) && answerRevealed">
-                                    <h4 style="font-size: 0.875rem; margin-bottom: 0.25rem; color: var(--color-primary)">🔍 FACT CHECKING</h4>
-                                    <div class="text-sm" style="white-space: pre-wrap;" x-html="currentItem.factCheckingSource || 'No verification source or explanation provided.'"></div>
-                                </div>
-                                <div class="host-notes" x-show="currentItem.notes && answerRevealed">
-                                    <h4 style="font-size: 0.875rem; margin-bottom: 0.25rem">🔒 HOST NOTES</h4>
-                                    <div class="text-sm" x-html="currentItem.notes"></div>
-                                </div>
-                            </div>
-                        </template>
                     </div>
-                    <div
-                        style="
-                            margin-top: 2rem;
-                            display: flex;
-                            gap: 0.75rem;
-                            flex-wrap: wrap;
-                            justify-content: center;
-                        "
-                    >
-                        <button
-                            class="btn btn-primary"
-                            style="background: var(--color-warning)"
-                            @click="stopTimer()"
-                            x-show="timerStatus === 'running' || timerStatus === 'countdown'"
-                        >
-                            ⏯️ Skip Timer
-                        </button>
-                        <button
-                            class="btn btn-success"
-                            @click="revealAnswer()"
-                            x-show="!answerRevealed && currentItem && currentItem.type === 'question'"
-                        >
-                            ✅ Reveal Answer
-                        </button>
-                        <button
-                            class="btn btn-primary"
-                            @click="nextItem()"
-                            :disabled="currentIndex >= quizData.length - 1"
-                        >
-                            ➡️ Next
-                        </button>
-                        <button
-                            class="btn btn-secondary"
-                            @click="prevItem()"
-                            :disabled="currentIndex <= 0"
-                        >
-                            ⬅️ Previous
-                        </button>
+
+                    <!-- Host Action Bar -->
+                    <div class="host-action-bar">
+                        <button class="btn btn-secondary" @click="prevItem()" :disabled="currentIndex <= 0">⬅️ Previous</button>
+                        
+                        <div class="flex gap-2">
+                            <button class="btn btn-warning btn-xl" @click="stopTimer()" x-show="timerStatus === 'running' || timerStatus === 'countdown'">⏯️ Skip Timer</button>
+                            <button class="btn btn-success btn-xl" @click="revealAnswer()" x-show="!answerRevealed && currentItem && currentItem.type === 'question'">✅ Reveal Answer</button>
+                        </div>
+
+                        <button class="btn btn-primary btn-xl" @click="nextItem()" :disabled="currentIndex >= quizData.length - 1">Next Item ➡️</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Sidebar -->
-            <div class="sidebar" x-show="isAuthenticated">
-                <div class="card" x-show="currentView === 'game'">
-                    <h3 style="font-size: 1rem; margin-bottom: 1rem">🎮 Game Controls</h3>
+            <!-- Right: Control Sidebar (Host only data) -->
+            <div class="control-sidebar">
+                <!-- Live Submissions -->
+                <div class="card" x-show="currentView === 'game' && currentItem && currentItem.type === 'question'">
+                    <h3 class="text-sm font-extrabold text-muted mb-4" style="letter-spacing: 0.05em;">LIVE SUBMISSIONS</h3>
                     
-                    <div x-show="!continuousScoreboard" style="margin-bottom: 1rem;">
-                        <label style="display: flex; gap: 0.75rem; align-items: center; cursor: pointer;">
-                            <input type="checkbox" :checked="showScoreboard" @change="toggleScoreboard()" style="width: 1.25rem; height: 1.25rem;">
-                            <span style="font-weight: 700; font-size: 0.875rem;">Show Scoreboard to Players</span>
-                        </label>
+                    <div class="answer-stats-badge">
+                        <span x-text="currentQuestionAnswers.length"></span> / <span x-text="onlinePlayerCount"></span> ANSWERED
                     </div>
 
-                    <button class="btn btn-danger" style="width: 100%;" @click="resetGame()">🔄 Reset Quiz</button>
-                </div>
-                <div class="card" x-show="currentView === 'game'">
-                    <h3 style="font-size: 1rem; margin-bottom: 1rem">📥 Answers</h3>
-                    <div
-                        class="text-sm"
-                        style="
-                            text-align: center;
-                            margin-bottom: 1rem;
-                            font-weight: 700;
-                            background: var(--color-bg);
-                            padding: 0.5rem;
-                            border-radius: var(--radius-md);
-                            color: var(--color-primary);
-                        "
-                    >
-                        <span x-text="currentQuestionAnswers.length"></span> /
-                        <span x-text="onlinePlayerCount"></span> ANSWERED
-                    </div>
-                    <div class="score-list">
+                    <div class="score-list" style="max-height: 240px; overflow-y: auto;">
                         <template x-for="ans in currentQuestionAnswers" :key="ans.playerId">
-                            <div
-                                class="score-item"
-                                :style="ans.isCorrect ? 'background: #f0fdf4; color: var(--color-success)' : ''"
-                            >
-                                <strong x-text="ans.playerName"></strong>
-                                <span x-text="ans.answer" style="font-weight: 600"></span>
+                            <div class="score-item" :style="ans.isCorrect ? 'background: var(--color-success-bg); border-color: var(--color-success); color: var(--color-success)' : ''">
+                                <span class="score-item-name" x-text="ans.playerName"></span>
+                                <span class="text-sm font-bold" x-text="ans.answer"></span>
                             </div>
                         </template>
-                        <div
-                            x-show="currentQuestionAnswers.length === 0"
-                            class="text-muted text-sm"
-                            style="text-align: center; padding: 1rem"
-                        >
-                            Waiting for answers...
-                        </div>
+                        <div x-show="currentQuestionAnswers.length === 0" class="text-center py-4 text-muted font-bold">Waiting for answers...</div>
                     </div>
                 </div>
-                <div class="card">
-                    <h3 style="font-size: 1rem; margin-bottom: 1rem">🏆 Scoreboard</h3>
-                    <div class="score-list">
+
+                <!-- Leaderboard -->
+                <div class="card" style="flex: 1; display: flex; flex-direction: column;">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-sm font-extrabold text-muted" style="letter-spacing: 0.05em;">LEADERBOARD</h3>
+                        <div class="flex gap-2">
+                            <label class="text-xs font-bold flex items-center gap-1 cursor-pointer">
+                                <input type="checkbox" :checked="showScoreboard" @change="toggleScoreboard()">
+                                Show to Players
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="score-list" style="flex: 1; overflow-y: auto;">
                         <template x-for="(player, index) in playerList" :key="player.id">
-                            <div
-                                class="score-item"
-                                :class="{'leader': index === 0 && player.score > 0}"
-                            >
-                                <div>
-                                    <div class="score-item-name">
+                            <div class="score-item" :class="{'leader': index === 0 && player.score > 0}">
+                                <div class="flex-col">
+                                    <span class="score-item-name">
                                         <span x-show="index === 0 && player.score > 0">👑</span>
                                         <span x-text="player.name"></span>
-                                    </div>
-                                    <small
-                                        class="text-sm"
-                                        style="font-weight: 600"
-                                        :style="player.online ? 'color: var(--color-success)' : 'color: var(--color-secondary)'"
-                                        x-text="player.online ? '🟢 Online' : '⚪ Offline'"
-                                    ></small>
+                                    </span>
+                                    <span class="text-xs font-bold" :style="player.online ? 'color: var(--color-success)' : 'color: var(--color-secondary)'" x-text="player.online ? '● Online' : '○ Offline'"></span>
                                 </div>
-                                <div style="text-align: right">
-                                    <div
-                                        class="score-item-score"
-                                        x-text="player.score"
-                                    ></div>
-                                    <button
-                                        class="btn btn-secondary"
-                                        style="padding: 2px 8px; font-size: 0.75rem; margin-top: 4px"
-                                        @click="removePlayer(player.id)"
-                                    >
-                                        Remove
-                                    </button>
+                                <div class="flex items-center gap-3">
+                                    <span class="score-item-score" x-text="player.score"></span>
+                                    <button class="btn btn-secondary" style="padding: 0.25rem; border: none; font-size: 0.75rem;" @click="removePlayer(player.id)" title="Kick player">❌</button>
                                 </div>
                             </div>
                         </template>
-                        <div
-                            x-show="playerList.length === 0"
-                            class="text-muted text-sm"
-                            style="text-align: center; padding: 1rem"
-                        >
-                            No players yet.
-                        </div>
+                        <div x-show="playerList.length === 0" class="text-center py-8 text-muted font-bold">No players connected.</div>
                     </div>
-                    <button
-                        class="btn btn-danger"
-                        style="width: 100%; margin-top: 1rem"
-                        @click="clearPlayers()"
-                    >
-                        🗑️ Kick All Players
-                    </button>
 
-                    <div
-                        class="text-muted"
-                        style="
-                            margin-top: 2rem;
-                            text-align: center;
-                            font-size: 0.75rem;
-                            font-weight: 600;
-                            letter-spacing: 0.05em;
-                        "
-                    >
-                        TRIVIA HOST <span class="font-weight-bold" x-text="'v' + appVersion"></span>
+                    <div class="mt-6 flex flex-col gap-2">
+                        <button class="btn btn-secondary btn-sm" @click="resetGame()">🔄 Reset Quiz State</button>
+                        <button class="btn btn-danger btn-sm" @click="clearPlayers()">🗑️ Kick All Players</button>
                     </div>
                 </div>
             </div>
         </div>
-
+    </div>
         <!-- Application Logic (No Module, No Defer) -->
         <script src="host-data.js?v=1.5"></script>
         <script src="host-alpine.js?v=1.5"></script>

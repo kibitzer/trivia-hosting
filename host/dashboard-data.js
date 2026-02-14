@@ -7,6 +7,7 @@ window.createDashboardData = function (firebase, db, auth) {
         activeGame: null,
         loading: true,
         waitingForAuth: true,
+        isConnected: false,
         sortConfig: { column: 'updatedAt', direction: 'desc' },
         appVersion: window.TRIVIA_VERSION || '0.0.0',
 
@@ -17,6 +18,11 @@ window.createDashboardData = function (firebase, db, auth) {
         importPreview: { title: '', questions: [] },
 
         init() {
+            // Connection Status
+            TriviaDataService.connectedRef.on('value', (snap) => {
+                this.isConnected = snap.val() === true;
+            });
+
             if (auth)
                 auth.onAuthStateChanged(user => {
                     if (user && !user.isAnonymous) {

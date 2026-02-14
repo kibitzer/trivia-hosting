@@ -9,216 +9,232 @@
     <script src="../shared/head-helper.js"></script>
 
     <style>
-        body { background: var(--color-bg); padding-bottom: 4rem; }
-        .container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
-        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; }
-        
-        .quiz-table { width: 100%; border-collapse: collapse; background: var(--color-surface); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--color-border); box-shadow: var(--shadow-sm); }
-        .quiz-table th { text-align: left; padding: 1rem; background: #f8fafc; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 800; color: var(--color-text-muted); border-bottom: 2px solid var(--color-border); }
-        .quiz-table th.sortable { cursor: pointer; }
-        .quiz-table th.sortable:hover { color: var(--color-primary); }
-        .quiz-table td { padding: 1rem; border-bottom: 1px solid var(--color-border); vertical-align: middle; }
-        .quiz-table tr:last-child td { border-bottom: none; }
-        .quiz-table tr:hover { background: #f8fafc; }
-
-        .sort-icon {
-            display: inline-flex;
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            min-height: 100vh;
+        }
+        .sidebar {
+            background: var(--color-surface);
+            border-right: 1px solid var(--color-border);
+            padding: 2rem 1.5rem;
+            display: flex;
             flex-direction: column;
-            margin-left: 0.4rem;
-            vertical-align: middle;
-            font-size: 0.6rem;
-            line-height: 0.7;
+            gap: 2rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
         }
-        .sort-arrow {
+        .nav-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
             color: var(--color-text-muted);
-            opacity: 0.3;
-            transition: all 0.2s ease;
+            font-weight: 700;
+            transition: var(--transition);
+            text-decoration: none !important;
+            font-size: 0.875rem;
         }
-        .sort-arrow.active {
+        .nav-item:hover {
+            background: var(--color-bg);
             color: var(--color-primary);
-            opacity: 1;
         }
-        
-        .active-session-card { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav-item.active {
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+        }
+
+        .main-content {
+            padding: 2.5rem;
+            max-width: 1200px;
+        }
+
+        .quiz-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .quiz-card {
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .quiz-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--color-primary);
+        }
+        .quiz-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        .quiz-badge {
+            background: var(--color-bg);
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--color-secondary);
+        }
+
+        /* Active Session Banner */
+        .active-session-banner {
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: var(--radius-lg);
+            margin-bottom: 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-lg);
+        }
     </style>
 </head>
 <body x-data="dashboard">
-    <div class="container" x-cloak>
-        <div x-show="waitingForAuth" style="text-align: center; padding: 4rem;">
-            <div style="font-size: 3rem; margin-bottom: 1rem; animation: pulse 1.5s infinite;">⏳</div>
-            <p class="text-muted">Verifying Authentication...</p>
-        </div>
-
-        <div x-show="!waitingForAuth">
-            <div class="header">
-                <div>
-                    <h1>Dashboard</h1>
-                    <p class="text-muted">Welcome back, <span x-text="userEmail" class="font-weight-bold"></span></p>
-                    <span class="text-muted" style="font-size: 0.75rem; font-weight: 700;" x-text="'v' + appVersion"></span>
-                </div>
-                <div style="display: flex; gap: 0.75rem;">
-                    <button @click="logout" class="btn btn-secondary">Logout</button>
-                    <a href="browser.html" class="btn btn-secondary">📂 Browse Questions</a>
-                    <button @click="showImportModal = true" class="btn btn-secondary">📥 Import Quiz</button>
-                    <button @click="createNewQuiz" class="btn btn-success">+ Create Quiz</button>
-                </div>
+    <div class="dashboard-layout" x-cloak>
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div style="padding-left: 1rem; margin-bottom: 1rem;">
+                <h1 style="font-size: 1.5rem; color: var(--color-primary);">🎯 Trivia</h1>
             </div>
 
-            <!-- Active Session Detection -->
-            <template x-if="activeGame && activeGame.status !== 'waiting'">
-                <div class="active-session-card">
-                    <div>
-                        <h3 style="color: #1e40af; margin-bottom: 0.25rem;">Active Session Detected</h3>
-                        <p style="color: #1e40af; opacity: 0.8; font-size: 0.875rem;">
-                            There is a game currently in progress (<span x-text="activeGame.roundTitle || 'Live Game'"></span>).
-                        </p>
-                    </div>
-                    <a href="host.html" class="btn btn-primary" style="background: #1e40af; border-color: #1e40af;">Resume Game</a>
+            <nav class="nav-group">
+                <a href="dashboard.html" class="nav-item active">
+                    <span>🏠</span> Dashboard
+                </a>
+                <a href="browser.html" class="nav-item">
+                    <span>📂</span> Question Bank
+                </a>
+                <button @click="showImportModal = true" class="nav-item" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer;">
+                    <span>📥</span> Import Quiz
+                </button>
+            </nav>
+
+            <div style="margin-top: auto;" class="nav-group">
+                <div class="nav-item" style="cursor: default; opacity: 0.7;">
+                    <span x-text="'v' + appVersion"></span>
                 </div>
-            </template>
+                <button @click="logout" class="nav-item" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer; color: var(--color-danger);">
+                    <span>🚪</span> Logout
+                </button>
+            </div>
+        </aside>
 
-            <!-- Import Quiz Modal -->
-            <div class="modal-backdrop" x-show="showImportModal" x-cloak @click.self="showImportModal = false">
-                <div class="modal-content" style="max-width: 900px; height: 85vh; display: flex; flex-direction: column; padding: 2rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem">
-                        <h2 style="margin: 0; color: var(--color-primary)">📥 Import Full Quiz</h2>
-                        <button @click="showImportModal = false" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 2rem; flex: 1; min-height: 0;">
-                        <!-- Input Section -->
-                        <div style="display: flex; flex-direction: column; gap: 1rem;">
-                            <div>
-                                <label>Paste JSON or CSV data</label>
-                                <p class="text-xs text-muted">
-                                    Format: JSON Object {title, questions} or CSV.<br>
-                                    CSV tip: Start with #My Quiz Title to set the name.
-                                </p>
-                            </div>
-                            <textarea 
-                                x-model="importInput" 
-                                @input.debounce.500ms="previewImport()"
-                                placeholder='{"title": "My History Quiz", "questions": [...] }'
-                                style="flex: 1; font-family: monospace; font-size: 0.875rem; resize: none;"
-                            ></textarea>
-                            <div x-show="importError" class="text-sm" style="color: var(--color-danger); background: #fef2f2; padding: 0.75rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; font-weight: 600;" x-text="importError"></div>
-                        </div>
-
-                        <!-- Preview Section -->
-                        <div style="display: flex; flex-direction: column; gap: 1rem; border-left: 1px solid var(--color-border); padding-left: 1rem;">
-                            <label>Preview: <span class="font-weight-bold" x-text="importPreview.title"></span> (<span x-text="importPreview.questions.length"></span> items)</label>
-                            <div style="flex: 1; overflow-y: auto; background: var(--color-bg); border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-                                <template x-for="(q, idx) in importPreview.questions" :key="idx">
-                                    <div style="padding: 0.75rem; border-bottom: 1px solid var(--color-border); background: white; font-size: 0.875rem;">
-                                        <template x-if="q.type === 'round-title'">
-                                            <div style="font-weight: 800; color: var(--color-primary);" x-text="'ROUND: ' + q.title"></div>
-                                        </template>
-                                        <template x-if="q.type !== 'round-title'">
-                                            <div>
-                                                <div style="display: flex; gap: 0.5rem; margin-bottom: 0.25rem;">
-                                                    <span class="text-xs" style="background: #e2e8f0; padding: 0.05rem 0.4rem; border-radius: 4px; font-weight: 700; text-transform: uppercase;" x-text="q.type"></span>
-                                                    <span class="text-xs" style="background: #f1f5f9; padding: 0.05rem 0.4rem; border-radius: 4px; font-weight: 700;" x-text="q.difficulty"></span>
-                                                </div>
-                                                <div style="font-weight: 700;" x-text="q.question"></div>
-                                                <div class="text-muted" style="font-size: 0.75rem; margin-top: 0.25rem;">
-                                                    Ans: <span x-text="Array.isArray(q.correctAnswer) ? q.correctAnswer.join(', ') : q.correctAnswer"></span>
-                                                </div>
-                                            </div>
-                                        </template>
-                                    </div>
-                                </template>
-                                <template x-if="importPreview.questions.length === 0">
-                                    <div style="padding: 2rem; text-align: center; color: var(--color-text-muted);">
-                                        Ready to parse input...
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 1rem;">
-                        <button @click="showImportModal = false" class="btn btn-secondary">Cancel</button>
-                        <button 
-                            @click="performImport()" 
-                            class="btn btn-primary" 
-                            :disabled="importPreview.questions.length === 0 || loading"
-                        >
-                            <span x-show="!loading">Import Quiz</span>
-                            <span x-show="loading">Importing...</span>
-                        </button>
-                    </div>
-                </div>
+        <!-- Main Workspace -->
+        <main class="main-content">
+            <div x-show="waitingForAuth" style="text-align: center; padding: 4rem;">
+                <div style="font-size: 3rem; margin-bottom: 1rem; animation: pulse 1.5s infinite;">⏳</div>
+                <p class="text-muted">Verifying Authentication...</p>
             </div>
 
-            <div class="card" style="padding: 0; overflow: hidden;">
-                <div style="padding: 1.5rem;">
-                    <h3>Your Quizzes</h3>
-                </div>
-                
-                <div x-show="Object.keys(quizzes).length === 0 && !loading" class="text-muted" style="padding: 4rem; text-align: center; font-weight: 600">
-                    No quizzes found. Click "Create Quiz" to get started.
+            <div x-show="!waitingForAuth">
+                <!-- Welcome Header -->
+                <div class="header" style="text-align: left; border: none; margin-bottom: 3rem; padding: 0;">
+                    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Welcome back!</h1>
+                    <p class="text-muted text-lg" style="font-weight: 600;">Managing quizzes as <span x-text="userEmail" class="text-primary"></span></p>
                 </div>
 
-                <table class="quiz-table" x-show="Object.keys(quizzes).length > 0">
-                    <thead>
-                        <tr>
-                            <th class="sortable" @click="setSort('title')">
-                                <div style="display: flex; align-items: center;">
-                                    Quiz Name
-                                    <span class="sort-icon">
-                                        <span class="sort-arrow" :class="{ 'active': sortConfig.column === 'title' && sortConfig.direction === 'asc' }">▲</span>
-                                        <span class="sort-arrow" :class="{ 'active': sortConfig.column === 'title' && sortConfig.direction === 'desc' }">▼</span>
-                                    </span>
-                                </div>
-                            </th>
-                            <th class="sortable" style="width: 120px;" @click="setSort('questionCount')">
-                                <div style="display: flex; align-items: center;">
-                                    Items
-                                    <span class="sort-icon">
-                                        <span class="sort-arrow" :class="{ 'active': sortConfig.column === 'questionCount' && sortConfig.direction === 'asc' }">▲</span>
-                                        <span class="sort-arrow" :class="{ 'active': sortConfig.column === 'questionCount' && sortConfig.direction === 'desc' }">▼</span>
-                                    </span>
-                                </div>
-                            </th>
-                            <th class="sortable" @click="setSort('updatedAt')">
-                                <div style="display: flex; align-items: center;">
-                                    Updated
-                                    <span class="sort-icon">
-                                        <span class="sort-arrow" :class="{ 'active': sortConfig.column === 'updatedAt' && sortConfig.direction === 'asc' }">▲</span>
-                                        <span class="sort-arrow" :class="{ 'active': sortConfig.column === 'updatedAt' && sortConfig.direction === 'desc' }">▼</span>
-                                    </span>
-                                </div>
-                            </th>
-                            <th style="width: 200px; text-align: right;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <template x-for="quiz in sortedQuizzes" :key="quiz.id">
-                            <tr>
-                                <td>
-                                    <strong style="color: var(--color-primary)" x-text="quiz.title"></strong>
-                                </td>
-                                <td>
-                                    <span class="text-sm font-weight-bold" x-text="quiz.questionCount"></span>
-                                </td>
-                                <td>
-                                    <div class="text-sm" style="font-weight: 600" x-text="TriviaUI.formatDateTime(quiz.updatedAt)"></div>
-                                </td>
-                                <td style="text-align: right">
-                                    <div style="display: flex; gap: 0.5rem; justify-content: flex-end">
-                                        <button @click="launchQuiz(quiz.id)" class="btn btn-primary" style="padding: 0.4rem 0.8rem">Launch</button>
-                                        <button @click="editQuiz(quiz.id)" class="btn btn-secondary" style="padding: 0.4rem 0.8rem">Edit</button>
-                                        <button @click="deleteQuiz(quiz.id)" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; color: var(--color-danger)">Delete</button>
-                                    </div>
-                                </td>
-                            </tr>
+                <!-- Active Session Detection -->
+                <template x-if="activeGame && activeGame.status !== 'waiting'">
+                    <div class="active-session-banner">
+                        <div>
+                            <div class="text-sm font-extrabold" style="opacity: 0.8; letter-spacing: 0.1em; margin-bottom: 0.25rem;">LIVE SESSION</div>
+                            <h2 style="color: white; font-size: 1.5rem;" x-text="activeGame.roundTitle || 'Live Game'"></h2>
+                        </div>
+                        <a href="host.html" class="btn" style="background: white; color: var(--color-primary); font-weight: 800; padding: 0.75rem 1.5rem;">Resume Host Panel</a>
+                    </div>
+                </template>
+
+                <div class="flex justify-between items-center mb-4">
+                    <h2 style="font-size: 1.5rem;">Your Quizzes</h2>
+                    <button @click="createNewQuiz" class="btn btn-primary">+ Create New Quiz</button>
+                </div>
+
+                <!-- Quiz List (Grid View) -->
+                <div x-show="Object.keys(quizzes).length === 0 && !loading" class="card text-center" style="padding: 5rem 2rem;">
+                    <div style="font-size: 4rem; margin-bottom: 1.5rem;">📭</div>
+                    <h3 class="mb-2">No quizzes found</h3>
+                    <p class="text-muted mb-4">You haven't created any quizzes yet. Start by creating your first one or importing a set.</p>
+                    <button @click="createNewQuiz" class="btn btn-primary">Create Your First Quiz</button>
+                </div>
+
+                <div class="quiz-grid" x-show="Object.keys(quizzes).length > 0">
+                    <template x-for="quiz in sortedQuizzes" :key="quiz.id">
+                        <div class="card quiz-card">
+                            <div class="quiz-card-header">
+                                <span class="quiz-badge" x-text="quiz.questionCount + ' items'"></span>
+                                <span class="text-xs font-bold text-muted" x-text="TriviaUI.formatDateTime(quiz.updatedAt)"></span>
+                            </div>
+                            <h3 class="text-xl mb-4" x-text="quiz.title" style="flex: 1;"></h3>
+                            
+                            <div class="flex gap-2" style="margin-top: auto; padding-top: 1.5rem; border-top: 1px solid var(--color-border);">
+                                <button @click="launchQuiz(quiz.id)" class="btn btn-primary" style="flex: 2;">Launch</button>
+                                <button @click="editQuiz(quiz.id)" class="btn btn-secondary" style="flex: 1;">Edit</button>
+                                <button @click="deleteQuiz(quiz.id)" class="btn btn-secondary" style="color: var(--color-danger); width: 42px; padding: 0;">🗑️</button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Import Quiz Modal (Modernised) -->
+    <div class="modal-backdrop" x-show="showImportModal" x-cloak style="z-index: 10000; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center;">
+        <div class="card" style="max-width: 900px; width: 95%; height: 85vh; display: flex; flex-direction: column; margin: 0;">
+            <div class="flex justify-between items-center mb-4">
+                <h2 style="color: var(--color-primary)">📥 Import Quiz</h2>
+                <button @click="showImportModal = false" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-text-muted)">&times;</button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; flex: 1; min-height: 0;">
+                <!-- Input -->
+                <div class="flex-col gap-4">
+                    <label class="font-bold text-sm">Paste JSON or CSV data</label>
+                    <textarea 
+                        x-model="importInput" 
+                        @input.debounce.500ms="previewImport()"
+                        placeholder='{"title": "My Quiz", "questions": [...] }'
+                        style="flex: 1; font-family: monospace; font-size: 0.8125rem; resize: none; border-radius: var(--radius-md);"
+                    ></textarea>
+                    <div x-show="importError" class="text-sm font-bold text-danger" x-text="importError"></div>
+                </div>
+
+                <!-- Preview -->
+                <div class="flex-col gap-4" style="border-left: 1px solid var(--color-border); padding-left: 2rem;">
+                    <label class="font-bold text-sm">Preview: <span class="text-primary" x-text="importPreview.title || 'Untitled'"></span></label>
+                    <div style="flex: 1; overflow-y: auto; background: var(--color-bg); border-radius: var(--radius-md); border: 1px solid var(--color-border); padding: 0.5rem;">
+                        <template x-for="(q, idx) in importPreview.questions" :key="idx">
+                            <div style="padding: 0.75rem; border-bottom: 1px solid var(--color-border); background: white; margin-bottom: 0.25rem; border-radius: var(--radius-sm);">
+                                <div class="text-xs font-extrabold text-muted mb-1" x-text="q.type.toUpperCase()"></div>
+                                <div class="font-bold text-sm" x-text="q.question || q.title"></div>
+                            </div>
                         </template>
-                    </tbody>
-                </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-4 mt-6">
+                <button @click="showImportModal = false" class="btn btn-secondary">Cancel</button>
+                <button @click="performImport()" class="btn btn-primary" :disabled="importPreview.questions.length === 0 || loading">
+                    <span x-show="!loading">Import Now</span>
+                    <span x-show="loading">Importing...</span>
+                </button>
             </div>
         </div>
     </div>
-
     <!-- Application Logic -->
     <script src="dashboard-data.js"></script>
     <script>

@@ -47,6 +47,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
             showQuestionNumbers: true,
         },
         waitingForAuth: true,
+        isConnected: false,
         appVersion: window.TRIVIA_VERSION || '0.0.0',
 
         // Placeholder for Alpine magic properties
@@ -141,6 +142,12 @@ window.createEditorData = function (firebase, db, auth, storage) {
 
         init() {
             console.log('[Editor] Page loaded:', window.location.href);
+
+            // Connection Status
+            TriviaDataService.connectedRef.on('value', (snap) => {
+                this.isConnected = snap.val() === true;
+            });
+
             // Watch bank search to reset pagination
             this.$watch('bankSearchQuery', () => this.bankPage = 1);
 
