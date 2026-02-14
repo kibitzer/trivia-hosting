@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Architecture**: Added a contrarian peer review report in `reviews/contrarian-peer-review-2026-02-14.md` focusing on leaky abstractions and potential scale failures.
 
+### Changed
+
+- **CI/CD**: Updated `static.yml` deployment workflow to explicitly exclude `reviews`, `tests`, `docs`, `playwright-report`, and `test-results` from GitHub Pages artifacts.
+
 ## [0.10.2] - 2026-02-14
 
 ### Added
