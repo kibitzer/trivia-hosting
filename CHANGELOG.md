@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.3] - 2026-02-14
+
+### Added
+
+- **Architecture**: Added a contrarian peer review report in `reviews/contrarian-peer-review-2026-02-14.md` focusing on leaky abstractions and potential scale failures.
+
 ## [0.10.2] - 2026-02-14
 
 ### Added
