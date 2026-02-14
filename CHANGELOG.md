@@ -11,6 +11,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Security**: Added a hostile security auditor report in `reviews/security-audit-2026-02-14.md` identifying critical architectural flaws and logic gaps.
 
+## [0.10.1] - 2026-02-13
+
+### Added
+
+- **Documentation**: Added `docs/IMPORT.md` documenting supported question import formats (JSON/CSV).
+
+## [0.10.0] - 2026-02-13
+
+### Added
+
+- **UI/UX**: Implemented a full-screen Question Browser in the editor with advanced filtering by type and difficulty.
+
+## [0.9.0] - 2026-02-13
+
+### Added
+
+- **Features**: Implemented a bulk question import tool supporting JSON and CSV formats with a live preview UI.
+
+## [0.8.1] - 2026-02-13
+
+### Fixed
+
+- **Security**: Hardened URL sanitization in `editor-data.js` to prevent incomplete substring matches.
+
+## [0.8.0] - 2026-02-13
+
+### Changed
+
+- **Architecture**: Decoupled questions from individual quizzes into a top-level `questions` entity, enabling the Question Bank shared pool.
+- **Editor**: Introduced the Question Bank sidebar to allow reuse of global questions in any quiz.
+
 ## [0.7.16] - 2026-02-13
 
 ### Fixed
