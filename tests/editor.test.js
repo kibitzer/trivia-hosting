@@ -423,4 +423,48 @@ describe('Editor Logic', () => {
             expect(saved.autosaveDelay).toBe(1000);
         });
     });
+
+    describe('Bank Pagination', () => {
+        beforeEach(() => {
+            // Mock global questions
+            editor.globalQuestions = {};
+            for (let i = 1; i <= 35; i++) {
+                editor.globalQuestions[`g${i}`] = {
+                    id: `g${i}`,
+                    question: `Global Question ${i}`,
+                    tags: ['global']
+                };
+            }
+            editor.bankPage = 1;
+            editor.bankPageSize = 10;
+        });
+
+        it('should paginate bank questions correctly', () => {
+            expect(editor.paginatedBankQuestions.length).toBe(10);
+            expect(editor.totalBankPages).toBe(4); // 35 / 10 = 3.5 -> 4
+        });
+
+        it('should navigate bank pages', () => {
+            editor.nextBankPage();
+            expect(editor.bankPage).toBe(2);
+            editor.prevBankPage();
+            expect(editor.bankPage).toBe(1);
+        });
+
+        it('should update bank page size', () => {
+            editor.setBankPageSize(20);
+            expect(editor.bankPageSize).toBe(20);
+            expect(editor.bankPage).toBe(1);
+            expect(editor.totalBankPages).toBe(2);
+        });
+        
+        it('should calculate bank indices', () => {
+            expect(editor.startBankIndex).toBe(1);
+            expect(editor.endBankIndex).toBe(10);
+            
+            editor.bankPage = 4;
+            expect(editor.startBankIndex).toBe(31);
+            expect(editor.endBankIndex).toBe(35);
+        });
+    });
 });

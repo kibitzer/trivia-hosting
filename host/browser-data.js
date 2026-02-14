@@ -14,6 +14,14 @@ window.createBrowserData = function (firebase, db, auth) {
         // UI State
         showFilters: true,
         appVersion: window.TRIVIA_VERSION || '0.0.0',
+        
+        // Pagination
+        currentPage: 1,
+        pageSize: parseInt(localStorage.getItem('trivia_pageSize')) || 25,
+
+        // Placeholder for Alpine magic properties
+        $watch: () => {},
+        $nextTick: (cb) => cb(),
 
         // --- Computed ---
         get allTags() {
@@ -52,8 +60,33 @@ window.createBrowserData = function (firebase, db, auth) {
             return list.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
         },
 
+        get paginatedQuestions() {
+            const start = (this.currentPage - 1) * this.pageSize;
+            const end = start + this.pageSize;
+            return this.filteredQuestions.slice(start, end);
+        },
+
+        get totalPages() {
+            return Math.ceil(this.filteredQuestions.length / this.pageSize) || 1;
+        },
+
+        get startIndex() {
+            return (this.currentPage - 1) * this.pageSize + 1;
+        },
+
+        get endIndex() {
+            return Math.min(this.startIndex + this.pageSize - 1, this.filteredQuestions.length);
+        },
+
         // --- Methods ---
         init() {
+            // Watch filters to reset pagination
+            this.$watch('searchQuery', () => this.currentPage = 1);
+            this.$watch('selectedDifficulty', () => this.currentPage = 1);
+            this.$watch('selectedType', () => this.currentPage = 1);
+            // Deep watch for array changes
+            this.$watch('selectedTags', () => this.currentPage = 1, { deep: true });
+
             auth.onAuthStateChanged((user) => {
                 if (user && !user.isAnonymous) {
                     this.isAuthenticated = true;
@@ -75,6 +108,30 @@ window.createBrowserData = function (firebase, db, auth) {
                 this.questions = snap.val() || {};
                 this.loading = false;
             });
+        },
+
+        nextPage() {
+            if (this.currentPage < this.totalPages) {
+                this.currentPage++;
+            }
+        },
+
+        prevPage() {
+            if (this.currentPage > 1) {
+                this.currentPage--;
+            }
+        },
+
+        setPage(page) {
+            if (page >= 1 && page <= this.totalPages) {
+                this.currentPage = page;
+            }
+        },
+
+        setPageSize(size) {
+            this.pageSize = parseInt(size);
+            this.currentPage = 1;
+            localStorage.setItem('trivia_pageSize', size);
         },
 
         toggleTag(tag) {

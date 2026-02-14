@@ -34,6 +34,10 @@ window.createEditorData = function (firebase, db, auth, storage) {
         importError: '', // New: UI state
         importPreview: [], // New: UI state
         bankSearchQuery: '', // New: UI state
+        // Bank Pagination
+        bankPage: 1,
+        bankPageSize: parseInt(localStorage.getItem('trivia_bankPageSize')) || 25,
+        
         sortConfig: {
             column: 'updatedAt',
             direction: 'desc',
@@ -85,6 +89,24 @@ window.createEditorData = function (firebase, db, auth, storage) {
             });
         },
 
+        get paginatedBankQuestions() {
+            const start = (this.bankPage - 1) * this.bankPageSize;
+            const end = start + this.bankPageSize;
+            return this.filteredBankQuestions.slice(start, end);
+        },
+
+        get totalBankPages() {
+            return Math.ceil(this.filteredBankQuestions.length / this.bankPageSize) || 1;
+        },
+
+        get startBankIndex() {
+            return (this.bankPage - 1) * this.bankPageSize + 1;
+        },
+
+        get endBankIndex() {
+            return Math.min(this.startBankIndex + this.bankPageSize - 1, this.filteredBankQuestions.length);
+        },
+
         get sortedQuizzes() {
             const list = Object.entries(this.quizzes).map(([id, data]) => ({
                 id,
@@ -113,6 +135,9 @@ window.createEditorData = function (firebase, db, auth, storage) {
 
         init() {
             console.log('[Editor] Page loaded:', window.location.href);
+            // Watch bank search to reset pagination
+            this.$watch('bankSearchQuery', () => this.bankPage = 1);
+
             // Load settings
             const savedSettings = localStorage.getItem('triviaEditorSettings');
             if (savedSettings) {
@@ -260,6 +285,24 @@ window.createEditorData = function (firebase, db, auth, storage) {
                 this.sortConfig.column = column;
                 this.sortConfig.direction = 'asc';
             }
+        },
+
+        nextBankPage() {
+            if (this.bankPage < this.totalBankPages) {
+                this.bankPage++;
+            }
+        },
+
+        prevBankPage() {
+            if (this.bankPage > 1) {
+                this.bankPage--;
+            }
+        },
+
+        setBankPageSize(size) {
+            this.bankPageSize = parseInt(size);
+            this.bankPage = 1;
+            localStorage.setItem('trivia_bankPageSize', size);
         },
 
         async uploadImage(event, targetField) {
