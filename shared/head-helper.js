@@ -12,6 +12,7 @@
         <link rel="manifest" href="${prefix}manifest.json" />
         <meta name="theme-color" content="#1565c0" />
         <link rel="stylesheet" href="${prefix}shared/styles.css?v=1.6" />
+        <link rel="stylesheet" href="https://unpkg.com/pell/dist/pell.min.css">
     `;
     document.head.insertAdjacentHTML('beforeend', headContent);
 
@@ -23,6 +24,7 @@
         { src: `${prefix}shared/data-service.js` },
         { src: `${prefix}shared/ai-helper.js` },
         { src: 'https://cdn.jsdelivr.net/npm/sweetalert2@11' },
+        { src: 'https://unpkg.com/pell/dist/pell.min.js' },
 
         // Firebase Compat
         { src: 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js' },

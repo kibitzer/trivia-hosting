@@ -208,14 +208,14 @@
                                     <button @click="deleteQuestion(q.id)" class="btn btn-sm" style="color: var(--color-danger); border: none; padding: 0.25rem;">🗑️</button>
                                 </div>
 
-                                <h3 style="margin: 0 0 1rem 0; font-size: 1.1rem; line-height: 1.5;" x-text="q.question"></h3>
+                                <div class="font-bold" style="margin: 0 0 1rem 0; font-size: 1.1rem; line-height: 1.5;" x-html="q.question"></div>
 
                                 <div x-show="q.type === 'multiple'" style="margin-bottom: 1rem; background: var(--color-bg); padding: 1rem; border-radius: var(--radius-md);">
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
                                         <template x-for="opt in (q.options || [])" :key="opt">
                                             <div style="font-size: 0.875rem; font-weight: 600;" :style="opt === q.correctAnswer ? 'color: var(--color-success)' : 'color: var(--color-text-muted)'">
                                                 <span x-text="opt === q.correctAnswer ? '✓ ' : '• '"></span>
-                                                <span x-text="opt"></span>
+                                                <span x-html="opt"></span>
                                             </div>
                                         </template>
                                     </div>
@@ -223,7 +223,7 @@
 
                                 <div x-show="q.type !== 'multiple'" style="margin-bottom: 1rem; font-size: 0.875rem;">
                                     <span class="text-muted" style="font-weight: 700;">Answer:</span>
-                                    <span style="font-weight: 600; color: var(--color-success);" x-text="Array.isArray(q.correctAnswer) ? q.correctAnswer.join(', ') : q.correctAnswer"></span>
+                                    <span style="font-weight: 600; color: var(--color-success);" x-html="Array.isArray(q.correctAnswer) ? q.correctAnswer.join(', ') : q.correctAnswer"></span>
                                 </div>
 
                                 <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">

@@ -298,6 +298,24 @@
                 color: var(--color-danger);
                 background: #fef2f2;
             }
+
+            /* RTE Styles */
+            .rte-container {
+                border: 1px solid var(--color-border);
+                border-radius: var(--radius-md);
+                overflow: hidden;
+                background: white;
+            }
+            .pell-content {
+                height: 100px !important;
+                padding: 0.75rem !important;
+                font-size: 1rem !important;
+                outline: none;
+            }
+            .pell-actionbar {
+                background-color: #f8fafc !important;
+                border-bottom: 1px solid var(--color-border) !important;
+            }
         </style>
     </head>
     <body x-data="quizEditor">
@@ -592,11 +610,11 @@
                                         x-show="currentQuiz.questions[selectedQuestionIndex].type !== 'round-title'"
                                     >
                                         <label>Question Text</label>
-                                        <textarea
-                                            x-model="currentQuiz.questions[selectedQuestionIndex].question"
-                                            rows="3"
-                                            style="font-size: 1.1rem; font-weight: 600"
-                                        ></textarea>
+                                        <div 
+                                            class="rte-container"
+                                            x-init="initRTE($el, 'question')"
+                                            :key="'q-rte-' + currentQuiz.questions[selectedQuestionIndex].id"
+                                        ></div>
                                     </div>
 
                                     <div
@@ -758,26 +776,23 @@
                                                                                     <span style="font-weight: 700;">Fact Checking Required</span>
                                                                                 </label>
                                                                                 
-                                                                                <div style="margin-top: 1rem;">
-                                                                                    <label>Verification Source / Explanation</label>
-                                                                                    <textarea
-                                                                                        x-model="currentQuiz.questions[selectedQuestionIndex].factCheckingSource"
-                                                                                        rows="3"
-                                                                                        placeholder="Explain the verified facts and include any relevant URLs here..."
-                                                                                        class="text-sm"
-                                                                                    ></textarea>
-                                                                                </div>
-                                                                            </div>
-                                    <div class="input-group" style="margin-top: 2rem" x-show="currentQuiz.questions[selectedQuestionIndex].type !== 'round-title'">
-                                        <label>Host Notes (Optional)</label>
-                                        <textarea
-                                            x-model="currentQuiz.questions[selectedQuestionIndex].notes"
-                                            rows="2"
-                                            placeholder="Notes for the host during this question..."
-                                            class="text-sm"
-                                        ></textarea>
-                                    </div>
-                                </div>
+                                                                                                                                <div style="margin-top: 1rem;">
+                                                                                                                                    <label>Verification Source / Explanation</label>
+                                                                                                                                    <div 
+                                                                                                                                        class="rte-container"
+                                                                                                                                        x-init="initRTE($el, 'factCheckingSource')"
+                                                                                                                                        :key="'s-rte-' + currentQuiz.questions[selectedQuestionIndex].id"
+                                                                                                                                    ></div>
+                                                                                                                                </div>
+                                                                                                                            </div>
+                                                                                                                    <div class="input-group" style="margin-top: 2rem" x-show="currentQuiz.questions[selectedQuestionIndex].type !== 'round-title'">
+                                                                                                                        <label>Host Notes (Optional)</label>
+                                                                                                                        <div 
+                                                                                                                            class="rte-container"
+                                                                                                                            x-init="initRTE($el, 'notes')"
+                                                                                                                            :key="'n-rte-' + currentQuiz.questions[selectedQuestionIndex].id"
+                                                                                                                        ></div>
+                                                                                                                    </div>                                </div>
                             </template>
                             <template x-if="!currentQuiz.questions[selectedQuestionIndex]">
                                 <div style="text-align: center; padding: 5rem">
@@ -1148,6 +1163,22 @@
         <script src="editor-data.js"></script>
 
         <script>
+            function initRTE(el, field) {
+                const data = Alpine.$data(el);
+                const initialValue = data.currentQuiz.questions[data.selectedQuestionIndex][field] || '';
+                
+                const editor = pell.init({
+                    element: el,
+                    onChange: html => {
+                        data.currentQuiz.questions[data.selectedQuestionIndex][field] = html;
+                        data.triggerAutosave();
+                    },
+                    actions: ['bold', 'italic', 'underline', 'link']
+                });
+                
+                el.content.innerHTML = initialValue;
+            }
+
             document.addEventListener('alpine:init', () => {
                 const fb = TriviaFirebase.init();
                 if (fb) {

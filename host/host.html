@@ -202,7 +202,7 @@
                                     ></span>
                                 </div>
                                 <div x-html="TriviaUI.timer()"></div>
-                                <h2 class="question-text" x-text="currentItem.text"></h2>
+                                <div class="question-text" x-html="currentItem.text"></div>
                                 <template x-if="currentItem.image">
                                     <img
                                         :src="currentItem.image"
@@ -256,11 +256,11 @@
                                 </div>
                                 <div class="host-notes" style="background: #eff6ff; border-color: var(--color-primary);" x-show="(currentItem.factCheckingRequired || currentItem.factCheckingSource) && answerRevealed">
                                     <h4 style="font-size: 0.875rem; margin-bottom: 0.25rem; color: var(--color-primary)">🔍 FACT CHECKING</h4>
-                                    <div class="text-sm" style="white-space: pre-wrap;" x-text="currentItem.factCheckingSource || 'No verification source or explanation provided.'"></div>
+                                    <div class="text-sm" style="white-space: pre-wrap;" x-html="currentItem.factCheckingSource || 'No verification source or explanation provided.'"></div>
                                 </div>
                                 <div class="host-notes" x-show="currentItem.notes && answerRevealed">
                                     <h4 style="font-size: 0.875rem; margin-bottom: 0.25rem">🔒 HOST NOTES</h4>
-                                    <p class="text-sm" x-text="currentItem.notes"></p>
+                                    <div class="text-sm" x-html="currentItem.notes"></div>
                                 </div>
                             </div>
                         </template>
