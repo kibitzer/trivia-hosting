@@ -16,6 +16,28 @@ test.describe('Question Browser E2E', () => {
             throw new Error('Missing TRIVIA_TEST_EMAIL or TRIVIA_TEST_PASSWORD environment variables');
         }
 
+        // Setup console logging with sanitization
+        const secrets = [TEST_EMAIL, TEST_PASSWORD].filter(Boolean);
+        const sanitize = (text) => {
+            if (typeof text !== 'string') return text;
+            let sanitized = text;
+            secrets.forEach(secret => {
+                if (secret && secret.length > 3) {
+                    sanitized = sanitized.split(secret).join('[REDACTED]');
+                }
+            });
+            return sanitized;
+        };
+
+        page.on('console', (msg) => {
+            if (process.env.DEBUG) {
+                console.log(`[BROWSER] ${msg.type()}: ${sanitize(msg.text())}`);
+            }
+        });
+        page.on('pageerror', (err) => {
+            console.log(`[BROWSER] ERROR: ${sanitize(err.message)}`);
+        });
+
         // Login first
         await page.goto(LOGIN_URL);
         await page.fill('input[x-model="email"]', TEST_EMAIL);

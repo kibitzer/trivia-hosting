@@ -16,11 +16,31 @@ test('Trivia Full Simulation', async ({ browser }) => {
         throw new Error('Missing TRIVIA_TEST_EMAIL or TRIVIA_TEST_PASSWORD environment variables');
     }
 
-    // Function to setup a page with console logging
+    // Function to setup a page with console logging and sanitization
     const setupPage = async (context, name) => {
         const page = await context.newPage();
-        page.on('console', (msg) => console.log(`[${name}] ${msg.type()}: ${msg.text()}`));
-        page.on('pageerror', (err) => console.log(`[${name}] ERROR: ${err.message}`));
+        
+        // Define sensitive strings to redact
+        const secrets = [TEST_EMAIL, TEST_PASSWORD].filter(Boolean);
+
+        const sanitize = (text) => {
+            if (typeof text !== 'string') return text;
+            let sanitized = text;
+            secrets.forEach(secret => {
+                if (secret && secret.length > 3) {
+                    sanitized = sanitized.split(secret).join('[REDACTED]');
+                }
+            });
+            return sanitized;
+        };
+
+        page.on('console', (msg) => {
+            const text = msg.text();
+            console.log(`[${name}] ${msg.type()}: ${sanitize(text)}`);
+        });
+        page.on('pageerror', (err) => {
+            console.log(`[${name}] ERROR: ${sanitize(err.message)}`);
+        });
         return page;
     };
 
