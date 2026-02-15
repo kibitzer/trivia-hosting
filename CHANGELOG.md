@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.0] - 2026-02-15
+
+### Added
+
+- **Editor**: Enhanced the "New Question" workflow with a type selection dialog. Users can now choose the question type (Multiple Choice, Short Answer, Rebus, etc.) from a visual grid and optionally specify an insertion position within the quiz (#22).
+
+### Changed
+
+- **Testing**: Updated `Swal` mocks in `tests/editor.test.js` and `tests/rebus.test.js` to support the new asynchronous `addQuestion` flow.
+
 ## [0.14.9] - 2026-02-15
 
 ### Fixed

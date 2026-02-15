@@ -8,7 +8,7 @@ import '../host/editor-data.js';
 
 // Mock Swal
 global.Swal = {
-    fire: vi.fn(() => Promise.resolve({ isConfirmed: true })),
+    fire: vi.fn(() => Promise.resolve({ isConfirmed: true, value: { type: 'multiple', position: null } })),
 };
 
 // Mock TriviaUI
@@ -282,14 +282,37 @@ describe('Editor Logic', () => {
             editor.editQuiz('q1');
         });
 
-        it('should add a question and select it with fact-checking defaults', () => {
+        it('should add a question and select it with fact-checking defaults', async () => {
             const initialLength = editor.currentQuiz.questions.length;
-            editor.addQuestion();
+            // Mock selection of Multiple Choice at the end
+            global.Swal.fire.mockResolvedValueOnce({
+                isConfirmed: true,
+                value: { type: 'multiple', position: null }
+            });
+            await editor.addQuestion();
             expect(editor.currentQuiz.questions.length).toBe(initialLength + 1);
             expect(editor.selectedQuestionIndex).toBe(initialLength);
             expect(editor.currentQuiz.questions[initialLength].type).toBe('multiple');
             expect(editor.currentQuiz.questions[initialLength].factCheckingRequired).toBe(false);
             expect(editor.currentQuiz.questions[initialLength].factCheckingSource).toBe('');
+        });
+
+        it('should insert a question at a specific position', async () => {
+            editor.editQuiz('q1');
+            const initialLength = editor.currentQuiz.questions.length;
+            // q1 has 3 items: [Round 1, Q1 (MC), Q2 (Short)]
+            // Insert at position 2 (between Round 1 and Q1)
+            global.Swal.fire.mockResolvedValueOnce({
+                isConfirmed: true,
+                value: { type: 'rebus', position: 2 }
+            });
+            await editor.addQuestion();
+            
+            expect(editor.currentQuiz.questions.length).toBe(initialLength + 1);
+            expect(editor.currentQuiz.questions[1].type).toBe('rebus');
+            expect(editor.selectedQuestionIndex).toBe(1);
+            // Q1 should now be at index 2
+            expect(editor.currentQuiz.questions[2].question).toBe('Q1');
         });
 
         it('should add a round and select it', () => {

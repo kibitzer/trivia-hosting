@@ -635,13 +635,70 @@ window.createEditorData = function (firebase, db, auth, storage) {
             });
         },
 
-        addQuestion() {
-            this.currentQuiz.questions.push({
+        async addQuestion() {
+            const result = await Swal.fire({
+                title: 'Add New Question',
+                html: `
+                    <p class="text-sm text-muted mb-4">Select the type of question you want to create:</p>
+                    <div class="type-grid" id="type-selector">
+                        <div class="type-option selected" data-type="multiple">
+                            <span class="type-icon">🔘</span>
+                            <span class="type-label">Multiple Choice</span>
+                        </div>
+                        <div class="type-option" data-type="short">
+                            <span class="type-icon">📝</span>
+                            <span class="type-label">Short Answer</span>
+                        </div>
+                        <div class="type-option" data-type="rebus">
+                            <span class="type-icon">🧩</span>
+                            <span class="type-label">Rebus</span>
+                        </div>
+                        <div class="type-option" data-type="true-false">
+                            <span class="type-icon">✅</span>
+                            <span class="type-label">True / False</span>
+                        </div>
+                        <div class="type-option" data-type="identify">
+                            <span class="type-icon">🖼️</span>
+                            <span class="type-label">Identify Image</span>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex-col gap-2 text-left">
+                        <label class="text-xs font-extrabold text-muted">INSERT AT SLIDE NUMBER (OPTIONAL)</label>
+                        <input type="number" id="slide-position" min="1" placeholder="Leave blank for end of quiz">
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Create Question',
+                didOpen: () => {
+                    const options = document.querySelectorAll('.type-option');
+                    options.forEach(opt => {
+                        opt.addEventListener('click', () => {
+                            options.forEach(o => o.classList.remove('selected'));
+                            opt.classList.add('selected');
+                        });
+                    });
+                },
+                preConfirm: () => {
+                    const selected = document.querySelector('.type-option.selected');
+                    const pos = document.getElementById('slide-position').value;
+                    return {
+                        type: selected.dataset.type,
+                        position: pos ? parseInt(pos) : null
+                    };
+                }
+            });
+
+            if (!result.isConfirmed) return;
+
+            const { type, position } = result.value;
+            const newQ = {
                 id: this._generateId(),
                 question: 'New Question?',
-                type: 'multiple',
-                options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
-                correctAnswer: 'Option 1',
+                type: type,
+                options: type === 'multiple' ? ['Option 1', 'Option 2', 'Option 3', 'Option 4'] : 
+                         (type === 'true-false' ? ['True', 'False'] : []),
+                correctAnswer: type === 'multiple' ? 'Option 1' : 
+                               (type === 'true-false' ? 'True' : ''),
                 timer: 30,
                 difficulty: 'Medium',
                 notes: '',
@@ -649,9 +706,21 @@ window.createEditorData = function (firebase, db, auth, storage) {
                 rebusImages: [],
                 factCheckingRequired: false,
                 factCheckingSource: '',
-            });
+            };
+
+            // Set specific defaults based on type
+            if (type === 'identify') newQ.question = 'Identify this picture:';
+            if (type === 'rebus') newQ.question = 'Examine the pictures to discover a word or phrase';
+
+            if (position !== null && position > 0 && position <= this.currentQuiz.questions.length) {
+                this.currentQuiz.questions.splice(position - 1, 0, newQ);
+                this.selectedQuestionIndex = position - 1;
+            } else {
+                this.currentQuiz.questions.push(newQ);
+                this.selectedQuestionIndex = this.currentQuiz.questions.length - 1;
+            }
+
             this.renumberSlides();
-            this.selectedQuestionIndex = this.currentQuiz.questions.length - 1;
             this.triggerAutosave();
         },
 

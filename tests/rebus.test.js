@@ -7,7 +7,7 @@ import '../host/editor-data.js';
 
 // Mock Swal
 global.Swal = {
-    fire: vi.fn(() => Promise.resolve({ isConfirmed: true })),
+    fire: vi.fn(() => Promise.resolve({ isConfirmed: true, value: { type: 'rebus', position: null } })),
 };
 
 const mockRef = {
