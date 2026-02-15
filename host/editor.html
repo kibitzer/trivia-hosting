@@ -204,6 +204,66 @@
                 min-height: 100px !important;
                 outline: none !important;
             }
+
+            /* Tagging UI */
+            .tag-manager {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            .tag-list {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+            .tag-item {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.375rem;
+                padding: 0.25rem 0.75rem;
+                background: var(--color-primary-light);
+                color: var(--color-primary);
+                border-radius: var(--radius-full);
+                font-size: 0.75rem;
+                font-weight: 800;
+                border: 1px solid var(--color-primary);
+            }
+            .tag-remove {
+                cursor: pointer;
+                opacity: 0.7;
+                transition: var(--transition);
+            }
+            .tag-remove:hover {
+                opacity: 1;
+                color: var(--color-danger);
+            }
+            .tag-input-container {
+                position: relative;
+            }
+            .tag-suggestions {
+                position: absolute;
+                bottom: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                border: 1px solid var(--color-border);
+                border-radius: var(--radius-md);
+                box-shadow: var(--shadow-lg);
+                z-index: 1000;
+                max-height: 200px;
+                overflow-y: auto;
+                margin-bottom: 0.25rem;
+            }
+            .tag-suggestion-item {
+                padding: 0.5rem 1rem;
+                cursor: pointer;
+                font-size: 0.875rem;
+                font-weight: 600;
+            }
+            .tag-suggestion-item:hover, .tag-suggestion-item.active {
+                background: var(--color-primary-light);
+                color: var(--color-primary);
+            }
         </style>
     </head>
     <body x-data="quizEditor">
@@ -385,6 +445,41 @@
                                             <input type="text" :value="Array.isArray(currentQuiz.questions[selectedQuestionIndex].correctAnswer) ? currentQuiz.questions[selectedQuestionIndex].correctAnswer.join(', ') : currentQuiz.questions[selectedQuestionIndex].correctAnswer" @input="currentQuiz.questions[selectedQuestionIndex].correctAnswer = $event.target.value.split(',').map(s => s.trim())">
                                         </div>
                                     </template>
+
+                                    <!-- Tagging Manager -->
+                                    <div class="tag-manager mt-8 pt-8 border-t">
+                                        <label class="text-xs font-extrabold text-muted">QUESTION TAGS</label>
+                                        <div class="tag-list" x-show="currentQuiz.questions[selectedQuestionIndex].tags?.length > 0">
+                                            <template x-for="tag in currentQuiz.questions[selectedQuestionIndex].tags" :key="tag">
+                                                <span class="tag-item">
+                                                    <span x-text="tag"></span>
+                                                    <span class="tag-remove" @click="removeTag(tag)">&times;</span>
+                                                </span>
+                                            </template>
+                                        </div>
+                                        <div class="tag-input-container">
+                                            <input 
+                                                type="text" 
+                                                x-model="newTagInput" 
+                                                placeholder="Add a tag (e.g. History, Science)..."
+                                                @input="updateTagSuggestions()"
+                                                @keydown.enter.prevent="addTag()"
+                                                @keydown.arrow-down.prevent="navigateTagSuggestions('down')"
+                                                @keydown.arrow-up.prevent="navigateTagSuggestions('up')"
+                                                @keydown.escape="tagSuggestions = []"
+                                            >
+                                            <div class="tag-suggestions" x-show="tagSuggestions.length > 0" x-cloak>
+                                                <template x-for="(tag, idx) in tagSuggestions" :key="tag">
+                                                    <div 
+                                                        class="tag-suggestion-item" 
+                                                        :class="{ 'active': activeTagSuggestionIndex === idx }"
+                                                        @click="selectTag(tag)"
+                                                        x-text="tag"
+                                                    ></div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </div>
 
                                     <!-- Host Tools -->
                                     <div class="grid mt-8 pt-8 border-t" style="grid-template-columns: 1fr 1fr; gap: 2rem;">

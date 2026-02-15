@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.9] - 2026-02-15
+
+### Fixed
+
+- **Editor**: Restored the missing tagging feature in the Question Editor UI (#41). This includes a modern Tag Manager with pill-based display, auto-suggestions from existing quiz and global tags, and keyboard navigation support.
+
 ## [0.14.8] - 2026-02-15
 
 ### Fixed
