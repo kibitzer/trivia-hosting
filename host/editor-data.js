@@ -26,6 +26,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
         tagSuggestions: [],
         activeTagSuggestionIndex: -1,
         autosaveTimeout: null,
+        lastSavedHash: null,
         showSettings: false,
         showGameOptions: false,
         showQuestionBank: false, // New: UI state
@@ -67,6 +68,31 @@ window.createEditorData = function (firebase, db, auth, storage) {
             const text = (q.question || q.text || '').toLowerCase().trim().replace(/[^\w\s]/g, '');
             const ans = String(q.correctAnswer || q.answer || '').toLowerCase().trim();
             return `${text}|${ans}`;
+        },
+
+        _calculateQuizHash(quiz) {
+            if (!quiz) return '';
+            try {
+                // We create a stable copy for hashing by excluding volatile fields
+                const cleanQuiz = JSON.parse(JSON.stringify(quiz));
+                
+                // Remove non-content fields that might change without user input
+                delete cleanQuiz.updatedAt;
+                delete cleanQuiz.createdAt;
+                
+                // Also clean questions
+                if (cleanQuiz.questions) {
+                    cleanQuiz.questions.forEach(q => {
+                        delete q.updatedAt;
+                        delete q.createdAt;
+                    });
+                }
+                
+                return JSON.stringify(cleanQuiz);
+            } catch (e) {
+                console.warn('[Editor] Hash calculation failed:', e);
+                return String(Date.now()); // Force a save if hashing fails
+            }
         },
 
         // --- Computed ---
@@ -258,6 +284,14 @@ window.createEditorData = function (firebase, db, auth, storage) {
         },
 
         triggerAutosave() {
+            if (!this.editingQuizId) return;
+
+            const currentHash = this._calculateQuizHash(this.currentQuiz);
+            if (this.lastSavedHash === currentHash) {
+                // No actual content changes, skip autosave
+                return;
+            }
+
             if (this.autosaveTimeout) clearTimeout(this.autosaveTimeout);
             this.statusMsg = 'Unsaved Changes';
             this.autosaveTimeout = setTimeout(() => {
@@ -479,6 +513,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
 
             this.renumberSlides();
             this.selectedQuestionIndex = 0;
+            this.lastSavedHash = this._calculateQuizHash(this.currentQuiz);
             this.statusMsg = '✓ Saved';
             this.dataLoaded = true;
 
@@ -885,6 +920,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
                 localCopy.updatedAt = now;
                 this.quizzes[this.editingQuizId] = localCopy;
 
+                this.lastSavedHash = this._calculateQuizHash(this.currentQuiz);
                 this.statusMsg = '✓ Saved';
                 TriviaUI.notifySuccess('Quiz saved successfully');
             } catch (err) {

@@ -2,6 +2,11 @@
 
 A real-time, browser-based trivia hosting application powered by Firebase Realtime Database. This system allows a host to control a trivia game while players join via their own devices to answer questions, earn points, and view the live scoreboard.
 
+---
+** NOTE **
+This is not intended to be robust or unbreakable. This is a simple no-build project designed to test out the capabilities of AI coding.
+---
+
 ## ✨ Features
 
 ### For the Host (`/host`)
