@@ -1,5 +1,5 @@
 // Single source of truth for the app version
-window.TRIVIA_VERSION = '0.14.0';
+window.TRIVIA_VERSION = '0.14.1';
 
 // Helper to display it
 window.displayVersion = function (elementId) {

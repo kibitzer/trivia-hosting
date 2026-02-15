@@ -13,9 +13,18 @@ window.createDashboardData = function (firebase, db, auth) {
 
         // Import State
         showImportModal: false,
+        importMode: 'quiz', // 'quiz' or 'questions'
         importInput: '',
         importError: '',
         importPreview: { title: '', questions: [] },
+
+        openImportModal(mode) {
+            this.importMode = mode;
+            this.importInput = '';
+            this.importError = '';
+            this.importPreview = { title: '', questions: [] };
+            this.showImportModal = true;
+        },
 
         init() {
             // Connection Status
@@ -61,7 +70,13 @@ window.createDashboardData = function (firebase, db, auth) {
         previewImport() {
             this.importError = '';
             try {
-                this.importPreview = QuizParser.parseFullQuiz(this.importInput);
+                if (this.importMode === 'quiz') {
+                    this.importPreview = QuizParser.parseFullQuiz(this.importInput);
+                } else {
+                    const questions = QuizParser.parseQuestions(this.importInput);
+                    this.importPreview = { title: 'Global Question Bank', questions };
+                }
+
                 if (this.importPreview.questions.length === 0) {
                     this.importError = 'No valid questions found in input.';
                 }
@@ -117,22 +132,24 @@ window.createDashboardData = function (firebase, db, auth) {
                     await TriviaDataService.questionsRef.update(questionUpdates);
                 }
 
-                // 2. Create and save the quiz
-                const newQuiz = {
-                    title: this.importPreview.title,
-                    questions: quizQuestions,
-                    settings: {
-                        speedScoring: true,
-                        autoReveal: true,
-                        defaultTimer: 20,
-                        continuousScoreboard: true,
-                    },
-                    createdAt: firebase.database.ServerValue.TIMESTAMP,
-                    updatedAt: firebase.database.ServerValue.TIMESTAMP,
-                };
+                // 2. Create and save the quiz (only in 'quiz' mode)
+                if (this.importMode === 'quiz') {
+                    const newQuiz = {
+                        title: this.importPreview.title || 'Imported Quiz',
+                        questions: quizQuestions,
+                        settings: {
+                            speedScoring: true,
+                            autoReveal: true,
+                            defaultTimer: 20,
+                            continuousScoreboard: true,
+                        },
+                        createdAt: firebase.database.ServerValue.TIMESTAMP,
+                        updatedAt: firebase.database.ServerValue.TIMESTAMP,
+                    };
 
-                const quizRef = TriviaDataService.quizzesRef.push();
-                await quizRef.set(newQuiz);
+                    const quizRef = TriviaDataService.quizzesRef.push();
+                    await quizRef.set(newQuiz);
+                }
 
                 this.showImportModal = false;
                 this.importInput = '';

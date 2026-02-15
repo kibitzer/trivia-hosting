@@ -5,7 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.13.3] - 2026-02-14
+## [0.14.1] - 2026-02-15
+
+### Fixed
+
+- **Editor**: Added missing "Source Verification" label to the host tools section (#32).
+- **Editor**: Fixed an infinite autosave loop caused by unstable array normalization during the save process (#33).
+- **Editor**: Resolved UI issue where tags in the Question Bank sidebar would not wrap correctly (#35).
+- **Dashboard**: Fixed a UI bug where the Import Quiz modal would sometimes fail to display correctly due to style overrides (#34).
+- **Dashboard**: Added a new "Import Questions" button to allow adding questions directly to the global pool without creating a new quiz (#34).
+- **Host**: Fixed the "Show Leaderboard" toggle which previously allowed players to see the leaderboard even when toggled off (#36).
+- **Player**: Ensured the leaderboard correctly overlays and hides the question area when active, as intended (#36).
+
+## [0.14.0] - 2026-02-14
 
 ### Fixed
 

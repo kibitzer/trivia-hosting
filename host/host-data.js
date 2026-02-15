@@ -391,7 +391,7 @@ window.createHostData = function (firebase, db, auth, analytics) {
                     timerValue: this.timerValue,
                     timerStatus: this.timerStatus,
                     continuousScoreboard: !!this.continuousScoreboard,
-                    showScoreboard: this.continuousScoreboard || this.showScoreboard,
+                    showScoreboard: !!this.showScoreboard,
                     timestamp: firebase.database.ServerValue.TIMESTAMP,
                 };
 

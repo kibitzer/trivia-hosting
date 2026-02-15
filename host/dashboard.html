@@ -117,8 +117,11 @@
                 <a href="browser.html" class="nav-item">
                     <span>📂</span> Question Bank
                 </a>
-                <button @click="showImportModal = true" class="nav-item" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer;">
+                <button @click="openImportModal('quiz')" class="nav-item" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer;">
                     <span>📥</span> Import Quiz
+                </button>
+                <button @click="openImportModal('questions')" class="nav-item" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer;">
+                    <span>📂</span> Import Questions
                 </button>
             </nav>
 
@@ -192,10 +195,10 @@
     </div>
 
     <!-- Import Quiz Modal (Modernised) -->
-    <div class="modal-backdrop" x-show="showImportModal" x-cloak style="z-index: 10000; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center;">
+    <div class="modal-backdrop" x-show="showImportModal" x-cloak :style="showImportModal ? 'display: flex' : 'display: none'" style="z-index: 10000; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); align-items: center; justify-content: center;">
         <div class="card" style="max-width: 900px; width: 95%; height: 85vh; display: flex; flex-direction: column; margin: 0;">
             <div class="flex justify-between items-center mb-4">
-                <h2 style="color: var(--color-primary)">📥 Import Quiz</h2>
+                <h2 style="color: var(--color-primary)" x-text="importMode === 'quiz' ? '📥 Import Full Quiz' : '📂 Import Questions to Bank'"></h2>
                 <button @click="showImportModal = false" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-text-muted)">&times;</button>
             </div>
 

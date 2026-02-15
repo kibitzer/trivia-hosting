@@ -388,6 +388,7 @@
                                                 <input type="checkbox" x-model="currentQuiz.questions[selectedQuestionIndex].factCheckingRequired" style="width: 1.25rem; height: 1.25rem;">
                                                 <span class="text-xs font-extrabold text-muted">FACT CHECK REQUIRED</span>
                                             </label>
+                                            <label class="text-xs font-extrabold text-muted">SOURCE VERIFICATION</label>
                                             <div class="rte-container" x-init="initRTE($el, 'factCheckingSource', currentQuiz.questions[selectedQuestionIndex].factCheckingSource)" :key="'s-rte-' + currentQuiz.questions[selectedQuestionIndex].id" style="height: 120px;"></div>
                                         </div>
                                         <div class="flex-col gap-4">
@@ -418,7 +419,7 @@
                 <div style="flex: 1; overflow-y: auto; background: var(--color-bg); border-radius: var(--radius-md); border: 1px solid var(--color-border);">
                     <template x-for="q in paginatedBankQuestions" :key="q.id">
                         <div class="p-4 border-b bg-white flex justify-between items-start gap-4">
-                            <div class="flex-col gap-1">
+                            <div class="flex-col gap-1" style="flex: 1; min-width: 0;">
                                 <div class="text-xs font-extrabold text-muted" x-text="q.type.toUpperCase() + ' • ' + q.difficulty.toUpperCase()"></div>
                                 <div class="font-bold text-sm" x-text="q.question"></div>
                                 <div class="flex flex-wrap gap-1 mt-1">

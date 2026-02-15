@@ -795,15 +795,22 @@ window.createEditorData = function (firebase, db, auth, storage) {
                     }
 
                     if (q.correctAnswer && typeof q.correctAnswer === 'string') {
-                        q.correctAnswer = this._normalizeString(q.correctAnswer);
+                        const normAns = this._normalizeString(q.correctAnswer);
+                        if (q.correctAnswer !== normAns) q.correctAnswer = normAns;
                     } else if (Array.isArray(q.correctAnswer)) {
-                        q.correctAnswer = q.correctAnswer
+                        const normAns = q.correctAnswer
                             .map(a => this._normalizeString(a))
                             .filter(a => a && a.trim() !== '');
+                        
+                        // Only update if the normalized array is different to avoid triggering deep watch
+                        if (JSON.stringify(q.correctAnswer) !== JSON.stringify(normAns)) {
+                            q.correctAnswer = normAns;
+                        }
                     }
 
                     if (q.factCheckingSource !== undefined) {
-                        q.factCheckingSource = String(q.factCheckingSource).trim();
+                        const normSource = String(q.factCheckingSource).trim();
+                        if (q.factCheckingSource !== normSource) q.factCheckingSource = normSource;
                     }
 
                     // Validation
@@ -817,10 +824,17 @@ window.createEditorData = function (firebase, db, auth, storage) {
                     if (!hasAnswer) {
                         validationError = `Question ${q.questionNumber || 'unknown'} is missing a correct answer.`;
                     } else if (q.type === 'multiple' && q.options) {
-                        if (!q.options.includes(q.correctAnswer)) {
-                            const match = q.options.find(o => this._normalizeString(o) === this._normalizeString(q.correctAnswer));
-                            if (match) q.correctAnswer = match;
-                            else validationError = `Question ${q.questionNumber || 'unknown'}: The correct answer is not in the options list.`;
+                        const normCorrect = this._normalizeString(q.correctAnswer);
+                        if (!q.options.includes(normCorrect)) {
+                            const match = q.options.find(o => this._normalizeString(o) === normCorrect);
+                            if (match) {
+                                if (q.correctAnswer !== match) q.correctAnswer = match;
+                            } else {
+                                validationError = `Question ${q.questionNumber || 'unknown'}: The correct answer is not in the options list.`;
+                            }
+                        } else {
+                            // Even if it is included, ensure it matches the option's casing/trimming exactly
+                            if (q.correctAnswer !== normCorrect) q.correctAnswer = normCorrect;
                         }
                     }
 
