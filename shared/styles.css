@@ -250,6 +250,9 @@ textarea:disabled {
 .mb-2 { margin-bottom: 0.5rem; }
 .mb-4 { margin-bottom: 1rem; }
 
+.p-2 { padding: 0.5rem; }
+.p-4 { padding: 1rem; }
+
 /* --- Typography Utilities --- */
 .text-xs { font-size: 0.75rem; line-height: 1rem; }
 .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
