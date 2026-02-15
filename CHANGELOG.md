@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.7] - 2026-02-15
+
+### Fixed
+
+- **UI**: Fixed an issue where tags in the Question Bank did not wrap within the panel (#35).
+- **UI**: Expanded the shared CSS utility library with missing flex (`.flex-wrap`, `.items-start`, `.justify-end`) and spacing (`gap`, `mt`, `mb`, `p`) classes used throughout the project.
+
 ## [0.14.6] - 2026-02-15
 
 ### Fixed
