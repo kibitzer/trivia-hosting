@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.6] - 2026-02-15
+
+### Fixed
+
+- **Editor**: Fixed an issue where HTML tags were displayed as literal text in the sidebar slide preview and Question Bank Modal (#38). Questions now render correctly as rich text in these views.
+
 ## [0.14.5] - 2026-02-15
 
 ### Fixed

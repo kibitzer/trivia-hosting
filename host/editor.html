@@ -71,6 +71,11 @@
                 -webkit-box-orient: vertical;
                 overflow: hidden;
             }
+            .slide-thumb-preview * {
+                display: inline;
+                margin: 0;
+                padding: 0;
+            }
 
             /* Main Workspace */
             .editor-workspace {
@@ -244,7 +249,7 @@
                                 :data-id="q.id"
                             >
                                 <div class="slide-thumb-number" x-text="(q.type === 'round-title' ? 'ROUND ' : 'SLIDE ') + (index + 1)"></div>
-                                <div class="slide-thumb-preview" x-text="q.type === 'round-title' ? q.title : (q.question || '(New Question)')"></div>
+                                <div class="slide-thumb-preview" x-html="q.type === 'round-title' ? q.title : (q.question || '(New Question)')"></div>
                                 <div class="text-xs font-bold text-muted mt-auto" style="text-transform: uppercase;" x-text="q.type.replace('-', ' ')"></div>
                             </div>
                         </template>
@@ -421,7 +426,7 @@
                         <div class="p-4 border-b bg-white flex justify-between items-start gap-4">
                             <div class="flex-col gap-1" style="flex: 1; min-width: 0;">
                                 <div class="text-xs font-extrabold text-muted" x-text="q.type.toUpperCase() + ' • ' + q.difficulty.toUpperCase()"></div>
-                                <div class="font-bold text-sm" x-text="q.question"></div>
+                                <div class="font-bold text-sm" x-html="q.question"></div>
                                 <div class="flex flex-wrap gap-1 mt-1">
                                     <template x-for="tag in (q.tags || [])" :key="tag">
                                         <span class="text-xs font-bold text-primary" x-text="'#' + tag"></span>
