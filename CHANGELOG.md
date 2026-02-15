@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.3] - 2026-02-15
+
+### Fixed
+
+- **Infrastructure**: Resolved a browser console warning by refactoring the script injection logic in `shared/head-helper.js` to avoid parser-blocking `document.write`.
+- **UI**: Fixed a bug where the Import Quiz and Import Questions modals on the Dashboard were invisible due to a missing `.modal-backdrop` CSS class (#37).
+
+### Added
+
+- **Testing**: Added a new E2E test `tests/dashboard-import.spec.js` to verify dashboard import modal visibility.
+
 ## [0.14.2] - 2026-02-15
 
 ### Changed

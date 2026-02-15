@@ -43,8 +43,26 @@
         { src: 'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js' },
     ];
 
+    // Inject dependencies using createElement to avoid document.write warnings.
+    // async = false ensures order; DOMContentLoaded ensures Alpine runs after body listeners.
     dependencies.forEach((dep) => {
-        const deferAttr = dep.defer || dep.src.includes('alpine') ? 'defer' : '';
-        document.write(`<script src="${dep.src}" ${deferAttr}></script>`);
+        const script = document.createElement('script');
+        script.src = dep.src;
+        script.async = false;
+
+        const isDeferred = dep.defer || dep.src.includes('alpine');
+        if (isDeferred) {
+            // For deferred scripts, wait until DOM is ready to ensure 
+            // inline scripts in the body have registered their listeners.
+            if (document.readyState === 'loading') {
+                window.addEventListener('DOMContentLoaded', () => {
+                    document.head.appendChild(script);
+                });
+            } else {
+                document.head.appendChild(script);
+            }
+        } else {
+            document.head.appendChild(script);
+        }
     });
 })();

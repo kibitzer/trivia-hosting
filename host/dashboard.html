@@ -195,7 +195,7 @@
     </div>
 
     <!-- Import Quiz Modal (Modernised) -->
-    <div class="modal-backdrop" x-show="showImportModal" x-cloak :style="showImportModal ? 'display: flex' : 'display: none'" style="z-index: 10000; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); align-items: center; justify-content: center;">
+    <div class="modal-backdrop" x-show="showImportModal" x-cloak>
         <div class="card" style="max-width: 900px; width: 95%; height: 85vh; display: flex; flex-direction: column; margin: 0;">
             <div class="flex justify-between items-center mb-4">
                 <h2 style="color: var(--color-primary)" x-text="importMode === 'quiz' ? '📥 Import Full Quiz' : '📂 Import Questions to Bank'"></h2>

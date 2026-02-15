@@ -405,7 +405,7 @@
         </div>
 
         <!-- Question Bank Modal (Slide-out style) -->
-        <div class="modal-backdrop" x-show="showQuestionBank" x-cloak @click.self="showQuestionBank = false" style="justify-content: flex-end; z-index: 10000;">
+        <div class="modal-backdrop" x-show="showQuestionBank" x-cloak @click.self="showQuestionBank = false" style="justify-content: flex-end;">
             <div x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0" class="card" style="width: 600px; height: 100vh; border-radius: 0; margin: 0; display: flex; flex-direction: column;">
                 <div class="flex justify-between items-center mb-6">
                     <h2 style="color: var(--color-primary)">📂 Question Bank</h2>
@@ -444,7 +444,7 @@
         </div>
 
         <!-- Quiz Settings Modal -->
-        <div class="modal-backdrop" x-show="showGameOptions" x-cloak @click.self="showGameOptions = false" style="z-index: 10000;">
+        <div class="modal-backdrop" x-show="showGameOptions" x-cloak @click.self="showGameOptions = false">
             <div class="card" style="width: 440px;">
                 <h2 class="mb-6" style="color: var(--color-primary)">⚙️ Quiz Settings</h2>
                 
