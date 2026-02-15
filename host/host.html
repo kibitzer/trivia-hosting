@@ -90,6 +90,32 @@
             text-align: center;
             margin-bottom: 1rem;
         }
+
+        /* Options Grid (Host View) */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .option-card {
+            background: white;
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            border: 2px solid var(--color-border);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+        }
+        .option-card.correct {
+            border-color: var(--color-success);
+            background: var(--color-success-bg);
+            color: var(--color-success);
+        }
+        .option-label {
+            font-size: 1.125rem;
+        }
     </style>
 </head>
 
@@ -171,6 +197,29 @@
 
                                     <template x-if="currentItem.image">
                                         <img :src="currentItem.image" class="question-image" onerror="this.style.display = 'none'" />
+                                    </template>
+
+                                    <!-- Rebus Images -->
+                                    <template x-if="currentItem.rebusImages && currentItem.rebusImages.length > 0">
+                                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 1.5rem; margin-bottom: 1.5rem;">
+                                            <template x-for="(img, idx) in currentItem.rebusImages" :key="idx">
+                                                <div style="aspect-ratio: 1; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--color-border); position: relative; background: white;">
+                                                    <img :src="img" style="width: 100%; height: 100%; object-fit: cover;" />
+                                                    <div style="position: absolute; bottom: 0.4rem; left: 0.4rem; background: rgba(0,0,0,0.6); color: white; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 800; font-size: 0.75rem;" x-text="idx + 1"></div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </template>
+
+                                    <!-- Options (Host View) -->
+                                    <template x-if="currentItem.questionType === 'MC'">
+                                        <div class="options-grid" x-show="timerStatus !== 'countdown'">
+                                            <template x-for="(opt, idx) in (currentOptions || currentItem.options)" :key="idx">
+                                                <div class="option-card" :class="{'correct': answerRevealed && TriviaDataService.checkAnswer(opt, currentItem.answer)}">
+                                                    <span class="option-label" x-html="opt"></span>
+                                                </div>
+                                            </template>
+                                        </div>
                                     </template>
 
                                     <!-- Correct Answer Reveal (Host View) -->
