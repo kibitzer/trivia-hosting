@@ -119,7 +119,7 @@ window.QuizParser = {
                     if (rt) title = rt.title;
                 } else {
                     title = parsed.title || title;
-                    questions = this.parseQuestions(JSON.stringify(parsed.questions || parsed));
+                    questions = this.parseQuestions(trimmed);
                 }
             } catch (e) {
                 console.warn('JSON quiz parse failed', e);
@@ -145,20 +145,29 @@ window.QuizParser = {
         if (!input || !input.trim()) return [];
 
         let rawList = [];
+        let jsonParsed = false;
         const trimmed = input.trim();
 
         // 1. Try JSON
         if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
             try {
                 const parsed = JSON.parse(trimmed);
-                rawList = Array.isArray(parsed) ? parsed : (parsed.questions || [parsed]);
+                jsonParsed = true;
+                if (Array.isArray(parsed)) {
+                    rawList = parsed;
+                } else if (parsed.questions && Array.isArray(parsed.questions)) {
+                    rawList = parsed.questions;
+                } else if (parsed.question || parsed.text || (parsed.title && parsed.type === 'round-title')) {
+                    // It's a single question object
+                    rawList = [parsed];
+                }
             } catch (e) {
                 console.warn('JSON parse failed, falling back to CSV', e);
             }
         }
 
-        // 2. Fallback to CSV-like parsing if JSON failed or wasn't detected
-        if (rawList.length === 0) {
+        // 2. Fallback to CSV-like parsing if JSON wasn't detected or failed to parse
+        if (!jsonParsed && rawList.length === 0) {
             const lines = trimmed.split('\n');
             lines.forEach(line => {
                 if (!line.trim() || line.startsWith('#')) return;
@@ -182,6 +191,7 @@ window.QuizParser = {
             // but let's allow it if present.
             if (item.type === 'round-title') return item;
 
+            // Handle common variations. 'single' is often used for short answer in some formats.
             const isMC = ['multiple', 'MC', 'true-false'].includes(item.type) || item.questionType === 'MC';
             
             return {
@@ -197,6 +207,19 @@ window.QuizParser = {
                 factCheckingSource: item.factCheckingSource || ''
             };
         });
+    },
+
+    /**
+     * Validates a quiz object.
+     * @returns {{valid: boolean, error: string|null}}
+     */
+    validate(quiz) {
+        if (!quiz) return { valid: false, error: 'No quiz data provided.' };
+        if (!quiz.title || quiz.title.trim() === '') return { valid: false, error: 'Quiz title is missing.' };
+        if (!quiz.questions || !Array.isArray(quiz.questions) || quiz.questions.length === 0) {
+            return { valid: false, error: 'Quiz must have at least one question or round-title.' };
+        }
+        return { valid: true, error: null };
     },
 
     /**

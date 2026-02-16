@@ -79,6 +79,20 @@ describe('Question Import Logic', () => {
             expect(result.questions.length).toBe(1);
         });
 
+        it('should handle JSON quiz with title but empty questions array', () => {
+            const input = JSON.stringify({
+                title: 'Empty Quiz',
+                questions: []
+            });
+            const result = QuizParser.parseFullQuiz(input);
+            expect(result.title).toBe('Empty Quiz');
+            expect(result.questions).toHaveLength(0);
+            
+            const validation = QuizParser.validate(result);
+            expect(validation.valid).toBe(false);
+            expect(validation.error).toContain('at least one question');
+        });
+
         it('should extract title from CSV starting with #', () => {
             const input = '# History Quiz\nQ1, SHORT, , A1';
             const result = QuizParser.parseFullQuiz(input);
@@ -95,6 +109,13 @@ describe('Question Import Logic', () => {
             const result = QuizParser.parseFullQuiz(input);
             expect(result.title).toBe('Round 1 Title');
             expect(result.questions.length).toBe(2);
+        });
+
+        it('should handle JSON object missing questions array by treating it as an empty quiz if it has a title', () => {
+            const input = JSON.stringify({ title: 'Just a Title' });
+            const result = QuizParser.parseFullQuiz(input);
+            expect(result.title).toBe('Just a Title');
+            expect(result.questions).toHaveLength(0);
         });
     });
 });

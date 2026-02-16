@@ -86,7 +86,13 @@ window.createDashboardData = function (firebase, db, auth) {
         },
 
         async performImport() {
-            if (!this.importPreview || this.importPreview.questions.length === 0) return;
+            if (!this.importPreview) return;
+            
+            const validation = QuizParser.validate(this.importPreview);
+            if (!validation.valid) {
+                this.importError = validation.error;
+                return;
+            }
             
             this.loading = true;
             try {
@@ -98,7 +104,7 @@ window.createDashboardData = function (firebase, db, auth) {
                 // Build a lookup map for existing questions (Strategy 2: Text + Answer)
                 const existingMap = new Map();
                 Object.entries(this.globalQuestions).forEach(([id, q]) => {
-                    const key = this._getQuestionKey(q);
+                    const key = TriviaDataService.getQuestionKey(q);
                     existingMap.set(key, id);
                 });
 
@@ -108,14 +114,14 @@ window.createDashboardData = function (firebase, db, auth) {
                         continue;
                     }
 
-                    const key = this._getQuestionKey(q);
+                    const key = TriviaDataService.getQuestionKey(q);
                     if (existingMap.has(key)) {
                         // Collision detected: Reuse existing ID
                         quizQuestions.push(existingMap.get(key));
                         reusedCount++;
                     } else {
                         // New question: Create ID and add to pool
-                        const id = Date.now() + '-' + Math.random().toString(36).substring(2, 9);
+                        const id = TriviaDataService.generateId();
                         q.id = id;
                         q.updatedAt = firebase.database.ServerValue.TIMESTAMP;
                         questionUpdates[id] = q;
@@ -162,12 +168,6 @@ window.createDashboardData = function (firebase, db, auth) {
             } finally {
                 this.loading = false;
             }
-        },
-
-        _getQuestionKey(q) {
-            const text = (q.question || q.text || '').toLowerCase().trim().replace(/[^\w\s]/g, '');
-            const ans = String(q.correctAnswer || q.answer || '').toLowerCase().trim();
-            return `${text}|${ans}`;
         },
 
         get sortedQuizzes() {
@@ -217,7 +217,7 @@ window.createDashboardData = function (firebase, db, auth) {
                     continuousScoreboard: true,
                 },
                 questions: [{
-                    id: Date.now() + '-' + Math.random().toString(36).substring(2, 9),
+                    id: TriviaDataService.generateId(),
                     question: 'Sample Question?',
                     type: 'multiple',
                     options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],

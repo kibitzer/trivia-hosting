@@ -3,6 +3,7 @@
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import '../shared/data-service.js';
+import '../shared/quiz-parser.js';
 import '../host/dashboard-data.js';
 
 // Mock Swal
@@ -111,7 +112,7 @@ describe('Dashboard Logic', () => {
 
         it('should generate correct question key', () => {
             const q = { question: 'What is 2+2?', correctAnswer: '4' };
-            const key = dashboard._getQuestionKey(q);
+            const key = TriviaDataService.getQuestionKey(q);
             expect(key).toBe('what is 22|4');
         });
 
@@ -145,6 +146,24 @@ describe('Dashboard Logic', () => {
             const quizData = mockSet.mock.calls[0][0];
             expect(quizData.questions[0]).toBe('id1');
             expect(quizData.questions[1]).toBe(Object.keys(updates)[0]);
+        });
+
+        it('should reject import if quiz has no questions', async () => {
+            const mockSet = vi.fn();
+            TriviaDataService.quizzesRef.push = vi.fn(() => ({
+                key: 'new-quiz',
+                set: mockSet
+            }));
+
+            dashboard.importPreview = {
+                title: 'Empty Quiz',
+                questions: []
+            };
+
+            await dashboard.performImport();
+
+            expect(mockSet).not.toHaveBeenCalled();
+            expect(dashboard.importError).toBe('Quiz must have at least one question or round-title.');
         });
     });
 });

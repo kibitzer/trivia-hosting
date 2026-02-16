@@ -228,4 +228,60 @@ describe('QuizParser Shared Logic', () => {
             expect(result[1].rebusImages).toEqual(['url1', 'url2']);
         });
     });
+
+    describe('parseQuestions (Normalization)', () => {
+        it('should distinguish between a list and a full quiz object', () => {
+            const quizJson = JSON.stringify({
+                title: 'Full Quiz',
+                questions: [{ question: 'Q1' }]
+            });
+            const result = QuizParser.parseQuestions(quizJson);
+            expect(result).toHaveLength(1);
+            expect(result[0].question).toBe('Q1');
+        });
+
+        it('should handle a simple array of questions', () => {
+            const arrayJson = JSON.stringify([{ question: 'Q1' }, { question: 'Q2' }]);
+            const result = QuizParser.parseQuestions(arrayJson);
+            expect(result).toHaveLength(2);
+            expect(result[0].question).toBe('Q1');
+        });
+
+        it('should treat an object missing "questions" property as a single question if it has question text', () => {
+            const singleQJson = JSON.stringify({ question: 'Single Q' });
+            const result = QuizParser.parseQuestions(singleQJson);
+            expect(result).toHaveLength(1);
+            expect(result[0].question).toBe('Single Q');
+        });
+        
+        it('should treat "single" type as "short" answer', () => {
+            const singleTypeJson = JSON.stringify([{ question: 'Q1', type: 'single' }]);
+            const result = QuizParser.parseQuestions(singleTypeJson);
+            expect(result[0].type).toBe('short');
+        });
+    });
+
+    describe('validate', () => {
+        it('should reject null or undefined', () => {
+            expect(QuizParser.validate(null).valid).toBe(false);
+            expect(QuizParser.validate(undefined).valid).toBe(false);
+        });
+
+        it('should reject missing or empty title', () => {
+            expect(QuizParser.validate({ questions: [{}] }).valid).toBe(false);
+            expect(QuizParser.validate({ title: '', questions: [{}] }).valid).toBe(false);
+            expect(QuizParser.validate({ title: ' ', questions: [{}] }).valid).toBe(false);
+        });
+
+        it('should reject missing or empty questions array', () => {
+            expect(QuizParser.validate({ title: 'T' }).valid).toBe(false);
+            expect(QuizParser.validate({ title: 'T', questions: [] }).valid).toBe(false);
+            expect(QuizParser.validate({ title: 'T', questions: 'not an array' }).valid).toBe(false);
+        });
+
+        it('should accept valid quiz structure', () => {
+            const validQuiz = { title: 'T', questions: [{ type: 'short', question: 'Q' }] };
+            expect(QuizParser.validate(validQuiz).valid).toBe(true);
+        });
+    });
 });

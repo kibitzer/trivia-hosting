@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.3] - 2026-02-16
+
+### Fixed
+
+- **Import**: Introduced strict validation in `QuizParser` to prevent the creation of "hollow" quizzes (quizzes with no questions). Malformed JSON or empty inputs now trigger a validation error instead of saving a corrupt quiz to Firebase.
+- **Parser**: Fixed a bug where successful JSON parsing could fall through to CSV parsing, potentially creating invalid question objects.
+
+### Changed
+
+- **Refactor**: Centralised unique ID generation and question collision detection logic into `TriviaDataService`, removing duplicated code from the Dashboard and Editor.
+
 ## [0.15.2] - 2026-02-16
 
 ### Fixed

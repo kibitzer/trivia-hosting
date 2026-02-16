@@ -51,6 +51,22 @@ window.TriviaDataService = {
     // --- Utilities ---
 
     /**
+     * Generates a unique ID for a quiz or question.
+     */
+    generateId() {
+        return Date.now() + '-' + Math.random().toString(36).substring(2, 9);
+    },
+
+    /**
+     * Generates a unique key for a question based on its text and answer for collision detection.
+     */
+    getQuestionKey(q) {
+        const text = (q.question || q.text || '').toLowerCase().trim().replace(/[^\w\s]/g, '');
+        const ans = String(q.correctAnswer || q.answer || '').toLowerCase().trim();
+        return `${text}|${ans}`;
+    },
+
+    /**
      * Mild normalization for storage: trims and removes legacy prefixes like 'A) ', '1. ', etc.
      * Preserves casing and internal punctuation.
      */

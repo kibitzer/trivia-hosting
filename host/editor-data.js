@@ -56,18 +56,8 @@ window.createEditorData = function (firebase, db, auth, storage) {
         $nextTick: (cb) => cb(),
 
         // --- Helpers ---
-        _generateId() {
-            return Date.now() + '-' + Math.random().toString(36).substring(2, 9);
-        },
-
         _normalizeString(s) {
             return TriviaDataService.normalizeString(s);
-        },
-
-        _getQuestionKey(q) {
-            const text = (q.question || q.text || '').toLowerCase().trim().replace(/[^\w\s]/g, '');
-            const ans = String(q.correctAnswer || q.answer || '').toLowerCase().trim();
-            return `${text}|${ans}`;
         },
 
         _calculateQuizHash(quiz) {
@@ -406,7 +396,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
                 },
                 questions: [
                     {
-                        id: this._generateId(),
+                        id: TriviaDataService.generateId(),
                         question: 'Sample Question?',
                         type: 'multiple',
                         options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
@@ -466,7 +456,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
 
             // Backfill IDs and migrate Category to Tags + Normalize MC
             this.currentQuiz.questions.forEach((q) => {
-                if (!q.id) q.id = this._generateId();
+                if (!q.id) q.id = TriviaDataService.generateId();
                 if (q.type !== 'round-title') {
                     if (q.category && !q.tags) {
                         q.tags = [q.category];
@@ -697,7 +687,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
 
             const { type, position } = result.value;
             const newQ = {
-                id: this._generateId(),
+                id: TriviaDataService.generateId(),
                 question: 'New Question?',
                 type: type,
                 options: type === 'multiple' ? ['Option 1', 'Option 2', 'Option 3', 'Option 4'] : 
@@ -738,7 +728,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
 
         addRound() {
             this.currentQuiz.questions.push({
-                id: this._generateId(),
+                id: TriviaDataService.generateId(),
                 type: 'round-title',
                 title: 'New Round',
                 image: '',
@@ -787,18 +777,18 @@ window.createEditorData = function (firebase, db, auth, storage) {
                 // Build a lookup map for existing questions (Strategy 2: Text + Answer)
                 const existingMap = new Map();
                 Object.entries(this.globalQuestions).forEach(([id, q]) => {
-                    const key = this._getQuestionKey(q);
+                    const key = TriviaDataService.getQuestionKey(q);
                     existingMap.set(key, id);
                 });
 
                 this.importPreview.forEach(q => {
                     if (q.type === 'round-title') return;
 
-                    const key = this._getQuestionKey(q);
+                    const key = TriviaDataService.getQuestionKey(q);
                     if (existingMap.has(key)) {
                         reusedCount++;
                     } else {
-                        const id = this._generateId();
+                        const id = TriviaDataService.generateId();
                         q.id = id;
                         q.updatedAt = firebase.database.ServerValue.TIMESTAMP;
                         questionUpdates[id] = q;
@@ -950,7 +940,7 @@ window.createEditorData = function (firebase, db, auth, storage) {
                     if (!validationError) {
                         // Prepare the question object for the global pool
                         const globalQ = JSON.parse(JSON.stringify(q));
-                        const qId = globalQ.id || this._generateId();
+                        const qId = globalQ.id || TriviaDataService.generateId();
                         globalQ.id = qId;
                         globalQ.updatedAt = firebase.database.ServerValue.TIMESTAMP;
                         
