@@ -65,6 +65,16 @@ We will move to a **Hybrid Strategy** to balance cost, query power, and latency.
 - **Why?** Store uploaded slide and Rebus images.
 - **Optimization:** Use Firebase Extensions to automatically resize/compress images for mobile players.
 
+## Targeted Viewports per Persona
+
+The rebuild will adopt a "Device-First" design strategy, tailoring the user experience to the primary hardware used for each role.
+
+| Persona | Expected Viewport | Other Supported | Not Expected / Possible |
+| :--- | :--- | :--- | :--- |
+| **Player** | **Mobile** | Tablet | Desktop/Laptop (Possible but not expected) |
+| **Host** | **Desktop/Laptop** | Tablet | Mobile (Not expected) |
+| **Editor** | **Desktop/Laptop** | Tablet | Mobile (Not possible) |
+
 ## Migration & Features to Port
 
 The Rebuild must verify the following complex features are correctly ported:
