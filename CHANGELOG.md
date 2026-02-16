@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Collision Detection**: Enhanced question deduplication logic to include visual assets (images and rebus images) in the comparison key, preventing false positives for questions with identical text but different visual aids (#48).
+
+### Fixed
+
+- **Import**: Updated question parser to correctly preserve `image` and `rebusImages` fields during bulk imports.
+
 ## [0.15.7] - 2026-02-16
 
 ### Changed

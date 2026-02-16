@@ -203,6 +203,8 @@ window.QuizParser = {
                 difficulty: item.difficulty || 'Medium',
                 tags: Array.isArray(item.tags) ? item.tags : (item.category ? [item.category] : []),
                 notes: item.notes || '',
+                image: item.image || null,
+                rebusImages: Array.isArray(item.rebusImages) ? item.rebusImages : (item.rebusImages ? [item.rebusImages] : []),
                 factCheckingRequired: !!item.factCheckingRequired,
                 factCheckingSource: item.factCheckingSource || ''
             };

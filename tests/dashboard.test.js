@@ -113,7 +113,7 @@ describe('Dashboard Logic', () => {
         it('should generate correct question key', () => {
             const q = { question: 'What is 2+2?', correctAnswer: '4' };
             const key = TriviaDataService.getQuestionKey(q);
-            expect(key).toBe('what is 22|4');
+            expect(key).toBe('what is 22|4||');
         });
 
         it('should detect collisions and reuse existing question IDs', async () => {

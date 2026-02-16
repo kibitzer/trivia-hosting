@@ -58,12 +58,14 @@ window.TriviaDataService = {
     },
 
     /**
-     * Generates a unique key for a question based on its text and answer for collision detection.
+     * Generates a unique key for a question based on its text, answer, and images for collision detection.
      */
     getQuestionKey(q) {
         const text = (q.question || q.text || '').toLowerCase().trim().replace(/[^\w\s]/g, '');
         const ans = String(q.correctAnswer || q.answer || '').toLowerCase().trim();
-        return `${text}|${ans}`;
+        const image = q.image || '';
+        const rebus = Array.isArray(q.rebusImages) ? q.rebusImages.join('|') : (q.rebusImages || '');
+        return `${text}|${ans}|${image}|${rebus}`;
     },
 
     /**
