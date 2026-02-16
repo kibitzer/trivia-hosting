@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.4] - 2026-02-16
+
+### Added
+
+- **CI/CD**: Included Gemini-added GitHub commands and workflows for automated triage, review, and issue handling.
+
 ## [0.15.3] - 2026-02-16
 
 ### Fixed
