@@ -459,6 +459,11 @@ window.createEditorData = function (firebase, db, auth, storage) {
             if (this.currentQuiz.settings.enableCountdown === undefined) this.currentQuiz.settings.enableCountdown = true;
             if (this.currentQuiz.settings.countdownDuration === undefined) this.currentQuiz.settings.countdownDuration = 3;
 
+            // Ensure questions array exists
+            if (!this.currentQuiz.questions) {
+                this.currentQuiz.questions = [];
+            }
+
             // Backfill IDs and migrate Category to Tags + Normalize MC
             this.currentQuiz.questions.forEach((q) => {
                 if (!q.id) q.id = this._generateId();

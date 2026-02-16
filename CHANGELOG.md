@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.15.1] - 2026-02-16
+## [0.15.2] - 2026-02-16
+
+### Fixed
+
+- **Editor**: Fixed a crash that occurred when opening a quiz for editing if the `questions` array was missing or undefined in the database. This ensures the authentication verification screen correctly transitions to the editor workspace.
 
 ### Fixed
 
