@@ -4,87 +4,91 @@ To trigger a complete architectural overhaul (the "Dream Rebuild") of this proje
 
 ## The Trigger Prompt
 
-> "I want to start the Dream Rebuild. Please create a new directory named `trivia-v2` at the same level as the current repository. Let's create a plan to build a server-authoritative version of this app using React, TypeScript, and Vite. Please propose a high-level plan for the new architecture and the first steps we should take."
+> "I want to start the Dream Rebuild. Please create a new directory named `trivia-v2` at the same level as the current repository. Let's create a plan to build a server-authoritative, monorepo-based version of this app using React, TypeScript, and Vite. Please propose a high-level plan for the new architecture using Turborepo, Zod for shared schemas, and a hybrid Firestore/RTDB data strategy."
 
 ## Why the Dream Rebuild?
 
-The goal of this rebuild is to transition from a "no-build" vanilla JavaScript architecture to a production-grade system with:
+The goal of this rebuild is to transition from a "no-build" vanilla JavaScript architecture to a production-grade system. The current codebase has grown significantly in complexity (Question Bank, Rebus, Rich Text, complex validation), and the lack of type safety and component isolation is becoming a bottleneck.
 
-- **TypeScript:** For strict type safety and better developer ergonomics.
-- **Component-Driven UI:** Using **React** for a modular, maintainable frontend.
-- **Modern Build Stack:** Using **Vite** for blistering fast development and optimized production builds.
-- **Server-Authoritative Game Loop:** Moving game logic (timers, scoring) to Firebase Cloud Functions or a Node.js backend to prevent "Host dependency" and increase security.
-- **XState/State Machines:** To manage complex game states (waiting, countdown, active, revealed) deterministically.
-- **Monorepo Structure:** To share TypeScript interfaces between the Host and Player clients.
+**Core Goals:**
+- **Strict Type Safety:** End-to-end TypeScript coverage from Database to UI.
+- **Server-Authoritative Game Loop:** Moving critical logic (timers, scoring, answer validation) to **Cloud Functions** to prevent cheating and client desync.
+- **Monorepo Structure:** To share schemas (`packages/schema`) and UI components (`packages/ui`) between the Host, Player, and Editor apps.
+- **Scalable Data Model:** Moving persistent data (Quizzes, Question Bank) to **Firestore** while keeping the live game loop on **Realtime Database** for sub-millisecond latency.
 
-## Frontend & Build Stack
+## Architecture: The Monorepo
 
-The rebuild will utilise a modern, type-safe stack designed for performance and developer productivity.
+We will use **Turborepo** to manage the following workspaces:
 
-### 1. Vite (Build Tool)
-Vite is chosen for its lightning-fast Hot Module Replacement (HMR) and native ES Module support during development.
-- **Template:** `react-ts` (React + TypeScript).
-- **Path Aliases:** Use `@/` mapped to the `src` directory for clean imports (configured via `vite-tsconfig-paths`).
-- **Environment Variables:** All Firebase secrets must be prefixed with `VITE_` and accessed via `import.meta.env`.
-
-### 2. React (UI Library)
-Moving away from Alpine.js to React allows for a truly component-driven architecture.
-- **Hooks:** Custom hooks for Firebase synchronisation and game state management.
-- **Styling:** CSS Modules or Tailwind CSS for scoped, maintainable styles.
-
-### 3. PWA & Assets
-- **Vite Plugin PWA:** Automates the generation of service workers and manifest files, ensuring a robust offline-capable experience.
-- **Asset Optimisation:** Vite handles automatic image compression and bundling.
+| Workspace | Type | Purpose |
+| :--- | :--- | :--- |
+| `apps/host` | React (Vite) | The Dashboard and Game Control Panel. Focused on high-density information and management. |
+| `apps/player` | React (Vite) | Mobile-first PWA for players. Focused on performance, battery life, and offline resilience. |
+| `apps/editor` | React (Vite) | Desktop-class content creation tool. Heavily relies on forms, drag-and-drop, and rich text. |
+| `packages/schema` | Library | **Zod** schemas for all data models (Quiz, Question, GameState). Shared between frontend and backend. |
+| `packages/ui` | Library | Shared React components (Buttons, Cards, Timers) built with **Tailwind CSS**. |
+| `functions` | Backend | Firebase Cloud Functions for the authoritative game loop. |
 
 ## Comprehensive Tech Stack
 
-The following libraries are selected to maintain a professional, minimal, and performant application.
+The following libraries are selected to replace the current vanilla/Alpine.js implementations:
 
-| Library | Purpose | The "Why" |
-| :--- | :--- | :--- |
-| **Tailwind CSS** | Styling | Enforces design consistency via utility classes; eliminates large, messy CSS files. |
-| **Zod** | Validation | Bridges the gap between raw Firebase data and TypeScript; ensures runtime type safety. |
-| **React Router** | Navigation | Manages clean URLs (e.g., `/host`, `/player`) and handles protected route logic. |
-| **React Firebase Hooks** | Data Sync | Provides declarative hooks for Firebase services, reducing boilerplate and `useEffect` mess. |
-| **Zustand** | State Management | Lightweight and performant global state for UI logic (e.g., active tabs, modals). |
-| **React Hook Form** | Form Handling | Keeps the Quiz Editor snappy by using uncontrolled inputs to minimize re-renders. |
-| **date-fns** | Date Utilities | Small, modular library for complex date arithmetic and relative time strings. |
-| **Lucide React** | Icons | Provides a consistent library of lightweight, modern SVG icons for a minimal UI. |
-
-### Project Initialisation
-
-To set up the foundation for `trivia-v2`, run:
-
-```bash
-# 1. Create project
-npm create vite@latest trivia-v2 -- --template react-ts
-
-# 2. Install core dependencies
-cd trivia-v2
-npm install firebase react-firebase-hooks react-router-dom zustand zod react-hook-form date-fns lucide-react
-
-# 3. Install dev dependencies (Tailwind + PWA)
-npm install -D tailwindcss postcss autoprefixer vite-plugin-pwa vite-tsconfig-paths
-npx tailwindcss init -p
-```
+| Feature | Current Implementation | Rebuild Choice | The "Why" |
+| :--- | :--- | :--- | :--- |
+| **Build Tool** | None (Vanilla JS) | **Vite** | Blistering fast HMR and optimized production builds. |
+| **Language** | JavaScript (JSDoc) | **TypeScript** | Catch errors at compile time; strict interfaces for API/DB data. |
+| **UI Library** | Alpine.js + HTML strings | **React** | Component-driven, declarative UI. |
+| **Styling** | CSS Variables + Utility Classes | **Tailwind CSS** | Standardised, collocated styling with zero runtime cost. |
+| **State (Client)** | Alpine `x-data` | **Zustand** | Minimalist global state without provider hell. |
+| **State (Server)** | Manual Firebase Listeners | **TanStack Query** | Caching, deduplication, and loading states for Firestore/RTDB. |
+| **Forms** | Manual DOM manipulation | **React Hook Form** | Performant, uncontrolled inputs (crucial for the Editor). |
+| **Validation** | Manual checks | **Zod** | Schema-first validation that infers TypeScript types. |
+| **Rich Text** | Pell | **TipTap** | Headless, accessible, and fully customizable for the "compact" editor requirements. |
+| **Drag & Drop** | SortableJS | **dnd-kit** | Accessible, React-native drag-and-drop for slides and Rebus images. |
 
 ## Data Storage Strategy
 
-For a server-authoritative model, we recommend a hybrid storage approach:
+We will move to a **Hybrid Strategy** to balance cost, query power, and latency.
 
-- **Cloud Firestore (Primary):** Use for all persistent data including the Question Bank, Quizzes, User Profiles, and Game History. Its document-based structure maps perfectly to TypeScript interfaces.
-- **Realtime Database (Ephemeral):** Use strictly for the "Live Session" state (timers, active player counts, current slide). Its sub-millisecond latency ensures a responsive feel for players.
-- **Alternative (Supabase):** A strong contender if a relational (PostgreSQL) structure is preferred, offering built-in real-time subscriptions and auto-generated types.
+### 1. Cloud Firestore (Persistence)
+*Used for: Question Bank, Quiz Library, User Profiles, Game History.*
+- **Why?** Relational queries (filtering Question Bank by tags/type), pagination, and structured documents.
+- **Migration:** Existing JSON blobs in RTDB will be migrated to individual Firestore documents.
 
-## Estimated Costs
+### 2. Realtime Database (Ephemeral)
+*Used for: Live Game Sessions.*
+- **Why?** Lowest possible latency for synchronizing timer ticks (1s intervals) and player buzz-ins.
+- **Structure:** `sessions/{gameId}` containing only transient state (`currentSlide`, `timer`, `playerScores`).
 
-The modernized architecture is designed to stay within the **Firebase Spark (Free) Plan** for most hobby and small-event use cases.
+### 3. Cloud Storage
+*Used for: Images.*
+- **Why?** Store uploaded slide and Rebus images.
+- **Optimization:** Use Firebase Extensions to automatically resize/compress images for mobile players.
 
-| Component           | Free Tier (Spark)          | Blaze Plan (Pay-as-you-go) |
-| :------------------ | :------------------------- | :------------------------- |
-| **Firestore**       | 1GB storage, 50k reads/day | ~$0.06 per 100k reads      |
-| **RTDB**            | 10GB downloaded/month      | $1.00 per GB downloaded    |
-| **Cloud Functions** | 2M invocations/month       | ~$0.0000004 per invocation |
-| **Hosting**         | 10GB storage               | Minimal storage fees       |
+## Migration & Features to Port
 
-_Note: Cloud Functions require the Blaze plan (credit card on file), but you still benefit from the free usage tiers mentioned above._
+The Rebuild must verify the following complex features are correctly ported:
+
+1.  **Question Bank:** Advanced filtering, pagination, and "Import to Quiz" logic (currently in `editor-data.js`).
+2.  **Rich Text Editor:** Must support bold, italic, underline, and links, but remain visually compact (1-2 lines).
+3.  **Rebus Support:** Drag-and-drop image reordering and multi-image uploads.
+4.  **Tagging System:** Auto-complete, creation, and filtering.
+5.  **PWA:** Service Workers for offline resilience (keep `@vite-pwa/plugin`).
+
+## Project Initialisation
+
+```bash
+# 1. Initialize Turborepo
+npx create-turbo@latest trivia-v2
+# Select "npm" as client
+
+# 2. Add dependencies to packages/ui
+cd trivia-v2/packages/ui
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+
+# 3. Setup Apps
+# (Repeat for host, player, editor)
+cd ../../apps/host
+npm install firebase react-firebase-hooks zustand @tanstack/react-query date-fns lucide-react
+```
