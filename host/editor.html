@@ -182,10 +182,13 @@
                 border: 1px solid var(--color-border);
                 border-radius: var(--radius-md);
                 overflow: hidden;
+                display: flex;
+                flex-direction: column;
             }
             .pell-actionbar {
                 background-color: var(--color-bg) !important;
                 border-bottom: 1px solid var(--color-border) !important;
+                flex-shrink: 0;
             }
             .pell-button {
                 background-color: transparent !important;
@@ -201,8 +204,13 @@
             }
             .pell-content {
                 padding: 0.75rem 1rem !important;
-                min-height: 60px !important;
                 outline: none !important;
+                flex: 1;
+                height: auto !important;
+                min-height: 40px !important;
+            }
+            .rte-compact .pell-content {
+                min-height: 40px !important;
             }
 
             /* Tagging UI */
@@ -477,7 +485,7 @@
 
                                     <div class="flex-col gap-2">
                                         <label class="text-xs font-extrabold text-muted">QUESTION TEXT</label>
-                                        <div class="rte-container" x-init="initRTE($el, 'question', currentQuiz.questions[selectedQuestionIndex].question)" :key="'q-rte-' + currentQuiz.questions[selectedQuestionIndex].id" style="min-height: 60px;"></div>
+                                        <div class="rte-container rte-compact" x-init="initRTE($el, 'question', currentQuiz.questions[selectedQuestionIndex].question)" :key="'q-rte-' + currentQuiz.questions[selectedQuestionIndex].id"></div>
                                     </div>
 
                                     <template x-if="currentQuiz.questions[selectedQuestionIndex].type !== 'rebus'">
@@ -545,18 +553,21 @@
                                     </template>
 
                                     <!-- Host Tools -->
-                                    <div class="grid items-start mt-8 pt-8 border-t" style="grid-template-columns: 1fr 1fr; gap: 2rem;">
-                                        <div class="flex-col gap-4">
-                                            <label class="flex items-center gap-2 cursor-pointer">
-                                                <input type="checkbox" x-model="currentQuiz.questions[selectedQuestionIndex].factCheckingRequired" style="width: 1.25rem; height: 1.25rem;">
-                                                <span class="text-xs font-extrabold text-muted">FACT CHECK REQUIRED</span>
-                                            </label>
-                                            <label class="text-xs font-extrabold text-muted">SOURCE VERIFICATION</label>
-                                            <div class="rte-container" x-init="initRTE($el, 'factCheckingSource', currentQuiz.questions[selectedQuestionIndex].factCheckingSource)" :key="'s-rte-' + currentQuiz.questions[selectedQuestionIndex].id" style="height: 120px;"></div>
-                                        </div>
-                                        <div class="flex-col gap-4">
-                                            <label class="text-xs font-extrabold text-muted">HOST NOTES</label>
-                                            <div class="rte-container" x-init="initRTE($el, 'notes', currentQuiz.questions[selectedQuestionIndex].notes)" :key="'n-rte-' + currentQuiz.questions[selectedQuestionIndex].id" style="height: 120px;"></div>
+                                    <div class="flex-col mt-8 pt-8 border-t gap-6">
+                                        <label class="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" x-model="currentQuiz.questions[selectedQuestionIndex].factCheckingRequired" style="width: 1.25rem; height: 1.25rem;">
+                                            <span class="text-xs font-extrabold text-muted">FACT CHECK REQUIRED</span>
+                                        </label>
+
+                                        <div class="grid items-start" style="grid-template-columns: 1fr 1fr; gap: 2rem;">
+                                            <div class="flex-col gap-2">
+                                                <label class="text-xs font-extrabold text-muted">SOURCE VERIFICATION</label>
+                                                <div class="rte-container" x-init="initRTE($el, 'factCheckingSource', currentQuiz.questions[selectedQuestionIndex].factCheckingSource)" :key="'s-rte-' + currentQuiz.questions[selectedQuestionIndex].id" style="height: 120px;"></div>
+                                            </div>
+                                            <div class="flex-col gap-2">
+                                                <label class="text-xs font-extrabold text-muted">HOST NOTES</label>
+                                                <div class="rte-container" x-init="initRTE($el, 'notes', currentQuiz.questions[selectedQuestionIndex].notes)" :key="'n-rte-' + currentQuiz.questions[selectedQuestionIndex].id" style="height: 120px;"></div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

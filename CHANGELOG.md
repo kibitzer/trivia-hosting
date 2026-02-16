@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Editor UI**: Completed the reordering of editing panels and fixed alignment of Host Tools (#47).
+- **Editor UI**: Finalised Rich Text Editor height optimisation for questions to ensure a compact layout (#47).
+
 ## [0.15.5] - 2026-02-16
 
 ### Changed
