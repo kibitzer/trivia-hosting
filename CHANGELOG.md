@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.5] - 2026-02-16
+
+### Changed
+
+- **Editor UI**: Reordered editing panels to place Question Tags at the top.
+- **Editor UI**: Added thumbnail previews for slide and round background images.
+- **Editor UI**: Optimised Rich Text Editor height for questions to reduce whitespace.
+- **Editor UI**: Improved alignment of Host Tools (Source Verification and Notes) for better readability.
+
 ## [0.15.4] - 2026-02-16
 
 ### Added
