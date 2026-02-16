@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.7] - 2026-02-16
+
+### Changed
+
+- **Project Configuration**: Strengthened skill mandates for `changelog-maintenance` and `regression-tester` in the project protocol.
+
 ### Fixed
 
 - **Editor UI**: Completed the reordering of editing panels and fixed alignment of Host Tools (#47).
