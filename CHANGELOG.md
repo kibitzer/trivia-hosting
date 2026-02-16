@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Host Control Panel**: Fixed a bug where the "Skip Timer" button was non-functional due to a missing `stopTimer` implementation in `host-data.js`.
+
 ### Changed
 
 - **Documentation**: Updated `docs/IMPORT.md` to comprehensively document both Question Bank and full Quiz import formats, including JSON structure, CSV title prefixes (`#`), and the `round-title` slide type.

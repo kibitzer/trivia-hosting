@@ -289,6 +289,11 @@ window.createHostData = function (firebase, db, auth, analytics) {
                 this.autoRevealTimeout = null;
             }
         },
+        stopTimer() {
+            this.stopAllTimers();
+            this.timerValue = 0;
+            this.timerStatus = 'ended';
+        },
         checkAutoReveal() {
             if (
                 !this.autoReveal ||
