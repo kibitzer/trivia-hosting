@@ -525,4 +525,65 @@ describe('Editor Logic', () => {
             expect(TriviaUI.notifySuccess).toHaveBeenCalledWith(expect.stringContaining('Created 1 new questions, skipped 1 duplicates'));
         });
     });
+
+    describe('Export Logic', () => {
+        beforeEach(() => {
+            editor.globalQuestions = {
+                'q1': { question: 'Q1', correctAnswer: 'A1', type: 'multiple', tags: ['T1'], options: ['A1', 'B1'], difficulty: 'Easy', timer: 30 },
+                'q2': { question: 'Q2', correctAnswer: 'A2', type: 'short', tags: ['T2'], difficulty: 'Medium', timer: 20 }
+            };
+
+            // Mock URL methods
+            global.URL.createObjectURL = vi.fn(() => 'blob:url');
+            global.URL.revokeObjectURL = vi.fn();
+            
+            // Spy on anchor element creation and click
+            const originalCreateElement = document.createElement.bind(document);
+            vi.spyOn(document, 'createElement').mockImplementation((tagName) => {
+                const el = originalCreateElement(tagName);
+                if (tagName.toLowerCase() === 'a') {
+                    vi.spyOn(el, 'click').mockImplementation(() => {});
+                }
+                return el;
+            });
+        });
+
+        afterEach(() => {
+            vi.restoreAllMocks();
+        });
+
+        it('should escape CSV values correctly', () => {
+            expect(editor._csvEscape('hello')).toBe('"hello"');
+            expect(editor._csvEscape('hello "world"')).toBe('"hello ""world"""');
+            expect(editor._csvEscape('')).toBe('""');
+            expect(editor._csvEscape(null)).toBe('""');
+        });
+
+        it('should export all questions as JSON', () => {
+            editor.exportBankQuestions('json', 'all');
+            
+            expect(global.URL.createObjectURL).toHaveBeenCalled();
+            const blob = global.URL.createObjectURL.mock.calls[0][0];
+            expect(blob.type).toBe('application/json');
+            
+            expect(TriviaUI.notifySuccess).toHaveBeenCalledWith(expect.stringContaining('Exported 2 questions'));
+        });
+
+        it('should export filtered questions as CSV', () => {
+            editor.bankSearchQuery = 'Q1'; // This should filter to q1 only in filteredBankQuestions
+            editor.exportBankQuestions('csv', 'filtered');
+            
+            expect(global.URL.createObjectURL).toHaveBeenCalled();
+            const blob = global.URL.createObjectURL.mock.calls[0][0];
+            expect(blob.type).toBe('text/csv');
+            
+            expect(TriviaUI.notifySuccess).toHaveBeenCalledWith(expect.stringContaining('Exported 1 questions'));
+        });
+
+        it('should show info message if no questions to export', () => {
+            editor.globalQuestions = {};
+            editor.exportBankQuestions('json', 'all');
+            expect(global.Swal.fire).toHaveBeenCalledWith('No Data', expect.any(String), 'info');
+        });
+    });
 });

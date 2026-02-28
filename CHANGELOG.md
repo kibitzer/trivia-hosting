@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.9] - 2026-02-28
+
+### Added
+
+- **Question Bank**: Implemented question export functionality, allowing users to export bank questions in JSON or CSV formats (#8).
+
 ### Changed
 
 - **Collision Detection**: Enhanced question deduplication logic to include visual assets (images and rebus images) in the comparison key, preventing false positives for questions with identical text but different visual aids (#48).

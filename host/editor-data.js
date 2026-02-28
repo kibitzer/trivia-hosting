@@ -820,6 +820,101 @@ window.createEditorData = function (firebase, db, auth, storage) {
             }
         },
 
+        _csvEscape(str) {
+            if (!str) return '""';
+            const s = String(str).replace(/"/g, '""');
+            return `"${s}"`;
+        },
+
+        async openExportModal() {
+            const { value: formValues } = await Swal.fire({
+                title: 'Export Questions',
+                html: `
+                    <div class="flex-col gap-4 text-left">
+                        <div class="flex-col gap-2">
+                            <label class="text-xs font-extrabold text-muted">EXPORT SCOPE</label>
+                            <select id="export-scope" class="swal2-input" style="margin: 0; width: 100%;">
+                                <option value="filtered">Current Search Results (${this.filteredBankQuestions.length})</option>
+                                <option value="all">All Questions (${Object.keys(this.globalQuestions).length})</option>
+                            </select>
+                        </div>
+                        <div class="flex-col gap-2">
+                            <label class="text-xs font-extrabold text-muted">FILE FORMAT</label>
+                            <select id="export-format" class="swal2-input" style="margin: 0; width: 100%;">
+                                <option value="json">JSON (.json)</option>
+                                <option value="csv">CSV (.csv)</option>
+                            </select>
+                        </div>
+                    </div>
+                `,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'Export Now',
+                preConfirm: () => {
+                    return {
+                        scope: document.getElementById('export-scope').value,
+                        format: document.getElementById('export-format').value
+                    };
+                }
+            });
+
+            if (formValues) {
+                this.exportBankQuestions(formValues.format, formValues.scope);
+            }
+        },
+
+        exportBankQuestions(format, scope) {
+            const questions = scope === 'all' 
+                ? Object.entries(this.globalQuestions).map(([id, data]) => ({ id, ...data }))
+                : this.filteredBankQuestions;
+
+            if (questions.length === 0) {
+                return Swal.fire('No Data', 'There are no questions to export.', 'info');
+            }
+
+            let content = '';
+            let fileName = `trivia-questions-${new Date().toISOString().split('T')[0]}`;
+
+            if (format === 'json') {
+                content = JSON.stringify(questions, null, 2);
+                fileName += '.json';
+            } else {
+                const headers = ['ID', 'Type', 'Question', 'Correct Answer', 'Options', 'Tags', 'Difficulty', 'Timer', 'Notes', 'Image', 'Fact Check Source'];
+                const rows = [headers.join(',')];
+
+                questions.forEach(q => {
+                    const row = [
+                        this._csvEscape(q.id),
+                        this._csvEscape(q.type),
+                        this._csvEscape(q.question),
+                        this._csvEscape(Array.isArray(q.correctAnswer) ? q.correctAnswer.join(', ') : q.correctAnswer),
+                        this._csvEscape((q.options || []).join('|')),
+                        this._csvEscape((q.tags || []).join('|')),
+                        this._csvEscape(q.difficulty),
+                        this._csvEscape(q.timer),
+                        this._csvEscape(q.notes),
+                        this._csvEscape(q.image),
+                        this._csvEscape(q.factCheckingSource)
+                    ];
+                    rows.push(row.join(','));
+                });
+                content = rows.join('\n');
+                fileName += '.csv';
+            }
+
+            const blob = new Blob([content], { type: format === 'json' ? 'application/json' : 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            TriviaUI.notifySuccess(`Exported ${questions.length} questions to ${fileName}`);
+        },
+
         async removeQuestion(index) {
             const result = await Swal.fire({
                 title: 'Remove Question?',
